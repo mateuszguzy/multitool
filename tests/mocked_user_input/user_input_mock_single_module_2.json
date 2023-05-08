@@ -1,0 +1,31 @@
+{
+  "use_type": "single_module",
+  "phase": null,
+  "module": "email_scraping",
+  "input_type": "single",
+  "recon": {
+    "dir_bruteforce": {
+      "list_size": "small"
+    }
+  },
+  "scan": {
+    "port_scan": {
+      "ports_to_scan": []
+    },
+    "enumeration": {
+      "services": []
+    }
+  },
+  "gain_access": {
+    "lfi_rfi": {
+      "url_is_known": false,
+      "url": []
+    },
+    "file_upload": {
+      "url_is_known": false,
+      "url": []
+    }
+  },
+  "output_after_every_phase": false,
+  "output_after_every_finding": true
+}
