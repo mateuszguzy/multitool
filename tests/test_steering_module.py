@@ -35,3 +35,20 @@ def test_run_single_phase(test_input_2):
             output_to_check += value
 
     assert output_to_check == mocked_output
+
+
+def test_run_all(test_input_3):
+    """
+    Test function for 'run_all' - an overall application launch.
+    """
+    mocked_output_1 = "Running: RECON"
+    mocked_output_2 = "Running: SCAN"
+    output_to_check = str()
+
+    with patch.object(SteeringModule, f"_run_recon", return_value=mocked_output_1):
+        with patch.object(SteeringModule, f"_run_scan", return_value=mocked_output_2):
+            returned_generator = test_input_3._run_all()
+            for value in returned_generator:
+                output_to_check += value
+
+    assert output_to_check == mocked_output_1 + mocked_output_2

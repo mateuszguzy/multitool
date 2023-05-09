@@ -3,7 +3,8 @@ from utils.utils import (
     create_steering_module_instance_with_user_input,
 )
 
-USER_INPUT_MOCK = "tests/mocked_user_input/user_input_mock_single_phase_1.json"
+USER_INPUT_MOCK = "tests/mocked_user_input/user_input_mock_run_all_1.json"
+# USER_INPUT_MOCK = "tests/mocked_user_input/user_input_mock_single_phase_1.json"
 # USER_INPUT_MOCK = "tests/mocked_user_input/user_input_mock_single_module_1.json"
 
 

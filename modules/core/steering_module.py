@@ -89,9 +89,10 @@ class SteeringModule(Module):
         Run all the functionalities that app holds.
         """
         # TODO: multithreading
-        self._run_phase("recon")
-        self._run_phase("scan")
-        yield
+        for value in self._run_phase("recon"):
+            yield value
+        for value in self._run_phase("scan"):
+            yield value
 
     def _run_phase(self, phase: str) -> Generator:
         """
