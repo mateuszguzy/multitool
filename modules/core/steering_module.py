@@ -1,5 +1,6 @@
 import json
 from collections.abc import Generator
+from configparser import ConfigParser
 
 from modules.scan.port_scan import PortScan
 from utils.abstracts_classes import Module
@@ -9,11 +10,13 @@ from modules.recon.email_scraping import EmailScraping
 
 
 class SteeringModule(Module):
-    recon_phase_modules = ["dir_bruteforce", "email_scraping", "credential_leaks_check"]
-    scan_phase_modules = ["port_scan", "file_upload_form", "file_inclusion_url"]
-
     def __init__(self, user_input: json) -> None:
         self._assign_json_values_to_class_attributes(user_input=user_input)
+        config = ConfigParser()
+        config.read("config.ini")
+        steering_module_config = config["STEERING_MODULE"]
+        self.recon_phase_modules = steering_module_config["recon"].split("\n")
+        self.scan_phase_modules = steering_module_config["scan"].split("\n")
 
     def run(self) -> Generator:
         """
@@ -88,7 +91,6 @@ class SteeringModule(Module):
         """
         Run all the functionalities that app holds.
         """
-        # TODO: multithreading
         for value in self._run_phase("recon"):
             yield value
         for value in self._run_phase("scan"):
@@ -99,7 +101,6 @@ class SteeringModule(Module):
         Run single phase of hacking process.
         :param phase: e.g. recon / scan / gain_access / maintain_access / cover_tracks
         """
-        # TODO: multithreading
         if phase == "recon":
             for value in self._run_recon():
                 yield value
