@@ -2,6 +2,8 @@ import json
 from collections.abc import Generator
 from configparser import ConfigParser
 
+from pydantic import BaseModel
+
 from modules.scan.port_scan import PortScan
 from utils.abstracts_classes import Module
 from modules.recon.credential_leaks_check import CredentialLeaksCheck
@@ -9,8 +11,25 @@ from modules.recon.directory_bruteforce import DirectoryBruteforce
 from modules.recon.email_scraping import EmailScraping
 
 
-class SteeringModule(Module):
+class SteeringModule(Module, BaseModel):
+    use_type: str = str()
+    phase: str = str()
+    module: str = str()
+    input_type: str = str()
+    dir_bruteforce_list_size: str = str()
+    ports_to_scan: list[int] = list()
+    services_to_enumerate: list[str] = list()
+    lfi_rfi_url_known: bool = bool()
+    lfi_rfi_url: str = str()
+    file_upload_url_known: bool = bool()
+    file_upload_url: str = str()
+    output_after_every_phase: bool = bool()
+    output_after_every_finding: bool = bool()
+    recon_phase_modules: list[str] = list()
+    scan_phase_modules: list[str] = list()
+
     def __init__(self, user_input: json) -> None:
+        super().__init__()
         self._assign_json_values_to_class_attributes(user_input=user_input)
         config = ConfigParser()
         config.read("config.ini")
