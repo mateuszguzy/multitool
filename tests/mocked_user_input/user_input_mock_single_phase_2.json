@@ -3,6 +3,7 @@
   "phase": "scan",
   "module": null,
   "input_type": "single",
+  "input": [],
   "recon": {
     "dir_bruteforce": {
       "list_size": "small"

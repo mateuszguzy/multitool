@@ -16,6 +16,7 @@ class SteeringModule(Module, BaseModel):
     phase: str = str()
     module: str = str()
     input_type: str = str()
+    input: list = list()
     dir_bruteforce_list_size: str = str()
     ports_to_scan: list[int] = list()
     services_to_enumerate: list[str] = list()

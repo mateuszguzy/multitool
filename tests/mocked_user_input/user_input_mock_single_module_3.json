@@ -3,6 +3,7 @@
   "phase": null,
   "module": "credential_leaks_check",
   "input_type": "single",
+  "input": [],
   "recon": {
     "dir_bruteforce": {
       "list_size": "small"
