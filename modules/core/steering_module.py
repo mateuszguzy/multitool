@@ -16,9 +16,10 @@ class SteeringModule(Module, BaseModel):
     phase: str = str()
     module: str = str()
     input_type: str = str()
-    input: list = list()
+    input: list[str] = list()
     dir_bruteforce_list_size: str = str()
-    ports_to_scan: list[int] = list()
+    ports_to_scan: str = str()
+    custom_ports_to_scan: list[int] = list()
     services_to_enumerate: list[str] = list()
     lfi_rfi_url_known: bool = bool()
     lfi_rfi_url: str = str()
@@ -160,10 +161,14 @@ class SteeringModule(Module, BaseModel):
         self.phase = user_input["phase"]
         self.module = user_input["module"]
         self.input_type = user_input["input_type"]
+        self.input = user_input["input"]
         self.dir_bruteforce_list_size = user_input["recon"]["dir_bruteforce"][
             "list_size"
         ]
         self.ports_to_scan = user_input["scan"]["port_scan"]["ports_to_scan"]
+        self.custom_ports_to_scan = user_input["scan"]["port_scan"][
+            "custom_ports_to_scan"
+        ]
         self.services_to_enumerate = user_input["scan"]["enumeration"]["services"]
         self.lfi_rfi_url_known = user_input["gain_access"]["lfi_rfi"]["url_is_known"]
         self.lfi_rfi_url = user_input["gain_access"]["lfi_rfi"]["url"]
