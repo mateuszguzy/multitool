@@ -1,14 +1,14 @@
 import json
 from collections.abc import Generator
-from configparser import ConfigParser
 
 from pydantic import BaseModel
 
-from modules.scan.port_scan import PortScan
-from utils.abstracts_classes import Module
 from modules.recon.credential_leaks_check import CredentialLeaksCheck
 from modules.recon.directory_bruteforce import DirectoryBruteforce
 from modules.recon.email_scraping import EmailScraping
+from modules.scan.port_scan import PortScan
+from settings import RECON_PHASE_MODULES, SCAN_PHASE_MODULES
+from utils.abstracts_classes import Module
 
 
 class SteeringModule(Module, BaseModel):
@@ -33,11 +33,8 @@ class SteeringModule(Module, BaseModel):
     def __init__(self, user_input: json) -> None:
         super().__init__()
         self._assign_json_values_to_class_attributes(user_input=user_input)
-        config = ConfigParser()
-        config.read("config.ini")
-        steering_module_config = config["STEERING_MODULE"]
-        self.recon_phase_modules = steering_module_config["recon"].split("\n")
-        self.scan_phase_modules = steering_module_config["scan"].split("\n")
+        self.recon_phase_modules = RECON_PHASE_MODULES
+        self.scan_phase_modules = SCAN_PHASE_MODULES
 
     def run(self) -> Generator:
         """
