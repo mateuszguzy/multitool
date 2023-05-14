@@ -3,7 +3,7 @@
   "phase": null,
   "module": "dir_bruteforce",
   "input_type": "single",
-  "input": [],
+  "input": ["http://0.0.0.0/"],
   "recon": {
     "dir_bruteforce": {
       "list_size": "small"

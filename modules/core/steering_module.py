@@ -7,7 +7,7 @@ from modules.recon.credential_leaks_check import CredentialLeaksCheck
 from modules.recon.directory_bruteforce import DirectoryBruteforce
 from modules.recon.email_scraping import EmailScraping
 from modules.scan.port_scan import PortScan
-from settings import RECON_PHASE_MODULES, SCAN_PHASE_MODULES
+from config.settings import RECON_PHASE_MODULES, SCAN_PHASE_MODULES
 from utils.abstracts_classes import Module
 
 
@@ -53,15 +53,17 @@ class SteeringModule(Module, BaseModel):
                 yield value
 
     # --- MODULES
-    @staticmethod
-    def _dir_bruteforce() -> Generator:
+    def _dir_bruteforce(self) -> Generator:
         """
         Function launching directory bruteforce module.
         """
-        dir_bruteforce = DirectoryBruteforce()
-        output = dir_bruteforce.run()
-
-        yield output
+        for url_to_check in self.input:
+            dir_bruteforce = DirectoryBruteforce(
+                list_size=self.dir_bruteforce_list_size, request_url=url_to_check
+            )
+            output = dir_bruteforce.run()
+            for value in output:
+                yield value
 
     @staticmethod
     def _email_scraping() -> Generator:
