@@ -17,7 +17,7 @@ class DirectoryBruteforce(Module, BaseModel):
     def __init__(self, request_url: str, list_size: str) -> None:
         super().__init__()
         self.request_url = request_url
-        self.file_path = f"{BASE_DIR}{WORDLISTS_DIR}/dir_bruteforce_{list_size}.txt"
+        self.file_path = f"{WORDLISTS_DIR}/dir_bruteforce_{list_size}.txt"
 
     def run(self):
         self._run_with_multiprocessing()

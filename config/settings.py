@@ -2,7 +2,7 @@ from pathlib import Path
 
 # --- DIRECTORIES
 BASE_DIR = Path(__file__).resolve().parent.parent
-WORDLISTS_DIR = "/utils/wordlists"
+WORDLISTS_DIR = f"{BASE_DIR}/utils/wordlists"
 LOG_DIR = f"{BASE_DIR}/logs/"
 
 # --- STEERING MODULE
