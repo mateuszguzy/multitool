@@ -1,11 +1,13 @@
-import logging
 from typing import ContextManager
 
 import requests
 from pydantic import BaseModel
 from requests.exceptions import ConnectionError
 
+from modules.helper.logger import Logger
 from utils.abstracts_classes import Module
+
+logger = Logger(__name__)
 
 
 class RequestManager(ContextManager, Module, BaseModel):
@@ -37,6 +39,7 @@ class RequestManager(ContextManager, Module, BaseModel):
             try:
                 return self.session.get(url=url, allow_redirects=False)
             except ConnectionError as e:
-                logging.error(f"Connection Error: {e}")
+                logger.run()
+                logger.log_error(f"Connection Error: {e}")
                 # TODO: change app behaviour after ConnectionError
                 exit()
