@@ -1,5 +1,6 @@
 import pytest
 
+from modules.network.request_manager import RequestManager
 from utils.utils import create_steering_module_instance_with_user_input
 
 USER_INPUT_MOCK_SINGLE_MODULE_1 = (
@@ -51,3 +52,21 @@ def test_input_2(request):
 )
 def test_input_3(request):
     return create_steering_module_instance_with_user_input(request.param)
+
+
+@pytest.fixture(
+    scope="module",
+    params=[
+        "get",
+        "GET",
+        "post",
+        "POST",
+        "delete",
+        "DELETE",
+    ],
+)
+def request_manager(request):
+    request_manager = RequestManager(
+        method=request.param, url="https://www.example.com"
+    )
+    return request_manager
