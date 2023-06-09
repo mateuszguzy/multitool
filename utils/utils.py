@@ -1,7 +1,7 @@
 import json
 from collections.abc import Generator
 
-from modules.core.steering_module import SteeringModule
+from modules.core.steering_module.steering_module import SteeringModule
 
 
 def print_generator_values(generator: Generator) -> None:
