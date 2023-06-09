@@ -1,6 +1,6 @@
 from unittest.mock import patch
 
-from modules.core.steering_module import SteeringModule
+from modules.core.steering_module.steering_module import SteeringModule
 
 
 def test_run_single_module(test_input_1):
