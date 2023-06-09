@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 
-class Module(ABC):
+class AbstractModule(ABC):
     @abstractmethod
     def run(self):
         pass
