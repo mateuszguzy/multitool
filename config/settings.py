@@ -1,13 +1,23 @@
 from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# --- GENERAL
+NUMBER_OF_AVAILABLE_CPU_CORES = multiprocessing.cpu_count() + 2
 
 # --- DIRECTORIES
 BASE_DIR = Path(__file__).resolve().parent.parent
 WORDLISTS_DIR = f"{BASE_DIR}/utils/wordlists"
 LOG_DIR = f"{BASE_DIR}/logs/"
 
-# --- STEERING MODULE
+# --- MODULES
+# STEERING
 RECON_PHASE_MODULES = ["dir_bruteforce", "email_scraping", "credential_leaks_check"]
 SCAN_PHASE_MODULES = ["port_scan", "file_upload_form", "file_inclusion_url"]
+
+# DIRECTORY_BRUTEFORCE
+DIR_BRUTEFORCE_REQUEST_METHOD = "GET"
 
 # --- LOGGING
 LOGGING_LEVEL = "DEBUG"  # development

@@ -4,10 +4,10 @@ from datetime import datetime
 from pydantic import BaseModel
 
 from config.settings import LOGGING_LEVEL, LOG_DIR, LOG_FORMAT
-from utils.abstracts_classes import Module
+from utils.abstracts_classes import AbstractModule
 
 
-class Logger(Module, BaseModel):
+class Logger(AbstractModule, BaseModel):
     module: str = str()
     logger: logging.Logger = object()
     formatter: logging.Formatter = object()
@@ -24,7 +24,7 @@ class Logger(Module, BaseModel):
         self.formatter = logging.Formatter(LOG_FORMAT)
 
     def run(self):
-        timestamp = datetime.now().strftime("%Y%m%d-%H:%M:%S")
+        timestamp = datetime.now().strftime("%Y%m%d")
         handler = logging.FileHandler(filename=f"{LOG_DIR}{timestamp}_{self.module}")
         handler.setFormatter(self.formatter)
         self.logger.addHandler(handler)

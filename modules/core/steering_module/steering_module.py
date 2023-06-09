@@ -3,15 +3,17 @@ from collections.abc import Generator
 
 from pydantic import BaseModel
 
-from modules.recon.credential_leaks_check import CredentialLeaksCheck
-from modules.recon.directory_bruteforce import DirectoryBruteforce
-from modules.recon.email_scraping import EmailScraping
-from modules.scan.port_scan import PortScan
 from config.settings import RECON_PHASE_MODULES, SCAN_PHASE_MODULES
-from utils.abstracts_classes import Module
+from modules.recon.credential_leaks_check.credential_leaks_check import (
+    CredentialLeaksCheck,
+)
+from modules.recon.directory_bruteforce.directory_bruteforce import DirectoryBruteforce
+from modules.recon.email_scraping.email_scraping import EmailScraping
+from modules.scan.port_scan.port_scan import PortScan
+from utils.abstracts_classes import AbstractModule
 
 
-class SteeringModule(Module, BaseModel):
+class SteeringModule(AbstractModule, BaseModel):
     use_type: str = str()
     phase: str = str()
     module: str = str()

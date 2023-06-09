@@ -5,12 +5,12 @@ from pydantic import BaseModel
 from requests.exceptions import ConnectionError
 
 from modules.helper.logger import Logger
-from utils.abstracts_classes import Module
+from utils.abstracts_classes import AbstractModule
 
 logger = Logger(__name__)
 
 
-class RequestManager(ContextManager, Module, BaseModel):
+class RequestManager(ContextManager, AbstractModule, BaseModel):
     method: str = str()
     url: str = str()
     session: requests.Session = object()
