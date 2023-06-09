@@ -1,6 +1,6 @@
 import pytest
 
-from modules.network.request_manager import RequestManager
+from modules.network.request_manager.request_manager import RequestManager
 from utils.utils import create_steering_module_instance_with_user_input
 
 USER_INPUT_MOCK_SINGLE_MODULE_1 = (
