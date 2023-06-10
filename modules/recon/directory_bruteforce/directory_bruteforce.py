@@ -1,7 +1,6 @@
 from multiprocessing import Pool
 
 import celery
-from pydantic import BaseModel
 
 from config.settings import (
     WORDLISTS_DIR,
@@ -14,7 +13,7 @@ from modules.task_queue.tasks import web_request
 from utils.abstracts_classes import AbstractModule
 
 
-class DirectoryBruteforce(AbstractModule, BaseModel):
+class DirectoryBruteforce(AbstractModule):
     request_method: str = DIR_BRUTEFORCE_REQUEST_METHOD
     request_url: str = str()
     file_path: str = str()
