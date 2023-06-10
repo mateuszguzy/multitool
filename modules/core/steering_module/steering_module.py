@@ -1,8 +1,6 @@
 import json
 from collections.abc import Generator
 
-from pydantic import BaseModel
-
 from config.settings import RECON_PHASE_MODULES, SCAN_PHASE_MODULES
 from modules.recon.credential_leaks_check.credential_leaks_check import (
     CredentialLeaksCheck,
@@ -13,7 +11,7 @@ from modules.scan.port_scan.port_scan import PortScan
 from utils.abstracts_classes import AbstractModule
 
 
-class SteeringModule(AbstractModule, BaseModel):
+class SteeringModule(AbstractModule):
     use_type: str = str()
     phase: str = str()
     module: str = str()
