@@ -28,8 +28,6 @@ class DirectoryBruteforce(AbstractModule):
     def run(self):
         # self._run_with_multiprocessing()
         self._run_with_celery()
-        for value in self.results:
-            yield value
 
     def _run_with_multiprocessing(self):
         self._read_wordlist()
@@ -57,11 +55,13 @@ class DirectoryBruteforce(AbstractModule):
         ]
 
         results = celery.group(tasks).apply_async()
-        self.results = [result for result in results.join() if result is not None]
 
         with RedisClient() as rc:
-            for result in self.results:
+            [
                 rc.set(f"dir_bruteforce_{result}:", result)
+                for result in results.join()
+                if result is not None
+            ]
 
     def _read_wordlist(self) -> None:
         """
