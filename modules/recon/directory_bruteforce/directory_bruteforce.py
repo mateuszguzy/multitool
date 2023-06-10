@@ -8,6 +8,7 @@ from config.settings import (
     NUMBER_OF_AVAILABLE_CPU_CORES,
     DIR_BRUTEFORCE_REQUEST_METHOD,
 )
+from modules.helper.redis_client import RedisClient
 from modules.network.request_manager.request_manager import RequestManager
 from modules.task_queue.tasks import web_request
 from utils.abstracts_classes import AbstractModule
@@ -40,7 +41,6 @@ class DirectoryBruteforce(AbstractModule, BaseModel):
 
             # iterates through the multiprocess functions results every time a new output occurs
             for result in results:
-
                 # filter out all empty values (negative results) returned by multiprocess functions
                 if result is not None:
                     self.results.append(result)
@@ -59,6 +59,10 @@ class DirectoryBruteforce(AbstractModule, BaseModel):
 
         results = celery.group(tasks).apply_async()
         self.results = [result for result in results.join() if result is not None]
+
+        with RedisClient() as rc:
+            for result in self.results:
+                rc.set(f"dir_bruteforce_{result}:", result)
 
     def _read_wordlist(self) -> None:
         """

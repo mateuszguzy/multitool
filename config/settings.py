@@ -8,6 +8,11 @@ load_dotenv()
 # --- GENERAL
 NUMBER_OF_AVAILABLE_CPU_CORES = multiprocessing.cpu_count() + 2
 
+# DB / REDIS
+REDIS_PORT = os.getenv("REDIS_PORT")
+REDIS_DB = os.getenv("REDIS_DB")
+REDIS_URL = os.getenv("REDIS_URL")
+
 # --- DIRECTORIES
 BASE_DIR = Path(__file__).resolve().parent.parent
 WORDLISTS_DIR = f"{BASE_DIR}/utils/wordlists"
