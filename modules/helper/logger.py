@@ -1,13 +1,11 @@
 import logging
 from datetime import datetime
 
-from pydantic import BaseModel
-
 from config.settings import LOGGING_LEVEL, LOG_DIR, LOG_FORMAT
 from utils.abstracts_classes import AbstractModule
 
 
-class Logger(AbstractModule, BaseModel):
+class Logger(AbstractModule):
     module: str = str()
     logger: logging.Logger = object()
     formatter: logging.Formatter = object()

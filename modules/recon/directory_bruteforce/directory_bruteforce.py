@@ -1,7 +1,5 @@
 from multiprocessing import Pool
 
-from pydantic import BaseModel
-
 from config.settings import (
     WORDLISTS_DIR,
     NUMBER_OF_AVAILABLE_CPU_CORES,
@@ -11,7 +9,7 @@ from modules.network.request_manager.request_manager import RequestManager
 from utils.abstracts_classes import AbstractModule
 
 
-class DirectoryBruteforce(AbstractModule, BaseModel):
+class DirectoryBruteforce(AbstractModule):
     request_method: str = DIR_BRUTEFORCE_REQUEST_METHOD
     request_url: str = str()
     file_path: str = str()
@@ -24,7 +22,7 @@ class DirectoryBruteforce(AbstractModule, BaseModel):
         self.file_path = f"{WORDLISTS_DIR}/dir_bruteforce_{list_size}.txt"
 
     def run(self):
-        # self._run_with_multiprocessing()
+        self._run_with_multiprocessing()
         for value in self.results:
             yield value
 

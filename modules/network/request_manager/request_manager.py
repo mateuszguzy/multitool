@@ -1,7 +1,6 @@
 from typing import ContextManager
 
 import requests
-from pydantic import BaseModel
 from requests.exceptions import ConnectionError
 
 from modules.helper.logger import Logger
@@ -10,7 +9,7 @@ from utils.abstracts_classes import AbstractModule
 logger = Logger(__name__)
 
 
-class RequestManager(ContextManager, AbstractModule, BaseModel):
+class RequestManager(ContextManager, AbstractModule):
     method: str = str()
     url: str = str()
     session: requests.Session = object()
