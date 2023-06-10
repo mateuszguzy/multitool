@@ -16,6 +16,7 @@ def main():
     with RedisClient() as rc:
         keys = rc.keys("dir_bruteforce_*:")
         print(rc.mget(keys))
+        rc.flushall()
 
 
 if __name__ == "__main__":
