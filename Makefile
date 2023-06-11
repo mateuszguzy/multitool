@@ -26,14 +26,16 @@ setup:
 	@sleep 10
 
 	@# setup RabbitMQ
-	@docker exec -it rabbitmq sh -c "rabbitmqctl add_user $(RABBITMQ_USER) $(RABBITMQ_PASSWORD)"
-	@docker exec -it rabbitmq sh -c "rabbitmqctl add_vhost $(RABBITMQ_VHOST)"
-	@docker exec -it rabbitmq sh -c "rabbitmqctl set_user_tags $(RABBITMQ_USER) mytag"
-	@docker exec -it rabbitmq sh -c "rabbitmqctl set_permissions -p $(RABBITMQ_VHOST) $(RABBITMQ_USER) '.*' '.*' '.*'"
+	@docker exec -it rabbitmq sh -c "rabbitmqctl add_user $(RABBITMQ_USER) $(RABBITMQ_PASSWORD)" &>/dev/null
+	@docker exec -it rabbitmq sh -c "rabbitmqctl add_vhost $(RABBITMQ_VHOST)" &>/dev/null
+	@docker exec -it rabbitmq sh -c "rabbitmqctl set_user_tags $(RABBITMQ_USER) mytag" &>/dev/null
+	@docker exec -it rabbitmq sh -c "rabbitmqctl set_permissions -p $(RABBITMQ_VHOST) $(RABBITMQ_USER) '.*' '.*' '.*'" &>/dev/null
 
-	@celery -A modules.task_queue worker
+	@celery -q -A modules.task_queue worker &
 	@# NOT WORKING ON MAC - check on LINUX (cannot assign IP other than 127.0.0.1 and there's conflict between DVWA / Flower)
 	@#celery -A modules.task_queue flower  --address=$(CELERY_FLOWER_ADDRESS) --port=$(CELERY_FLOWER_PORT) worker
+	@sleep 2
+	@echo "Setup is ready."
 
 .PHONY: stop
 stop:
