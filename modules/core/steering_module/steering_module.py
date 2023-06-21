@@ -1,22 +1,40 @@
 import json
 from collections.abc import Generator
-from configparser import ConfigParser
 
-from modules.scan.port_scan import PortScan
-from utils.abstracts_classes import Module
-from modules.recon.credential_leaks_check import CredentialLeaksCheck
-from modules.recon.directory_bruteforce import DirectoryBruteforce
-from modules.recon.email_scraping import EmailScraping
+from config.settings import RECON_PHASE_MODULES, SCAN_PHASE_MODULES
+from modules.recon.credential_leaks_check.credential_leaks_check import (
+    CredentialLeaksCheck,
+)
+from modules.recon.directory_bruteforce.directory_bruteforce import DirectoryBruteforce
+from modules.recon.email_scraping.email_scraping import EmailScraping
+from modules.scan.port_scan.port_scan import PortScan
+from utils.abstracts_classes import AbstractModule
 
 
-class SteeringModule(Module):
+class SteeringModule(AbstractModule):
+    use_type: str = str()
+    phase: str = str()
+    module: str = str()
+    input_type: str = str()
+    input: list[str] = list()
+    dir_bruteforce_list_size: str = str()
+    ports_to_scan: str = str()
+    custom_ports_to_scan: list[int] = list()
+    services_to_enumerate: list[str] = list()
+    lfi_rfi_url_known: bool = bool()
+    lfi_rfi_url: str = str()
+    file_upload_url_known: bool = bool()
+    file_upload_url: str = str()
+    output_after_every_phase: bool = bool()
+    output_after_every_finding: bool = bool()
+    recon_phase_modules: list[str] = list()
+    scan_phase_modules: list[str] = list()
+
     def __init__(self, user_input: json) -> None:
+        super().__init__()
         self._assign_json_values_to_class_attributes(user_input=user_input)
-        config = ConfigParser()
-        config.read("config.ini")
-        steering_module_config = config["STEERING_MODULE"]
-        self.recon_phase_modules = steering_module_config["recon"].split("\n")
-        self.scan_phase_modules = steering_module_config["scan"].split("\n")
+        self.recon_phase_modules = RECON_PHASE_MODULES
+        self.scan_phase_modules = SCAN_PHASE_MODULES
 
     def run(self) -> Generator:
         """
@@ -35,15 +53,17 @@ class SteeringModule(Module):
                 yield value
 
     # --- MODULES
-    @staticmethod
-    def _dir_bruteforce() -> Generator:
+    def _dir_bruteforce(self) -> Generator:
         """
         Function launching directory bruteforce module.
         """
-        dir_bruteforce = DirectoryBruteforce()
-        output = dir_bruteforce.run()
-
-        yield output
+        for url_to_check in self.input:
+            dir_bruteforce = DirectoryBruteforce(
+                list_size=self.dir_bruteforce_list_size, request_url=url_to_check
+            )
+            output = dir_bruteforce.run()
+            for value in output:
+                yield value
 
     @staticmethod
     def _email_scraping() -> Generator:
@@ -140,10 +160,14 @@ class SteeringModule(Module):
         self.phase = user_input["phase"]
         self.module = user_input["module"]
         self.input_type = user_input["input_type"]
+        self.input = user_input["input"]
         self.dir_bruteforce_list_size = user_input["recon"]["dir_bruteforce"][
             "list_size"
         ]
         self.ports_to_scan = user_input["scan"]["port_scan"]["ports_to_scan"]
+        self.custom_ports_to_scan = user_input["scan"]["port_scan"][
+            "custom_ports_to_scan"
+        ]
         self.services_to_enumerate = user_input["scan"]["enumeration"]["services"]
         self.lfi_rfi_url_known = user_input["gain_access"]["lfi_rfi"]["url_is_known"]
         self.lfi_rfi_url = user_input["gain_access"]["lfi_rfi"]["url"]

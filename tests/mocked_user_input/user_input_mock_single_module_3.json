@@ -3,6 +3,7 @@
   "phase": null,
   "module": "credential_leaks_check",
   "input_type": "single",
+  "input": [],
   "recon": {
     "dir_bruteforce": {
       "list_size": "small"
@@ -10,7 +11,8 @@
   },
   "scan": {
     "port_scan": {
-      "ports_to_scan": []
+      "ports_to_scan": "",
+      "custom_ports_to_scan": []
     },
     "enumeration": {
       "services": []
