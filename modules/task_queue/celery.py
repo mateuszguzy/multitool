@@ -1,9 +1,6 @@
 from celery import Celery
 
 from config.settings import (
-    RABBITMQ_USER,
-    RABBITMQ_PASSWORD,
-    RABBITMQ_VHOST,
     REDIS_PORT,
     REDIS_DB,
     REDIS_URL,
@@ -11,7 +8,7 @@ from config.settings import (
 
 app = Celery(
     "task_queue",
-    broker=f"amqp://{RABBITMQ_USER}:{RABBITMQ_PASSWORD}@localhost:5672/{RABBITMQ_VHOST}",
+    broker=f"redis://{REDIS_URL}:{REDIS_PORT}/{REDIS_DB}",
     backend=f"redis://{REDIS_URL}:{REDIS_PORT}/{REDIS_DB}",
     include=["modules.task_queue.tasks"],
 )

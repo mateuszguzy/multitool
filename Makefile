@@ -20,16 +20,9 @@ test:
 .PHONY: setup
 setup:
 	@docker run -d --name dvwa --rm -it -p 80:80 vulnerables/web-dvwa &>/dev/null
-	@docker run -d --name rabbitmq --rm -p 5672:5672 rabbitmq &>/dev/null
 
 	@# give Docker time to setup container
-	@sleep 10
-
-	@# setup RabbitMQ
-	@docker exec -it rabbitmq sh -c "rabbitmqctl add_user $(RABBITMQ_USER) $(RABBITMQ_PASSWORD)" &>/dev/null
-	@docker exec -it rabbitmq sh -c "rabbitmqctl add_vhost $(RABBITMQ_VHOST)" &>/dev/null
-	@docker exec -it rabbitmq sh -c "rabbitmqctl set_user_tags $(RABBITMQ_USER) mytag" &>/dev/null
-	@docker exec -it rabbitmq sh -c "rabbitmqctl set_permissions -p $(RABBITMQ_VHOST) $(RABBITMQ_USER) '.*' '.*' '.*'" &>/dev/null
+	@sleep 5
 
 	@celery -q -A modules.task_queue worker &
 	@# NOT WORKING ON MAC - check on LINUX (cannot assign IP other than 127.0.0.1 and there's conflict between DVWA / Flower)
@@ -40,4 +33,3 @@ setup:
 .PHONY: stop
 stop:
 	@docker stop dvwa &>/dev/null
-	@docker stop rabbitmq &>/dev/null

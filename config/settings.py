@@ -31,12 +31,6 @@ LOGGING_LEVEL = "DEBUG"  # development
 # LOGGING_LEVEL = "INFO"  # production
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
 
-# --- CONTAINERS
-# RABBITMQ
-RABBITMQ_USER = os.getenv("RABBITMQ_USER")
-RABBITMQ_PASSWORD = os.getenv("RABBITMQ_PASSWORD")
-RABBITMQ_VHOST = os.getenv("RABBITMQ_VHOST")
-
 # CELERY
 CELERY_FLOWER_ADDRESS = os.getenv("CELERY_FLOWER_ADDRESS")
 CELERY_FLOWER_PORT = os.getenv("CELERY_FLOWER_PORT")
