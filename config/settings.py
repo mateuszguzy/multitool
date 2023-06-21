@@ -1,4 +1,5 @@
 import multiprocessing
+import os
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -6,6 +7,11 @@ load_dotenv()
 
 # --- GENERAL
 NUMBER_OF_AVAILABLE_CPU_CORES = multiprocessing.cpu_count() + 2
+
+# DB / REDIS
+REDIS_PORT = os.getenv("REDIS_PORT")
+REDIS_DB = os.getenv("REDIS_DB")
+REDIS_URL = os.getenv("REDIS_URL")
 
 # --- DIRECTORIES
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,3 +30,7 @@ DIR_BRUTEFORCE_REQUEST_METHOD = "GET"
 LOGGING_LEVEL = "DEBUG"  # development
 # LOGGING_LEVEL = "INFO"  # production
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
+
+# CELERY
+CELERY_FLOWER_ADDRESS = os.getenv("CELERY_FLOWER_ADDRESS")
+CELERY_FLOWER_PORT = os.getenv("CELERY_FLOWER_PORT")

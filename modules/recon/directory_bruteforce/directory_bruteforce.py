@@ -1,11 +1,15 @@
 from multiprocessing import Pool
 
+import celery
+
 from config.settings import (
     WORDLISTS_DIR,
     NUMBER_OF_AVAILABLE_CPU_CORES,
     DIR_BRUTEFORCE_REQUEST_METHOD,
 )
+from modules.helper.redis_client import RedisClient
 from modules.network.request_manager.request_manager import RequestManager
+from modules.task_queue.tasks import web_request
 from utils.abstracts_classes import AbstractModule
 
 
@@ -22,9 +26,8 @@ class DirectoryBruteforce(AbstractModule):
         self.file_path = f"{WORDLISTS_DIR}/dir_bruteforce_{list_size}.txt"
 
     def run(self):
-        self._run_with_multiprocessing()
-        for value in self.results:
-            yield value
+        # self._run_with_multiprocessing()
+        self._run_with_celery()
 
     def _run_with_multiprocessing(self):
         self._read_wordlist()
@@ -35,10 +38,30 @@ class DirectoryBruteforce(AbstractModule):
 
             # iterates through the multiprocess functions results every time a new output occurs
             for result in results:
-
                 # filter out all empty values (negative results) returned by multiprocess functions
                 if result is not None:
                     self.results.append(result)
+
+    def _run_with_celery(self):
+        self._read_wordlist()
+
+        tasks = [
+            web_request.s(
+                request_method=self.request_method,
+                url=f"{self.request_url}{word}",
+                word=word,
+            )
+            for word in self.wordlist
+        ]
+
+        results = celery.group(tasks).apply_async()
+
+        with RedisClient() as rc:
+            [
+                rc.set(f"dir_bruteforce_{result}:", result)
+                for result in results.join()
+                if result is not None
+            ]
 
     def _read_wordlist(self) -> None:
         """
