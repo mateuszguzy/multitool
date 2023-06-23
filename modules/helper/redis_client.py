@@ -1,6 +1,6 @@
 import redis
 
-from config.settings import REDIS_PORT, REDIS_DB, REDIS_URL
+from config.settings import REDIS_PORT, REDIS_DB, REDIS_HOST
 from utils.abstracts_classes import AbstractContextManager
 
 
@@ -12,7 +12,7 @@ class RedisClient(AbstractContextManager):
 
     def __init__(self):
         super().__init__()
-        self.client = redis.Redis(host=REDIS_URL, port=REDIS_PORT, db=REDIS_DB)
+        self.client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB)
 
     def __enter__(self):
         return self.client

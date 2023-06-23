@@ -3,13 +3,14 @@ from celery import Celery
 from config.settings import (
     REDIS_PORT,
     REDIS_DB,
-    REDIS_URL,
+    CELERY_BROKER_URL,
+    CELERY_BROKER_BACKEND
 )
 
 app = Celery(
     "task_queue",
-    broker=f"redis://{REDIS_URL}:{REDIS_PORT}/{REDIS_DB}",
-    backend=f"redis://{REDIS_URL}:{REDIS_PORT}/{REDIS_DB}",
+    broker=f"{CELERY_BROKER_URL}:{REDIS_PORT}/{REDIS_DB}",
+    backend=f"{CELERY_BROKER_BACKEND}:{REDIS_PORT}/{REDIS_DB}",
     include=["modules.task_queue.tasks"],
 )
 
