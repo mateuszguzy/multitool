@@ -3,7 +3,6 @@ version: "3.9"
 services:
   multitool:
     build: .
-    container_name: multitool
     volumes:
       - type: bind
         source: .
@@ -17,15 +16,33 @@ services:
 
   dvwa:
     image: vulnerables/web-dvwa:1.9
-    container_name: dvwa
-    ports:
-      - "80:80"
 
+  worker:
+    restart: unless-stopped
+    build: .
+    entrypoint: celery
+    command: -q -A modules.task_queue worker -l info -E
+    depends_on:
+      - redis
+    environment:
+      CELERY_BROKER_URL: redis://redis
+      CELERY_RESULT_BACKEND: redis://redis
+      PYTHONPATH: /app
+
+  flower:
+    build: .
+    image: mher/flower:2.0
+    command: celery -A modules.task_queue flower
+    working_dir: /app
+    ports:
+      - "5555:5555"
+    depends_on:
+      - worker
+      - redis
+    environment:
+      CELERY_BROKER_URL: redis://redis
+      CELERY_RESULT_BACKEND: redis://redis
 
   redis:
     restart: unless-stopped
     image: redis:7.0.11
-    ports:
-      - ${REDIS_EXPOSE_PORT}:${REDIS_PORT}
-    expose:
-      - ${REDIS_PORT}

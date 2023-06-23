@@ -3,7 +3,7 @@
   "phase": null,
   "module": "dir_bruteforce",
   "input_type": "single",
-  "input": ["http://0.0.0.0/"],
+  "input": ["http://dvwa:80/"],
   "recon": {
     "dir_bruteforce": {
       "list_size": "small"
