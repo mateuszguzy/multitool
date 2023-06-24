@@ -13,6 +13,8 @@ services:
     env_file:
       - .env
     command: python main.py
+    stdin_open: true
+    tty: true
 
   dvwa:
     image: vulnerables/web-dvwa:1.9
