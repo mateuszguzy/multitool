@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 class AbstractModule(ABC, BaseModel):
     @abstractmethod
-    def run(self):
+    def run(self, **kwargs):
         pass
 
 

@@ -6,9 +6,9 @@ from utils.abstracts_classes import AbstractModule
 
 
 class Logger(AbstractModule):
-    module: str = str()
     logger: logging.Logger = object()
     formatter: logging.Formatter = object()
+    handler: logging.Handler = object()
 
     # 'pydantic' required class - provide additional config to allow 'requests.Session' type check
     class Config:
@@ -18,14 +18,26 @@ class Logger(AbstractModule):
         super().__init__()
         self.logger = logging.getLogger(module)
         self.logger.setLevel(LOGGING_LEVEL)
-        self.module = module
         self.formatter = logging.Formatter(LOG_FORMAT)
+        filename_date = datetime.now().strftime("%Y%m%d")
+        self.handler = logging.FileHandler(
+            filename=f"{LOG_DIR}{filename_date}_{module.split('.')[-1]}"
+        )
+        self.handler.setFormatter(self.formatter)
+        self.logger.addHandler(self.handler)
 
-    def run(self):
-        timestamp = datetime.now().strftime("%Y%m%d")
-        handler = logging.FileHandler(filename=f"{LOG_DIR}{timestamp}_{self.module}")
-        handler.setFormatter(self.formatter)
-        self.logger.addHandler(handler)
+    def run(self, mode: str, message: str):
+        if mode.lower() == "info":
+            self.log_info(message=message)
+        elif mode.lower() == "warning":
+            self.log_warning(message=message)
+        elif mode.lower() == "error":
+            self.log_error(message=message)
+        elif mode.lower() == "debug":
+            self.log_debug(message=message)
+
+    def exit(self):
+        self.logger.removeHandler(self.handler)
 
     def log_info(self, message: str):
         self.logger.info(message)
