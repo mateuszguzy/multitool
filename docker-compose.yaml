@@ -30,6 +30,10 @@ services:
       CELERY_BROKER_URL: ${CELERY_BROKER_URL}
       CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
       PYTHONPATH: /app
+    volumes:
+      - type: bind
+        source: .
+        target: /app
 
   flower:
     build: .
