@@ -50,6 +50,7 @@ class DirectoryBruteforce(AbstractModule):
                 request_method=self.request_method,
                 url=f"{self.request_url}{word}",
                 word=word,
+                module=__name__
             )
             for word in self.wordlist
         ]
