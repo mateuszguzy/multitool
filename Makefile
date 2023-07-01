@@ -35,19 +35,19 @@ local_setup:
 local_stop:
 	@docker stop dvwa &>/dev/null
 
-.PHONY: build
-build:
+.PHONY: build b
+build b:
 	@docker compose build -q
 
-.PHONY: setup
-setup:
-	@docker compose up -d &>/dev/null
+.PHONY: setup s
+setup s:
+	@docker compose up dvwa worker flower redis -d &>/dev/null
 
 
-.PHONY: run
-run:
+.PHONY: run r
+run r:
 	@docker compose run --rm multitool
 
 .PHONY: stop
 stop:
-	@docker container stop $$(docker container ls -q --filter name=multitool) &>/dev/null
+	@docker compose down &>/dev/null
