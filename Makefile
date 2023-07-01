@@ -35,6 +35,7 @@ local_stop:
 
 .PHONY: build b
 build b:
+	@mkdir -p logs
 	@docker compose build -q
 
 .PHONY: setup s
