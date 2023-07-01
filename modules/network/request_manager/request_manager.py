@@ -3,7 +3,7 @@ from typing import ContextManager
 import requests
 from requests.exceptions import ConnectionError
 
-from modules.helper.logger import Logger
+from config.settings import request_manager_logger
 from utils.abstracts_classes import AbstractModule
 
 
@@ -37,8 +37,6 @@ class RequestManager(ContextManager, AbstractModule):
             try:
                 return self.session.get(url=url, allow_redirects=False)
             except ConnectionError as e:
-                logger = Logger(__name__)
-                logger.run(mode="info", message=f"Connection Error: {e}")
-                logger.exit()
+                request_manager_logger.error(f"Connection Error: {e}")
                 # TODO: change app behaviour after ConnectionError
                 exit()

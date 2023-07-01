@@ -1,13 +1,14 @@
-from .celery import app
-from ..helper.logger import Logger
-from ..network.request_manager.request_manager import RequestManager
+from config.settings import bruteforce_logger, steering_module_logger
+from modules.task_queue.celery import app
+from modules.network.request_manager.request_manager import RequestManager
 
 
 @app.task
 def log_results(result: str, module: str):
-    logger = Logger(module)
-    logger.log_info(result)
-    logger.exit()
+    if "__main__" in module:
+        steering_module_logger.info(result)
+    elif "directory_bruteforce" in module:
+        bruteforce_logger.info(result)
 
 
 @app.task

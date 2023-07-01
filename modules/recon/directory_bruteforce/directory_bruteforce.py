@@ -5,7 +5,7 @@ import celery
 from config.settings import (
     WORDLISTS_DIR,
     NUMBER_OF_AVAILABLE_CPU_CORES,
-    DIR_BRUTEFORCE_REQUEST_METHOD,
+    DIRECTORY_BRUTEFORCE_REQUEST_METHOD,
 )
 from modules.helper.redis_client import RedisClient
 from modules.network.request_manager.request_manager import RequestManager
@@ -14,7 +14,7 @@ from utils.abstracts_classes import AbstractModule
 
 
 class DirectoryBruteforce(AbstractModule):
-    request_method: str = DIR_BRUTEFORCE_REQUEST_METHOD
+    request_method: str = DIRECTORY_BRUTEFORCE_REQUEST_METHOD
     request_url: str = str()
     file_path: str = str()
     wordlist: list[str] = list()
