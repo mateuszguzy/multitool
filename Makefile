@@ -44,11 +44,7 @@ setup s:
 
 .PHONY: run r
 run r:
-	@./log_script.sh &
 	@docker compose run --rm multitool
-	@killall log_script.sh &>/dev/null
-	@killall inotifywait &>/dev/null
-	@whoami | xargs killall tail -u &>/dev/null
 
 .PHONY: stop
 stop:
