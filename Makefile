@@ -39,8 +39,8 @@ build b:
 
 .PHONY: setup s
 setup s:
-	@docker compose up -d &>/dev/null
-	@echo "Setup done."
+	@./setup_logs.sh
+	@docker compose up dvwa worker flower redis -d &>/dev/null
 
 .PHONY: run r
 run r:
@@ -48,7 +48,8 @@ run r:
 
 .PHONY: stop
 stop:
-	@docker container stop $$(docker container ls -q --filter name=multitool) &>/dev/null && docker compose down --volumes
+	@docker compose down --volumes
+	@whoami | xargs killall tail -u &>/dev/null
 
 .PHONY: clean c
 clean c:
