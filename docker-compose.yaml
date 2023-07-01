@@ -5,8 +5,8 @@ services:
     build: .
     volumes:
       - type: bind
-        source: .
-        target: /app
+        source: ./logs
+        target: /app/logs
     depends_on:
       - dvwa
       - redis
