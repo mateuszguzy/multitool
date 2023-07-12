@@ -1,4 +1,4 @@
-from config.settings import RECON_PHASE_MODULES, SCAN_PHASE_MODULES
+from config.settings import RECON_PHASE_MODULES
 from modules.recon.credential_leaks_check.credential_leaks_check import (
     CredentialLeaksCheck,
 )
