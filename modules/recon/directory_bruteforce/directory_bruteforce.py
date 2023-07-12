@@ -1,6 +1,6 @@
 from multiprocessing import Pool
 
-import celery
+import celery  # type: ignore
 
 from config.settings import (
     WORDLISTS_DIR,

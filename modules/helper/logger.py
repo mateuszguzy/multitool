@@ -7,8 +7,8 @@ from utils.abstracts_classes import AbstractModule
 
 class Logger(AbstractModule):
     module: str = str()
-    logger: logging.Logger = object()
-    formatter: logging.Formatter = object()
+    logger: logging.Logger = logging.Logger(__name__)
+    formatter: logging.Formatter = logging.Formatter()
 
     # 'pydantic' required class - provide additional config to allow 'requests.Session' type check
     class Config:
