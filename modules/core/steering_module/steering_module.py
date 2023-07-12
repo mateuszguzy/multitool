@@ -32,7 +32,7 @@ class SteeringModule(AbstractModule):
         self._assign_json_values_to_class_attributes(user_input=user_input)
         self.recon_phase_modules = RECON_PHASE_MODULES
 
-    def run(self) -> None:
+    def run(self, **kwargs) -> None:
         """
         First function to run after user input is passed. Defines app top level behaviour.
         """
