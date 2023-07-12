@@ -1,5 +1,3 @@
-import json
-
 from config.settings import RECON_PHASE_MODULES, SCAN_PHASE_MODULES
 from modules.recon.credential_leaks_check.credential_leaks_check import (
     CredentialLeaksCheck,
@@ -21,7 +19,7 @@ class SteeringModule(AbstractModule):
     recon_phase_modules: list[str] = list()
     scan_phase_modules: list[str] = list()
 
-    def __init__(self, user_input: json) -> None:
+    def __init__(self, user_input: dict) -> None:
         super().__init__()
         self._assign_json_values_to_class_attributes(user_input=user_input)
         self.recon_phase_modules = RECON_PHASE_MODULES
@@ -121,7 +119,7 @@ class SteeringModule(AbstractModule):
             self._port_scan()
 
     # --- UTILS
-    def _assign_json_values_to_class_attributes(self, user_input: json) -> None:
+    def _assign_json_values_to_class_attributes(self, user_input: dict) -> None:
         """
         Function responsible for assigning user input in form of JSON file to class specific attributes.
         :param user_input:

@@ -12,7 +12,7 @@ logger = Logger(__name__)
 class RequestManager(ContextManager, AbstractModule):
     method: str = str()
     url: str = str()
-    session: requests.Session = object()
+    session: requests.Session = requests.Session()
 
     # 'pydantic' required class - provide additional config to allow 'requests.Session' type check
     class Config:
