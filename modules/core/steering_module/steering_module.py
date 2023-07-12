@@ -1,5 +1,4 @@
 import json
-from collections.abc import Generator
 
 from config.settings import RECON_PHASE_MODULES, SCAN_PHASE_MODULES
 from modules.recon.credential_leaks_check.credential_leaks_check import (
@@ -15,16 +14,8 @@ class SteeringModule(AbstractModule):
     use_type: str = str()
     phase: str = str()
     module: str = str()
-    input_type: str = str()
-    input: list[str] = list()
-    dir_bruteforce_list_size: str = str()
-    ports_to_scan: str = str()
-    custom_ports_to_scan: list[int] = list()
-    services_to_enumerate: list[str] = list()
-    lfi_rfi_url_known: bool = bool()
-    lfi_rfi_url: str = str()
-    file_upload_url_known: bool = bool()
-    file_upload_url: str = str()
+    targets: list[str] = list()
+    directory_bruteforce_list_size: str = str()
     output_after_every_phase: bool = bool()
     output_after_every_finding: bool = bool()
     recon_phase_modules: list[str] = list()
@@ -50,15 +41,15 @@ class SteeringModule(AbstractModule):
             self._run_module(module=self.module)
 
     # --- MODULES
-    def _dir_bruteforce(self) -> None:
+    def _directory_bruteforce(self) -> None:
         """
         Function launching directory bruteforce module.
         """
-        for url_to_check in self.input:
-            dir_bruteforce = DirectoryBruteforce(
-                list_size=self.dir_bruteforce_list_size, request_url=url_to_check
+        for url_to_check in self.targets:
+            directory_bruteforce = DirectoryBruteforce(
+                list_size=self.directory_bruteforce_list_size, request_url=url_to_check
             )
-            dir_bruteforce.run()
+            directory_bruteforce.run()
 
     @staticmethod
     def _email_scraping() -> None:
@@ -115,10 +106,10 @@ class SteeringModule(AbstractModule):
     def _run_module(self, module: str) -> None:
         """
         Run single module of any hacking process phase.
-        :param module: e.g. dir_bruteforce / port_scan / lfi_rfi
+        :param module: e.g. directory_bruteforce / port_scan / lfi_rfi
         """
-        if module == "dir_bruteforce":
-            self._dir_bruteforce()
+        if module == "directory_bruteforce":
+            self._directory_bruteforce()
 
         elif module == "email_scraping":
             self._email_scraping()
@@ -138,21 +129,9 @@ class SteeringModule(AbstractModule):
         self.use_type = user_input["use_type"]
         self.phase = user_input["phase"]
         self.module = user_input["module"]
-        self.input_type = user_input["input_type"]
-        self.input = user_input["input"]
-        self.dir_bruteforce_list_size = user_input["recon"]["dir_bruteforce"][
-            "list_size"
-        ]
-        self.ports_to_scan = user_input["scan"]["port_scan"]["ports_to_scan"]
-        self.custom_ports_to_scan = user_input["scan"]["port_scan"][
-            "custom_ports_to_scan"
-        ]
-        self.services_to_enumerate = user_input["scan"]["enumeration"]["services"]
-        self.lfi_rfi_url_known = user_input["gain_access"]["lfi_rfi"]["url_is_known"]
-        self.lfi_rfi_url = user_input["gain_access"]["lfi_rfi"]["url"]
-        self.file_upload_url_known = user_input["gain_access"]["file_upload"][
-            "url_is_known"
-        ]
-        self.file_upload_url = user_input["gain_access"]["file_upload"]["url"]
+        self.targets = user_input["targets"]
+        self.directory_bruteforce_list_size = user_input["recon"][
+            "directory_bruteforce"
+        ]["list_size"]
         self.output_after_every_phase = user_input["output_after_every_phase"]
         self.output_after_every_finding = user_input["output_after_every_finding"]
