@@ -1,6 +1,5 @@
 import json
 import re
-from collections.abc import Generator
 from typing import List
 
 from config.settings import (
