@@ -7,7 +7,6 @@ from config.settings import request_manager_logger
 from utils.abstracts_classes import AbstractModule
 
 
-
 class RequestManager(ContextManager, AbstractModule):
     method: str = str()
     url: str = str()
