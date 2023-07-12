@@ -5,7 +5,7 @@ from utils.abstracts_classes import AbstractContextManager
 
 
 class RedisClient(AbstractContextManager):
-    client: redis.Redis = None
+    client: redis.Redis = redis.Redis()
 
     class Config:
         arbitrary_types_allowed = True
