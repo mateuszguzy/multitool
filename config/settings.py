@@ -46,6 +46,7 @@ RECON_PHASE_MODULES = [DIRECTORY_BRUTEFORCE]
 LOGGING_LEVEL_MODULES = "DEBUG"  # development
 LOGGING_FORMAT_FILE = "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
 LOGGING_FILE_FORMAT = "%s%s_%s.log"
+LOGGING_HANDLER_CLASS = "logging.FileHandler"
 
 LOGGING = {
     "version": 1,
@@ -58,25 +59,25 @@ LOGGING = {
     "handlers": {
         "steering_module": {
             "level": LOGGING_LEVEL_MODULES,
-            "class": "logging.FileHandler",
+            "class": LOGGING_HANDLER_CLASS,
             "filename": (LOGGING_FILE_FORMAT % (LOGGING_DIR, CURRENT_DATE, STEERING_MODULE)),
             "formatter": "file"
         },
         "directory_bruteforce": {
             "level": LOGGING_LEVEL_MODULES,
-            "class": "logging.FileHandler",
+            "class": LOGGING_HANDLER_CLASS,
             "filename": (LOGGING_FILE_FORMAT % (LOGGING_DIR, CURRENT_DATE, DIRECTORY_BRUTEFORCE)),
             "formatter": "file"
         },
         "task_queue": {
             "level": LOGGING_LEVEL_MODULES,
-            "class": "logging.FileHandler",
+            "class": LOGGING_HANDLER_CLASS,
             "filename": (LOGGING_FILE_FORMAT % (LOGGING_DIR, CURRENT_DATE, TASK_QUEUE)),
             "formatter": "file"
         },
         "request_manager": {
             "level": LOGGING_LEVEL_MODULES,
-            "class": "logging.FileHandler",
+            "class": LOGGING_HANDLER_CLASS,
             "filename": (LOGGING_FILE_FORMAT % (LOGGING_DIR, CURRENT_DATE, REQUEST_MANAGER)),
             "formatter": "file"
         },
