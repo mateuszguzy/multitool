@@ -1,15 +1,13 @@
-from typing import ContextManager
-
 import requests
 from requests.exceptions import ConnectionError
 
 from modules.helper.logger import Logger
-from utils.abstracts_classes import AbstractModule
+from utils.abstracts_classes import AbstractContextManager
 
 logger = Logger(__name__)
 
 
-class RequestManager(ContextManager, AbstractModule):
+class RequestManager(AbstractContextManager):
     method: str = str()
     url: str = str()
     session: requests.Session = requests.Session()
