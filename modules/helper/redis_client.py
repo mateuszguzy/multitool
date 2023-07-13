@@ -1,10 +1,10 @@
 import redis
 
 from config.settings import REDIS_PORT, REDIS_DB, REDIS_URL
-from utils.abstracts_classes import AbstractContextManager
+from utils.abstracts_classes import AbstractRedisContextManager
 
 
-class RedisClient(AbstractContextManager):
+class RedisClient(AbstractRedisContextManager):
     client: redis.Redis = redis.Redis()
 
     class Config:

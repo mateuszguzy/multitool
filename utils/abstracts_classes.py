@@ -9,7 +9,7 @@ class AbstractModule(ABC, BaseModel):
         pass
 
 
-class AbstractContextManager(ABC, BaseModel):
+class AbstractBaseContextManager(ABC):
     @abstractmethod
     def __init__(self):
         super().__init__()
@@ -22,3 +22,15 @@ class AbstractContextManager(ABC, BaseModel):
     @abstractmethod
     def __exit__(self, type, value, traceback):
         pass
+
+
+class AbstractContextManager(AbstractBaseContextManager, BaseModel):
+    @abstractmethod
+    def __init__(self):
+        super().__init__()
+
+
+class AbstractRedisContextManager(AbstractBaseContextManager):
+    @abstractmethod
+    def __init__(self):
+        super().__init__()
