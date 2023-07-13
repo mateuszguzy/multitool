@@ -1,13 +1,11 @@
-from typing import ContextManager
-
 import requests
 from requests.exceptions import ConnectionError
 
 from config.settings import request_manager_logger
-from utils.abstracts_classes import AbstractModule
+from utils.abstracts_classes import AbstractContextManager
 
 
-class RequestManager(ContextManager, AbstractModule):
+class RequestManager(AbstractContextManager):
     method: str = str()
     url: str = str()
     session: requests.Session = requests.Session()
@@ -25,7 +23,7 @@ class RequestManager(ContextManager, AbstractModule):
     def __enter__(self):
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type, exc_value, exc_traceback):
         self.session.close()
 
     def run(self):
