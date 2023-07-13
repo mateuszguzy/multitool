@@ -20,7 +20,7 @@ class AbstractBaseContextManager(ABC):
         pass
 
     @abstractmethod
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, exc_type, exc_value, exc_traceback):
         pass
 
 
