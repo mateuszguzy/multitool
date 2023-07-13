@@ -1,10 +1,10 @@
 import redis
 
 from config.settings import REDIS_PORT, REDIS_DB, REDIS_HOST
-from utils.abstracts_classes import AbstractContextManager
+from utils.abstracts_classes import AbstractRedisContextManager
 
 
-class RedisClient(AbstractContextManager):
+class RedisClient(AbstractRedisContextManager):
     client: redis.Redis = redis.Redis()
 
     class Config:
@@ -17,5 +17,5 @@ class RedisClient(AbstractContextManager):
     def __enter__(self):
         return self.client
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, exc_type, exc_value, exc_traceback):
         self.client.close()
