@@ -82,8 +82,6 @@ class CliInterface(AbstractModule):
             output_after_every_finding=self.output_after_every_finding,
         ).__dict__
 
-        click.echo(self.user_input)
-
     def use_type_question(self):
         self.separator()
         self.use_type = click.prompt(
