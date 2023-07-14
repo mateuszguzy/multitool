@@ -59,7 +59,7 @@ class DirectoryBruteforce(AbstractModule):
 
         with RedisClient() as rc:
             [
-                rc.set(f"dir_bruteforce_{result}:", result)
+                rc.set(f"directory_bruteforce_{result}:", result)
                 for result in results.join()
                 if result is not None
             ]

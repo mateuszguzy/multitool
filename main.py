@@ -32,7 +32,7 @@ def main():
     steering_module.run()
 
     with RedisClient() as rc:
-        keys = rc.keys("dir_bruteforce_*:")
+        keys = rc.keys("directory_bruteforce_*:")
         result = (rc.mget(keys))
         rc.flushall()
 
