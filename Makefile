@@ -26,8 +26,6 @@ local_setup:
 	@sleep 5
 
 	@celery -q -A modules.task_queue worker &
-	@# NOT WORKING ON MAC - check on LINUX (cannot assign IP other than 127.0.0.1 and there's conflict between DVWA / Flower)
-	@#celery -A modules.task_queue flower  --address=$(CELERY_FLOWER_ADDRESS) --port=$(CELERY_FLOWER_PORT) worker
 	@sleep 2
 	@echo "Setup is ready."
 
@@ -37,12 +35,13 @@ local_stop:
 
 .PHONY: build b
 build b:
+	@mkdir -p logs
 	@docker compose build -q
 
 .PHONY: setup s
 setup s:
+	@./setup_logs.sh
 	@docker compose up dvwa worker flower redis -d &>/dev/null
-
 
 .PHONY: run r
 run r:
@@ -50,4 +49,9 @@ run r:
 
 .PHONY: stop
 stop:
-	@docker compose down &>/dev/null
+	@docker compose down --volumes
+	@whoami | xargs killall tail -u &>/dev/null
+
+.PHONY: clean c
+clean c:
+	@docker image prune && docker volume prune

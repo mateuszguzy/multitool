@@ -1,10 +1,8 @@
 import requests
 from requests.exceptions import ConnectionError
 
-from modules.helper.logger import Logger
+from config.settings import request_manager_logger
 from utils.abstracts_classes import AbstractContextManager
-
-logger = Logger(__name__)
 
 
 class RequestManager(AbstractContextManager):
@@ -36,7 +34,6 @@ class RequestManager(AbstractContextManager):
             try:
                 return self.session.get(url=url, allow_redirects=False)
             except ConnectionError as e:
-                logger.run()
-                logger.log_error(f"Connection Error: {e}")
+                request_manager_logger.error(f"Connection Error: {e}")
                 # TODO: change app behaviour after ConnectionError
                 exit()

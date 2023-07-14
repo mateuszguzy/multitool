@@ -1,4 +1,4 @@
-from config.settings import RECON_PHASE_MODULES, SCAN_PHASE_MODULES
+from config.settings import RECON_PHASE_MODULES
 from modules.recon.credential_leaks_check.credential_leaks_check import (
     CredentialLeaksCheck,
 )
@@ -31,9 +31,8 @@ class SteeringModule(AbstractModule):
         super().__init__()
         self._assign_json_values_to_class_attributes(user_input=user_input)
         self.recon_phase_modules = RECON_PHASE_MODULES
-        self.scan_phase_modules = SCAN_PHASE_MODULES
 
-    def run(self) -> None:
+    def run(self, **kwargs) -> None:
         """
         First function to run after user input is passed. Defines app top level behaviour.
         """
