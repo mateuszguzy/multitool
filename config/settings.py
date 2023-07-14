@@ -2,6 +2,7 @@ import datetime
 import logging
 import multiprocessing
 import os
+import re
 from pathlib import Path
 from dotenv import load_dotenv
 import logging.config as log_conf
@@ -40,6 +41,14 @@ DIRECTORY_BRUTEFORCE_REQUEST_METHOD = "GET"
 
 CORE_MODULES = [STEERING_MODULE, TASK_QUEUE, REQUEST_MANAGER]
 RECON_PHASE_MODULES = [DIRECTORY_BRUTEFORCE]
+
+# --- REGEX
+URL_CHECKING_PATTERN = "^[-a-zA-Z0-9@:%._\\+~#?&//=]{2,256}(?:\.[a-z]{2,6})?(?::\d+)?\\b([-a-zA-Z0-9@:%._\\+~#?&//=]*)$"
+URL_CHECKING_REGEX = re.compile(URL_CHECKING_PATTERN)
+TRAILING_SLASH_PATTERN = "/$"
+TRAILING_SLASH_REGEX = re.compile(TRAILING_SLASH_PATTERN)
+PROTOCOL_PREFIX_PATTERN = "^(http|https)://"
+PROTOCOL_PREFIX_REGEX = re.compile(PROTOCOL_PREFIX_PATTERN)
 
 # --- LOGGING
 # LOGGING_LEVEL_MODULES = "INFO"  # production
