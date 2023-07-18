@@ -8,7 +8,7 @@ def test_responses(request_manager):
     rm = request_manager
     mocked_output = 200
 
-    with patch("modules.network.request_manager.requests.Session.get") as mock_get:
+    with patch("modules.network.request_manager.request_manager.requests.Session.get") as mock_get:
         mock_get.return_value = mocked_output
         output = rm.run()
 
@@ -19,4 +19,4 @@ def test_responses(request_manager):
 
         # # currently PATCH method not implemented
         elif rm.method in ["POST", "post", "DELETE", "delete"]:
-            assert not output == mocked_output
+            assert output != mocked_output
