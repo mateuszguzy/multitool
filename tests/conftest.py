@@ -1,3 +1,5 @@
+import os
+
 import pytest
 
 from config.settings import TESTS_MOCKED_INPUT_DIR, BASE_DIR
@@ -20,9 +22,25 @@ USER_INPUT_MOCK_SINGLE_PHASE_1 = (
 USER_INPUT_MOCK_SINGLE_PHASE_2 = (
     f"{TESTS_MOCKED_INPUT_DIR}/user_input_mock_single_phase_2.json"
 )
-USER_INPUT_MOCK_RUN_ALL_1 = "tests/mocked_user_input/user_input_mock_run_all_1.json"
+USER_INPUT_MOCK_RUN_ALL_1 = f"{TESTS_MOCKED_INPUT_DIR}/user_input_mock_run_all_1.json"
 
 
+# --- INTEGRATION
+@pytest.fixture(scope="module")
+def docker_compose_file(pytestconfig):
+    return os.path.join(
+        str(pytestconfig.rootpath), BASE_DIR, "docker-compose.tests.yaml"
+    )
+
+
+@pytest.fixture(scope="module")
+def integration_steering_module_with_directory_bruteforce_test_input():
+    return create_steering_module_instance_with_user_input(
+        USER_INPUT_MOCK_SINGLE_MODULE_1
+    )
+
+
+# --- UNIT
 @pytest.fixture(
     scope="module",
     params=[
