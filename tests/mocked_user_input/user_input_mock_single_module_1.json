@@ -1,31 +1,11 @@
 {
   "use_type": "single_module",
   "phase": null,
-  "module": "dir_bruteforce",
-  "input_type": "single",
-  "input": ["http://dvwa:80/"],
+  "module": "directory_bruteforce",
+  "targets": ["http://dvwa:80/"],
   "recon": {
-    "dir_bruteforce": {
+    "directory_bruteforce": {
       "list_size": "small"
-    }
-  },
-  "scan": {
-    "port_scan": {
-      "ports_to_scan": "",
-      "custom_ports_to_scan": []
-    },
-    "enumeration": {
-      "services": []
-    }
-  },
-  "gain_access": {
-    "lfi_rfi": {
-      "url_is_known": false,
-      "url": []
-    },
-    "file_upload": {
-      "url_is_known": false,
-      "url": []
     }
   },
   "output_after_every_phase": false,
