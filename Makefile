@@ -56,8 +56,8 @@ stop:
 clean c:
 	@docker image prune && docker volume prune
 
-.PHONY: tests
-tests:
+.PHONY: tests t
+tests t:
 	@docker compose -f "docker-compose.tests.yaml" up dvwa worker redis -d &>/dev/null
 	@sleep 5
 	@docker compose -f "docker-compose.tests.yaml" up multitool
