@@ -14,8 +14,8 @@ help:
 local_run:
 	@python3 main.py
 
-.PHONY: test
-test:
+.PHONY: local_test
+local_test:
 	@python3 -m pytest
 
 .PHONY: local_setup
@@ -55,3 +55,10 @@ stop:
 .PHONY: clean c
 clean c:
 	@docker image prune && docker volume prune
+
+.PHONY: tests t
+tests t:
+	@docker compose -f "docker-compose.tests.yaml" up dvwa worker redis -d &>/dev/null
+	@sleep 5
+	@docker compose -f "docker-compose.tests.yaml" up multitool
+	@docker compose down --volumes &>/dev/null

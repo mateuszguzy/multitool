@@ -118,7 +118,7 @@ class CliInterface(AbstractModule):
 
     def targets_helper_question(self):
         targets_raw = click.prompt(
-            "Provide at least one target with correct format:\n www.example.com | example.com | example:port\n",
+            "Provide at least one target with correct format:\n www.example.com | example.com | example.com:port\n",
             type=str,
         ).lower()
         self.targets = clean_and_validate_input_targets(targets_raw)

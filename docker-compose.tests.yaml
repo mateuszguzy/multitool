@@ -1,0 +1,28 @@
+version: "3.9"
+
+services:
+  multitool:
+    build: .
+    depends_on:
+      - dvwa
+      - redis
+    env_file:
+      - .env
+    command: pytest
+
+  dvwa:
+    image: vulnerables/web-dvwa:1.9
+
+  worker:
+    build: .
+    entrypoint: celery
+    command: -q -A modules.task_queue worker -l ${CELERY_LOG_LEVEL} -E
+    depends_on:
+      - redis
+    environment:
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
+      PYTHONPATH: /app
+
+  redis:
+    image: redis:7.0.11
