@@ -1,4 +1,3 @@
-import json
 import re
 from typing import List
 
@@ -7,14 +6,6 @@ from config.settings import (
     TRAILING_SLASH_REGEX,
     PROTOCOL_PREFIX_REGEX,
 )
-from modules.core.steering_module.steering_module import SteeringModule
-
-
-def create_steering_module_instance_with_user_input(path: str):
-    test_input = open(path)
-    steering_module = SteeringModule(json.load(test_input))
-
-    return steering_module
 
 
 def clean_and_validate_input_targets(targets: str) -> List[str]:
