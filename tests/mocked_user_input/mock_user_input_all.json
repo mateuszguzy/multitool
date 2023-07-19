@@ -2,7 +2,7 @@
   "use_type": "all",
   "phase": null,
   "module": null,
-  "targets": [],
+  "targets": ["http://dvwa:80/"],
   "recon": {
     "directory_bruteforce": {
       "list_size": "small"
