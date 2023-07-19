@@ -14,9 +14,9 @@ def test_responses(request_manager):
 
         assert rm.url == "https://www.example.com"
 
-        if rm.method in ["GET", "get"]:
+        if rm.method.lower() in ["get"]:
             assert output == mocked_output
 
-        # # currently PATCH method not implemented
-        elif rm.method in ["POST", "post", "DELETE", "delete"]:
+        # currently PATCH method not implemented
+        elif rm.method.lower() in ["post", "delete"]:
             assert output != mocked_output
