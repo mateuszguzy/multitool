@@ -1,7 +1,7 @@
 from modules.helper.redis_client import RedisClient
 
 
-def test_run_single_module(integration_steering_module_with_directory_bruteforce_test_input):
+def test_run_directory_bruteforce_module(integration_steering_module_with_directory_bruteforce_test_input):
     integration_steering_module_with_directory_bruteforce_test_input.run()
 
     with RedisClient() as rc:
