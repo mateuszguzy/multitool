@@ -9,9 +9,9 @@ from modules.task_queue.tasks import log_results
 from modules.user_interface.user_interface import UserInterface
 from tests.conftest import create_steering_module_instance_with_user_input
 
-# USER_INPUT_MOCK = "tests/mocked_user_input/user_input_mock_run_all_1.json"
-# USER_INPUT_MOCK = "tests/mocked_user_input/user_input_mock_single_phase_1.json"
-USER_INPUT_MOCK = "tests/mocked_user_input/user_input_mock_single_module_1.json"
+# USER_INPUT_MOCK = "tests/mocked_user_input/mock_user_input_all.json"
+# USER_INPUT_MOCK = "tests/mocked_user_input/mock_user_input_single_phase_recon.json"
+USER_INPUT_MOCK = "tests/mocked_user_input/mock_user_input_single_module_directory_bruteforce.json"
 
 
 def main():
