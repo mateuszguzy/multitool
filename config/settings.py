@@ -61,35 +61,37 @@ LOGGING_HANDLER_CLASS = "logging.FileHandler"
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    "formatters": {
-        "file": {
-            "format": LOGGING_FORMAT_FILE
-        }
-    },
+    "formatters": {"file": {"format": LOGGING_FORMAT_FILE}},
     "handlers": {
         "steering_module": {
             "level": LOGGING_LEVEL_MODULES,
             "class": LOGGING_HANDLER_CLASS,
-            "filename": (LOGGING_FILE_FORMAT % (LOGGING_DIR, CURRENT_DATE, STEERING_MODULE)),
-            "formatter": "file"
+            "filename": (
+                LOGGING_FILE_FORMAT % (LOGGING_DIR, CURRENT_DATE, STEERING_MODULE)
+            ),
+            "formatter": "file",
         },
         "directory_bruteforce": {
             "level": LOGGING_LEVEL_MODULES,
             "class": LOGGING_HANDLER_CLASS,
-            "filename": (LOGGING_FILE_FORMAT % (LOGGING_DIR, CURRENT_DATE, DIRECTORY_BRUTEFORCE)),
-            "formatter": "file"
+            "filename": (
+                LOGGING_FILE_FORMAT % (LOGGING_DIR, CURRENT_DATE, DIRECTORY_BRUTEFORCE)
+            ),
+            "formatter": "file",
         },
         "task_queue": {
             "level": LOGGING_LEVEL_MODULES,
             "class": LOGGING_HANDLER_CLASS,
             "filename": (LOGGING_FILE_FORMAT % (LOGGING_DIR, CURRENT_DATE, TASK_QUEUE)),
-            "formatter": "file"
+            "formatter": "file",
         },
         "request_manager": {
             "level": LOGGING_LEVEL_MODULES,
             "class": LOGGING_HANDLER_CLASS,
-            "filename": (LOGGING_FILE_FORMAT % (LOGGING_DIR, CURRENT_DATE, REQUEST_MANAGER)),
-            "formatter": "file"
+            "filename": (
+                LOGGING_FILE_FORMAT % (LOGGING_DIR, CURRENT_DATE, REQUEST_MANAGER)
+            ),
+            "formatter": "file",
         },
     },
     "loggers": {
