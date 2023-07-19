@@ -1,54 +1,41 @@
-from unittest.mock import patch
+class TestSteeringModule:
+    testing_targets = ["http://dvwa:80/"]
 
-from modules.core.steering_module.steering_module import SteeringModule
-
-
-def test_run_single_module(test_input_1):
-    """
-    Test function for running single module.
-    """
-    mocked_output = f"Running: {test_input_1.module}"
-    output_to_check = str()
-
-    with patch.object(
-        SteeringModule, f"_{test_input_1.module}", return_value=mocked_output
+    def test_assign_class_attributes_for_single_module_directory_bruteforce(
+        self,
+        steering_module_for_single_module_directory_bruteforce,
     ):
-        returned_generator = test_input_1._run_module(module=test_input_1.module)
-        for value in returned_generator:
-            output_to_check += value
+        sm = steering_module_for_single_module_directory_bruteforce
 
-    assert output_to_check == mocked_output
+        assert sm.use_type == "single_module"
+        assert sm.phase is None
+        assert sm.module == "directory_bruteforce"
+        assert sm.targets == self.testing_targets
+        assert sm.directory_bruteforce_list_size == "small"
+        assert sm.output_after_every_phase is False
+        assert sm.output_after_every_finding is True
 
-
-def test_run_single_phase(test_input_2):
-    """
-    Test function for running single phase.
-    """
-    mocked_output = f"Running: all {test_input_2.phase} modules"
-    output_to_check = str()
-
-    with patch.object(
-        SteeringModule, f"_run_{test_input_2.phase}", return_value=mocked_output
+    def test_assign_class_attributes_for_single_phase_recon(
+        self,
+        steering_module_for_single_phase_recon,
     ):
-        returned_generator = test_input_2._run_phase(phase=test_input_2.phase)
-        for value in returned_generator:
-            output_to_check += value
+        sm = steering_module_for_single_phase_recon
 
-    assert output_to_check == mocked_output
+        assert sm.use_type == "single_phase"
+        assert sm.phase == "recon"
+        assert sm.module is None
+        assert sm.targets == self.testing_targets
+        assert sm.directory_bruteforce_list_size == "small"
+        assert sm.output_after_every_phase is False
+        assert sm.output_after_every_finding is True
 
+    def test_assign_class_attributes_for_all(self, steering_module_for_all):
+        sm = steering_module_for_all
 
-def test_run_all(test_input_3):
-    """
-    Test function for 'run_all' - an overall application launch.
-    """
-    mocked_output_1 = "Running: RECON"
-    mocked_output_2 = "Running: SCAN"
-    output_to_check = str()
-
-    with patch.object(SteeringModule, f"_run_recon", return_value=mocked_output_1):
-        with patch.object(SteeringModule, f"_run_scan", return_value=mocked_output_2):
-            returned_generator = test_input_3._run_all()
-            for value in returned_generator:
-                output_to_check += value
-
-    assert output_to_check == mocked_output_1 + mocked_output_2
+        assert sm.use_type == "all"
+        assert sm.phase is None
+        assert sm.module is None
+        assert sm.targets == self.testing_targets
+        assert sm.directory_bruteforce_list_size == "small"
+        assert sm.output_after_every_phase is False
+        assert sm.output_after_every_finding is True
