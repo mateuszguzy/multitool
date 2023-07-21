@@ -3,6 +3,7 @@ import sys
 import click
 from click import Abort
 
+from config.settings import SHOW_TRACEBACKS
 from modules.core.steering_module.steering_module import SteeringModule
 from modules.helper.redis_client import RedisClient
 from modules.task_queue.tasks import log_results
@@ -15,6 +16,7 @@ USER_INPUT_MOCK = "tests/mocked_user_input/mock_user_input_single_module_directo
 
 
 def main():
+    sys.tracebacklimit = SHOW_TRACEBACKS
     user_interface = UserInterface()
 
     try:

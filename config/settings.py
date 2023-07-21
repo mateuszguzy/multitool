@@ -12,6 +12,7 @@ load_dotenv()
 # --- GENERAL
 NUMBER_OF_AVAILABLE_CPU_CORES = multiprocessing.cpu_count() + 2
 CURRENT_DATE = datetime.datetime.today().strftime("%Y%m%d")
+SHOW_TRACEBACKS = 0  # 0 for FALSE / 1 for TRUE
 
 # DB / REDIS
 REDIS_PORT = os.getenv("REDIS_PORT")
