@@ -1,10 +1,12 @@
 import re
+import traceback
 from typing import List
 
 from config.settings import (
     URL_CHECKING_REGEX,
     TRAILING_SLASH_REGEX,
     PROTOCOL_PREFIX_REGEX,
+    LOGGING_DIVIDER,
 )
 
 
@@ -44,3 +46,10 @@ def check_for_protocol_prefix_in_multiple_targets(targets: List[str]) -> List[st
             result.append(target)
 
     return result
+
+
+def format_exception_with_traceback_for_logging(exc: Exception) -> str:
+    tb = traceback.format_exc()
+    message = f"Error:{exc.args[0]}{LOGGING_DIVIDER}TRACEBACK{LOGGING_DIVIDER}: {tb}"
+
+    return message
