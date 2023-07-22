@@ -8,6 +8,7 @@ from utils.custom_exceptions import (
     CustomConnectionError,
     InvalidUrl,
     UnhandledException,
+    UnhandledRequestMethod,
 )
 from utils.utils import (
     format_exception_with_traceback_for_logging,
@@ -61,4 +62,4 @@ class RequestManager(AbstractContextManager):
                 )
                 raise UnhandledException()
         else:
-            raise UnhandledException()
+            raise UnhandledRequestMethod(method=method)
