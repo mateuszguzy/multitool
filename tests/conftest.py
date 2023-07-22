@@ -15,6 +15,7 @@ MOCK_USER_INPUT_SINGLE_PHASE_RECON = (
     f"{TESTS_MOCKED_INPUT_DIR}/mock_user_input_single_phase_recon.json"
 )
 MOCK_USER_INPUT_ALL = f"{TESTS_MOCKED_INPUT_DIR}/mock_user_input_all.json"
+TEST_URL = "https://www.example.com"
 
 
 def convert_user_input_to_dict(path: str):
@@ -44,12 +45,16 @@ def integration_steering_module_with_directory_bruteforce_test_input():
 # --- UNIT
 @pytest.fixture(scope="module")
 def steering_module_for_single_module_directory_bruteforce():
-    return create_steering_module_instance_with_user_input(MOCK_USER_INPUT_SINGLE_MODULE_DIRECTORY_BRUTEFORCE)
+    return create_steering_module_instance_with_user_input(
+        MOCK_USER_INPUT_SINGLE_MODULE_DIRECTORY_BRUTEFORCE
+    )
 
 
 @pytest.fixture(scope="module")
 def steering_module_for_single_phase_recon():
-    return create_steering_module_instance_with_user_input(MOCK_USER_INPUT_SINGLE_PHASE_RECON)
+    return create_steering_module_instance_with_user_input(
+        MOCK_USER_INPUT_SINGLE_PHASE_RECON
+    )
 
 
 @pytest.fixture(scope="module")
@@ -62,14 +67,38 @@ def steering_module_for_all():
     params=[
         "get",
         "GET",
+    ],
+)
+def request_manager_get_request(request):
+    request_manager = RequestManager(
+        method=request.param, url=TEST_URL
+    )
+    return request_manager
+
+
+@pytest.fixture(
+    scope="module",
+    params=[
         "post",
         "POST",
+    ],
+)
+def request_manager_post_request(request):
+    request_manager = RequestManager(
+        method=request.param, url=TEST_URL
+    )
+    return request_manager
+
+
+@pytest.fixture(
+    scope="module",
+    params=[
         "delete",
         "DELETE",
     ],
 )
-def request_manager(request):
+def request_manager_delete_request(request):
     request_manager = RequestManager(
-        method=request.param, url="https://www.example.com"
+        method=request.param, url=TEST_URL
     )
     return request_manager
