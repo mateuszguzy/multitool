@@ -40,8 +40,8 @@ build b:
 
 .PHONY: setup s
 setup s:
+	@docker compose up dvwa worker flower redis -d
 	@./setup_logs.sh
-	@docker compose up dvwa worker flower redis -d &>/dev/null
 
 .PHONY: run r
 run r:
@@ -50,11 +50,17 @@ run r:
 .PHONY: stop
 stop:
 	@docker compose down --volumes
-	@whoami | xargs killall tail -u &>/dev/null
+	@whoami | xargs killall multitail -u &>/dev/null
+	@tmux kill-session -t multitool_session
+
+.PHONY: stop-m
+stop-m:
+	@tmux kill-session -t multitool_session
 
 .PHONY: clean c
 clean c:
 	@docker image prune && docker volume prune
+	@docker system prune
 
 .PHONY: tests t
 tests t:

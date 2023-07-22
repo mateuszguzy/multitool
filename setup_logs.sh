@@ -1,14 +1,40 @@
 #!/bin/bash
 
 MODULES=$(grep -o "RESULTS_FOR_USER_FROM_MODULES = \[\(.*\)\]" config/settings.py | cut -d "[" -f2 | cut -d "]" -f1 | tr -d " '")
+CURRENT_DATE=$(date +'%Y%m%d')
+MULTITAIL_COMMAND_STRING="multitail "
 
-current_date=$(date +'%Y%m%d')
+run_multitail() {
+  sh -c "$MULTITAIL_COMMAND_STRING"
+}
 
-for module in ${MODULES//,/ }; do
-    module=$(echo "$module" | tr -d '"' | tr '[:upper:]' '[:lower:]')
-    filename="${current_date}_${module}"
-    touch "./logs/$filename.log" &>/dev/null
-    # show every change in modules log files in console
-    # to be changed when results showing based on user input will be implemented
-    tail -n0 -f "./logs/$filename.log" &
-done
+prepare_multitail_command() {
+  for module in ${MODULES//,/ }; do
+      module=$(echo "$module" | tr -d '"' | tr '[:upper:]' '[:lower:]')
+      filename="${CURRENT_DATE}_${module}"
+      touch "./logs/$filename.log" &>/dev/null
+      # show every change in modules log files in console
+      # to be changed when results showing based on user input will be implemented
+      MULTITAIL_COMMAND_STRING+="-n 0 -f ./logs/$filename.log "
+  done
+}
+
+run_multi_pane_view() {
+  # Start a new tmux session with two windows
+  tmux new-session -d -s multitool_session
+
+  # Create new window and run 'multitail' in it
+  tmux new-window "${MULTITAIL_COMMAND_STRING}"
+  # Split this window to show bare shell
+  tmux split-window -h
+  # Swap locations of panes (by default bare shell will be on right hand side)
+  tmux swap-pane -D
+
+  # Attach to the tmux session
+  tmux attach-session -t multitool_session
+}
+
+prepare_multitail_command
+run_multi_pane_view
+
+
