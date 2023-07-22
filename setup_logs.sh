@@ -1,6 +1,6 @@
 #!/bin/bash
 
-MODULES=$(grep -o "MODULES = \[\(.*\)\]" config/settings.py | cut -d "[" -f2 | cut -d "]" -f1 | tr -d " '")
+MODULES=$(grep -o "RESULTS_FOR_USER_FROM_MODULES = \[\(.*\)\]" config/settings.py | cut -d "[" -f2 | cut -d "]" -f1 | tr -d " '")
 
 current_date=$(date +'%Y%m%d')
 

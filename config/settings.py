@@ -12,6 +12,7 @@ load_dotenv()
 # --- GENERAL
 NUMBER_OF_AVAILABLE_CPU_CORES = multiprocessing.cpu_count() + 2
 CURRENT_DATE = datetime.datetime.today().strftime("%Y%m%d")
+SHOW_TRACEBACKS = 0  # 0 for FALSE / 1 for TRUE
 
 # DB / REDIS
 REDIS_PORT = os.getenv("REDIS_PORT")
@@ -43,6 +44,9 @@ DIRECTORY_BRUTEFORCE_REQUEST_METHOD = "GET"
 CORE_MODULES = [STEERING_MODULE, TASK_QUEUE, REQUEST_MANAGER]
 RECON_PHASE_MODULES = [DIRECTORY_BRUTEFORCE]
 
+# make sure user will not get tracebacks and similar data in terminal
+RESULTS_FOR_USER_FROM_MODULES = [STEERING_MODULE, DIRECTORY_BRUTEFORCE]
+
 # --- REGEX
 URL_CHECKING_PATTERN = r'^(?:[a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(?::\d+)?$'
 URL_CHECKING_REGEX = re.compile(URL_CHECKING_PATTERN)
@@ -57,6 +61,9 @@ LOGGING_LEVEL_MODULES = "DEBUG"  # development
 LOGGING_FORMAT_FILE = "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
 LOGGING_FILE_FORMAT = "%s%s_%s.log"
 LOGGING_HANDLER_CLASS = "logging.FileHandler"
+LOGGING_DIVIDER_NUMER_OF_CHARACTERS = 10
+LOGGING_DIVIDER_CHARACTER = "-"
+LOGGING_DIVIDER = f"\n{LOGGING_DIVIDER_CHARACTER * LOGGING_DIVIDER_NUMER_OF_CHARACTERS}\n"
 
 LOGGING = {
     "version": 1,
