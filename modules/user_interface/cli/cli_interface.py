@@ -59,7 +59,7 @@ class CliInterface(AbstractModule):
 
         self.targets_question()
 
-        if not self.targets:
+        while not self.targets:
             self.targets_helper_question()
 
         if self.use_type == "all" or self.phase == "recon":
