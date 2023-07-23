@@ -127,6 +127,7 @@ LOGGING = {
     },
 }
 
+os.makedirs(LOGGING_DIR, exist_ok=True)
 log_conf.dictConfig(config=LOGGING)
 steering_module_logger = logging.getLogger("steering_module")
 bruteforce_logger = logging.getLogger("directory_bruteforce")
