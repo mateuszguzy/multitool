@@ -7,7 +7,7 @@ services:
       - dvwa
       - redis
     env_file:
-      - .env
+      - .tests.env
     command: pytest
 
   dvwa:
