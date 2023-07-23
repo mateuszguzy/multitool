@@ -1,0 +1,23 @@
+name: Multitool Docker Compose Testing Environment
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      # need checkout before using compose-action
+      - uses: actions/checkout@v3
+      - uses: isbang/compose-action@v1.5.0
+        with:
+          compose-file: "./docker/docker-compose.tests.yml"
+          down-flags: "--volumes"
