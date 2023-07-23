@@ -1,0 +1,7 @@
+steps:
+  # need checkout before using compose-action
+  - uses: actions/checkout@v3
+  - uses: isbang/compose-action@v1.5.0
+    with:
+      compose-file: "./docker/docker-compose.tests.yml"
+      down-flags: "--volumes"
