@@ -1,0 +1,54 @@
+version: "3.9"
+
+services:
+  multitool:
+    build: .
+    volumes:
+      - type: bind
+        source: ./logs
+        target: /app/logs
+    depends_on:
+      - dvwa
+      - redis
+    env_file:
+      - .env
+    command: python main.py
+    stdin_open: true
+    tty: true
+
+  dvwa:
+    image: vulnerables/web-dvwa:1.9
+
+  worker:
+    restart: unless-stopped
+    build: .
+    entrypoint: celery
+    command: -q -A modules.task_queue worker -l ${CELERY_LOG_LEVEL} -E
+    depends_on:
+      - redis
+    environment:
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
+      PYTHONPATH: /app
+    volumes:
+      - type: bind
+        source: .
+        target: /app
+
+  flower:
+    build: .
+    image: mher/flower:2.0
+    command: celery -A modules.task_queue flower
+    working_dir: /app
+    ports:
+      - "${CELERY_FLOWER_EXPOSED_PORT}:${CELERY_FLOWER_PORT}"
+    depends_on:
+      - worker
+      - redis
+    environment:
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
+
+  redis:
+    restart: unless-stopped
+    image: redis:7.0.11
