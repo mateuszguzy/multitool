@@ -21,3 +21,13 @@ jobs:
         with:
           compose-file: "./docker-compose.tests.yaml"
           down-flags: "--volumes"
+          services:
+            dvwa
+            worker
+            redis
+      - uses: isbang/compose-action@v1.5.0
+        with:
+          compose-file: "./docker-compose.tests.yaml"
+          down-flags: "--volumes"
+          services:
+            multitool
