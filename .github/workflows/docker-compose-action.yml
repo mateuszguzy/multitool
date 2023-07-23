@@ -17,14 +17,15 @@ jobs:
     steps:
       # need checkout before using compose-action
       - uses: actions/checkout@v3
-      - uses: adambirds/docker-compose-action@v1.3.0
+      - name: Tests
+        uses: cloudposse/github-action-docker-compose-test-run@main
         with:
-          compose-file: "./docker-compose.tests.yaml"
-          down-flags: "--volumes"
-          test-container: "multitool"
-          test-command: "pytest"
-
+          file: test/docker-compose.yml
+          service: multitool
+          command: pytest
+#      - uses: adambirds/docker-compose-action@v1.3.0
+#        with:
 #          compose-file: "./docker-compose.tests.yaml"
 #          down-flags: "--volumes"
-#          services: |
-#          command:
+#          test-container: "multitool"
+#          test-command: "pytest"
