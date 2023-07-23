@@ -34,7 +34,7 @@ jobs:
           run: |
             docker compose -f ./docker-compose.tests.yaml up -d
 
-        - name: Run integration tests
+        - name: Run unit tests
           env:
             CELERY_LOG_LEVEL: "INFO"
             CELERY_BROKER_URL: "redis://redis"
@@ -44,6 +44,22 @@ jobs:
           run: |
             docker exec multitool-multitool-1 pytest tests/unit/
 
+        - name: Run integration tests
+          env:
+            CELERY_LOG_LEVEL: "INFO"
+            CELERY_BROKER_URL: "redis://redis"
+            CELERY_RESULT_BACKEND: "redis://redis"
+            CELERY_FLOWER_PORT: "5555"
+            CELERY_FLOWER_EXPOSED_PORT: "5555"
+          run: |
+            docker exec multitool-multitool-1 pytest tests/integration/
+
         - name: Stop and remove containers
+          env:
+            CELERY_LOG_LEVEL: "INFO"
+            CELERY_BROKER_URL: "redis://redis"
+            CELERY_RESULT_BACKEND: "redis://redis"
+            CELERY_FLOWER_PORT: "5555"
+            CELERY_FLOWER_EXPOSED_PORT: "5555"
           run: |
             docker compose down --volumes
