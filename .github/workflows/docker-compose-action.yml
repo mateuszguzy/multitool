@@ -23,7 +23,6 @@ jobs:
 
         - name: Build and run Docker Compose
           run: |
-            # Change "docker-compose.yml" to the path of your Docker Compose file
             docker compose -f ./docker-compose.tests.yml dvwa redis worker up -d
 
         - name: Run integration tests
