@@ -58,4 +58,4 @@ jobs:
             CELERY_FLOWER_PORT: "5555"
             CELERY_FLOWER_EXPOSED_PORT: "5555"
           run: |
-            docker compose down --volumes
+            docker compose -f ./docker-compose.tests.yaml down --volumes
