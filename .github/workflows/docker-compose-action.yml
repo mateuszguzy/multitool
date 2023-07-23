@@ -29,7 +29,7 @@ jobs:
 
         - name: Run integration tests
           run: |
-            docker exec -it  multitool-multitool-1 pytest
+            docker exec multitool-multitool-1 pytest
 
         - name: Stop and remove containers
           run: |
