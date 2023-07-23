@@ -29,7 +29,6 @@ jobs:
 
         - name: Run integration tests
           run: |
-#            docker compose -f ./docker-compose.tests.yaml up multitool -d
             docker exec -it multitool pytest
 
         - name: Stop and remove containers
