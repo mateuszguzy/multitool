@@ -25,11 +25,11 @@ jobs:
 
         - name: Build and run Docker Compose
           run: |
-            docker compose -f ./docker-compose.tests.yml dvwa redis worker up -d
+            docker compose -f ./docker-compose.tests.yml up dvwa worker redis -d
 
         - name: Run integration tests
           run: |
-            docker compose -f ./docker-compose.tests.yml multitool up -d
+            docker compose -f ./docker-compose.tests.yml  up multitool -d
 #            docker exec -it your_app_container_name pytest
 
         - name: Stop and remove containers
