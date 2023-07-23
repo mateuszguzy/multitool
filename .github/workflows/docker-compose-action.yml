@@ -17,15 +17,12 @@ jobs:
     steps:
       # need checkout before using compose-action
       - uses: actions/checkout@v3
-      - uses: isbang/compose-action@v1.5.0
+      - uses: adambirds/compose-action@v1.3.0
         with:
           compose-file: "./docker-compose.tests.yaml"
           down-flags: "--volumes"
-          services: |
-            dvwa
-            worker
-            redis
-            multitool
+          test-container: "multitool"
+          test-command: "pytest"
 
 #          compose-file: "./docker-compose.tests.yaml"
 #          down-flags: "--volumes"
