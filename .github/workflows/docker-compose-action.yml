@@ -17,7 +17,7 @@ jobs:
     steps:
       # need checkout before using compose-action
       - uses: actions/checkout@v3
-      - uses: adambirds/compose-action@v1.3.0
+      - uses: adambirds/docker-compose-action@v1.3.0
         with:
           compose-file: "./docker-compose.tests.yaml"
           down-flags: "--volumes"
