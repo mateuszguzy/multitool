@@ -20,7 +20,7 @@ jobs:
       - name: Tests
         uses: cloudposse/github-action-docker-compose-test-run@main
         with:
-          file: test/docker-compose.yml
+          file: ./docker-compose.tests.yaml
           service: multitool
           command: pytest
 #      - uses: adambirds/docker-compose-action@v1.3.0
