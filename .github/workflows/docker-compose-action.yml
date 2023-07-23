@@ -15,17 +15,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # need checkout before using compose-action
-      - uses: actions/checkout@v3
-      - name: Tests
-        uses: cloudposse/github-action-docker-compose-test-run@main
-        with:
-          file: ./docker-compose.tests.yaml
-          service: multitool
-          command: pytest
-#      - uses: adambirds/docker-compose-action@v1.3.0
-#        with:
-#          compose-file: "./docker-compose.tests.yaml"
-#          down-flags: "--volumes"
-#          test-container: "multitool"
-#          test-command: "pytest"
+        - name: Checkout code
+          uses: actions/checkout@v2
+
+        - name: Set up Docker Compose
+          uses: docker/compose-cli@v1
+
+        - name: Build and run Docker Compose
+          run: |
+            # Change "docker-compose.yml" to the path of your Docker Compose file
+            docker compose -f ./docker-compose.tests.yml dvwa redis worker up -d
+
+        - name: Run integration tests
+          run: |
+            docker compose -f ./docker-compose.tests.yml multitool up -d
+#            docker exec -it your_app_container_name pytest
+
+        - name: Stop and remove containers
+          run: |
+            docker compose down --volumes
