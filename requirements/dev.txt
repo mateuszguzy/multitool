@@ -95,6 +95,8 @@ pydantic==1.10.7
     # via -r /home/mateusz/PycharmProjects/multitool/requirements/dev.in
 pytest==7.3.1
     # via -r /home/mateusz/PycharmProjects/multitool/requirements/dev.in
+python-dotenv==0.21.1
+    # via -r /home/mateusz/PycharmProjects/multitool/requirements/common.txt
 pytz==2023.3
     # via
     #   -r /home/mateusz/PycharmProjects/multitool/requirements/common.txt
