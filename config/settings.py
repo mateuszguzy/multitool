@@ -24,7 +24,7 @@ CELERY_BROKER_BACKEND = os.getenv("CELERY_BROKER_BACKEND")
 # --- DIRECTORIES
 BASE_DIR = Path(__file__).resolve().parent.parent
 WORDLISTS_DIR = f"{BASE_DIR}/utils/wordlists"
-LOGGING_DIR = f"{BASE_DIR}/logs/"
+LOGGING_DIR = f"{BASE_DIR}/logs/{CURRENT_DATE}/"
 TESTS_MOCKED_INPUT_DIR = f"{BASE_DIR}/tests/mocked_user_input"
 
 # --- MODULES
