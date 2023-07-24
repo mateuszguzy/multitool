@@ -21,7 +21,7 @@ jobs:
       - run:
           name: "Start Docker daemon"
           command: |
-            sudo systemctl start docker
+            dockerd
       - run:
           name: "Build Docker containers"
           command: |
