@@ -19,6 +19,11 @@ jobs:
             pip install docker
             pip install docker-compose
       - run:
+          name: "show where i am"
+          command: |
+            ls -al
+            pwd
+      - run:
           name: "Build Docker containers"
           command: |
             docker-compose -f "docker-compose.tests.yaml" build
