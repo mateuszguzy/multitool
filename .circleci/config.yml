@@ -47,14 +47,17 @@ jobs:
       - docker/install-docker-tools
       - run:
           name: "Start Docker"
-          command: docker-compose build -f "docker-compose.tests.yaml"
+          command: |
+            docker-compose -f "docker-compose.tests.yaml" build
       - run:
           name: "Start containers"
-          command: docker-compose up --file "docker-compose.tests.yaml"  dvwa redis worker
+          command: |
+            docker-compose up --file "docker-compose.tests.yaml"  dvwa redis worker
 
       - run:
           name: "Run tests"
-          command: docker-compose up --file "docker-compose.tests.yaml"  multitool
+          command: |
+            docker-compose up --file "docker-compose.tests.yaml"  multitool
 
 
 
