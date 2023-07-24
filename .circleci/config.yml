@@ -48,18 +48,18 @@ jobs:
       - setup_remote_docker:
           version: 20.10.14
       - run:
-          name: "Start Docker"
+          name: "Build Docker containers"
           command: |
             docker-compose -f "docker-compose.tests.yaml" build
       - run:
-          name: "Start containers"
+          name: "Start containers & run tests"
           command: |
-            docker-compose -f "docker-compose.tests.yaml" up dvwa redis worker
-
-      - run:
-          name: "Run tests"
-          command: |
-            docker-compose -f "docker-compose.tests.yaml" up multitool
+            docker-compose -f "docker-compose.tests.yaml" up
+#
+#      - run:
+#          name: "Run tests"
+#          command: |
+#            docker-compose -f "docker-compose.tests.yaml" up multitool
 
 
 
