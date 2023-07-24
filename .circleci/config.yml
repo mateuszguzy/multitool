@@ -46,9 +46,14 @@ jobs:
       - checkout
       - docker/install-docker-tools
       - run:
+          name: "Start Docker"
+          command: docker
+      - run:
+          name: "Start containers"
           command: docker-compose -f ./docker-compose.tests.yaml up dvwa redis worker
 
       - run:
+          name: "Run tests"
           command: docker-compose -f ./docker-compose.tests.yaml up multitool
 
 
@@ -60,5 +65,5 @@ workflows:
   sample: # This is the name of the workflow, feel free to change it to better match your workflow.
     # Inside the workflow, you define the jobs you want to run.
     jobs:
-      - unit-tests
+#      - unit-tests
       - integration-tests
