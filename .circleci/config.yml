@@ -26,11 +26,11 @@ jobs:
       - run:
           name: "Build Docker containers"
           command: |
-            docker-compose -f "docker-compose.tests.yaml" build
+            docker-compose -f "./docker-compose.tests.yaml" build
       - run:
           name: "Start containers"
           command: |
-            docker-compose -f "docker-compose.tests.yaml" up dvwa redis worker -d
+            docker-compose -f "./docker-compose.tests.yaml" up dvwa redis worker -d
       - run:
           name: "Wait for DVWA to start"
           command: |
@@ -38,7 +38,7 @@ jobs:
       - run:
           name: "Run tests"
           command: |
-            docker-compose -f "docker-compose.tests.yaml" up multitool
+            docker-compose -f "./docker-compose.tests.yaml" up multitool
 
 
 #  integration-tests:
