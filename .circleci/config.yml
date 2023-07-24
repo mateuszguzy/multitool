@@ -2,16 +2,22 @@ version: 2.1
 
 orbs:
   docker: circleci/docker@2.2.0
+  python: circleci/python@1.5.0
 
 jobs:
-  integration-tests:
-    executor:
-      name: docker/docker
+  python/tests:
+    docker:
+      - image: cimg/python:3.10.2
     steps:
       - checkout
-      - docker/install-docker-tools
-      - setup_remote_docker:
-          version: 20.10.14
+      - python/install-packages:
+          pkg-manager: pip
+          pip-dependency-file: requirements/dev.txt
+      - run:
+          name: "Install Docker"
+          command: |
+            pip install docker
+            pip install docker-compose
       - run:
           name: "Build Docker containers"
           command: |
@@ -30,7 +36,34 @@ jobs:
             docker-compose -f "docker-compose.tests.yaml" up multitool
 
 
+#  integration-tests:
+#    executor:
+#      name: docker/docker
+#    steps:
+#      - checkout
+#      - docker/install-docker-tools
+#      - setup_remote_docker:
+#          version: 24.0.2
+#      - run:
+#          name: "Build Docker containers"
+#          command: |
+#            docker-compose -f "docker-compose.tests.yaml" build
+#      - run:
+#          name: "Start containers"
+#          command: |
+#            docker-compose -f "docker-compose.tests.yaml" up dvwa redis worker -d
+#      - run:
+#          name: "Wait for DVWA to start"
+#          command: |
+#            sleep 10
+#      - run:
+#          name: "Run tests"
+#          command: |
+#            docker-compose -f "docker-compose.tests.yaml" up multitool
+
+
 workflows:
   multitool-tests:
     jobs:
-      - integration-tests
+      - python/tests
+#      - integration-tests
