@@ -48,7 +48,7 @@ jobs:
       - run:
           command: docker compose -f ./docker-compose.tests.yaml up dvwa redis worker
 
-      - docker/compose:
+      - run:
           command: docker compose -f ./docker-compose.tests.yaml up multitool
 
 
