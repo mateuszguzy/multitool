@@ -46,10 +46,10 @@ jobs:
       - checkout
       - docker/install-docker-tools
       - run:
-          command: docker compose -f ./docker-compose.tests.yaml up dvwa redis worker
+          command: docker-compose -f ./docker-compose.tests.yaml up dvwa redis worker
 
       - run:
-          command: docker compose -f ./docker-compose.tests.yaml up multitool
+          command: docker-compose -f ./docker-compose.tests.yaml up multitool
 
 
 
