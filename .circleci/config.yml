@@ -1,29 +1,22 @@
 version: 2.1
 
-orbs:
-  docker: circleci/docker@2.2.0
-  python: circleci/python@1.5.0
-
 jobs:
   python-tests:
     docker:
-      - image: cimg/python:3.10.2
+      - image: cimg/base:2022.06
     steps:
       - checkout
-      - python/install-packages:
-          pkg-manager: pip
-          pip-dependency-file: requirements/dev.txt
-      - run:
-          name: "Install Docker"
-          command: |
-            pip install docker
-            pip install docker-compose
+#      - python/install-packages:
+#          pkg-manager: pip
+#          pip-dependency-file: requirements/dev.txt
+#      - run:
+#          name: "Install Docker"
+#          command: |
+#            pip install docker
+#            pip install docker-compose
       - setup_remote_docker:
           version: 24.0.2
-#      - run:
-#          name: "Start Docker daemon"
-#          command: |
-#            sudo dockerd
+          docker_layer_caching: true
       - run:
           name: "Build Docker containers"
           command: |
