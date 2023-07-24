@@ -54,12 +54,12 @@ jobs:
       - run:
           name: "Start containers"
           command: |
-            docker-compose up --file "docker-compose.tests.yaml"  dvwa redis worker
+            docker-compose -f "docker-compose.tests.yaml" up dvwa redis worker
 
       - run:
           name: "Run tests"
           command: |
-            docker-compose up --file "docker-compose.tests.yaml"  multitool
+            docker-compose -f "docker-compose.tests.yaml" up multitool
 
 
 
