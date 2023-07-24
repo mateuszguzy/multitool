@@ -18,12 +18,12 @@ jobs:
           command: |
             pip install docker
             pip install docker-compose
-#      - setup_remote_docker:
-#          version: 24.0.2
-      - run:
-          name: "Start Docker daemon"
-          command: |
-            sudo dockerd
+      - setup_remote_docker:
+          version: 24.0.2
+#      - run:
+#          name: "Start Docker daemon"
+#          command: |
+#            sudo dockerd
       - run:
           name: "Build Docker containers"
           command: |
