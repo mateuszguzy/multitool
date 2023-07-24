@@ -6,8 +6,7 @@ services:
     depends_on:
       - dvwa
       - redis
-    env_file:
-      - .env
+      - worker
     command: pytest
 
   dvwa:
