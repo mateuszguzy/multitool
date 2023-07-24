@@ -20,17 +20,16 @@ jobs:
           name: "Start containers"
           command: |
             docker-compose -f "docker-compose.tests.yaml" up dvwa redis worker -d
-
+      - run:
+          name: "Wait for DVWA to start"
+          command: |
+            sleep 10
       - run:
           name: "Run tests"
           command: |
             docker-compose -f "docker-compose.tests.yaml" up multitool
 
 
-
-
-# Invoke jobs via workflows
-# See: https://circleci.com/docs/configuration-reference/#workflows
 workflows:
   multitool-tests:
     jobs:
