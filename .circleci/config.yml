@@ -19,10 +19,9 @@ jobs:
             pip install docker
             pip install docker-compose
       - run:
-          name: "show where i am"
+          name: "Start Docker daemon"
           command: |
-            ls -al
-            pwd
+            sudo systemctl start docker
       - run:
           name: "Build Docker containers"
           command: |
