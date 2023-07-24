@@ -45,14 +45,11 @@ jobs:
     steps:
       - checkout
       - docker/install-docker-tools
-      - docker/compose:
-          config: ./docker-compose.tests.yaml
-          build: true
+      - run:
+          command: docker compose -f ./docker-compose.tests.yaml up dvwa redis worker
 
       - docker/compose:
-          config: ./docker-compose.tests.yaml
-          run: multitool
-          command: pytest
+          command: docker compose -f ./docker-compose.tests.yaml up multitool
 
 
 
