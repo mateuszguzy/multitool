@@ -46,7 +46,7 @@ jobs:
       - checkout
       - docker/install-docker-tools
       - setup_remote_docker:
-          version: 24.0.2
+          version: 20.10.14
       - run:
           name: "Build Docker containers"
           command: |
