@@ -4,39 +4,39 @@ orbs:
   docker: circleci/docker@2.2.0
 
 jobs:
-#  python-tests:
-#    docker:
-#      - image: cimg/base:2022.06
-#    resource_class: xlarge
-#    steps:
-#      - checkout
-#      - python/install-packages:
-#          pkg-manager: pip
-#          pip-dependency-file: requirements/dev.txt
-#      - run:
-#          name: "Install Docker"
-#          command: |
-#            pip install docker
-#            pip install docker-compose
-#      - setup_remote_docker:
-#          version: 24.0.2
-#          docker_layer_caching: true
-#      - run:
-#          name: "Build Docker containers"
-#          command: |
-#            docker compose -f "docker-compose.tests.yaml" build
-#      - run:
-#          name: "Start containers"
-#          command: |
-#            docker compose -f "docker-compose.tests.yaml" up dvwa redis worker -d
-#      - run:
-#          name: "Wait for DVWA to start"
-#          command: |
-#            sleep 10
-#      - run:
-#          name: "Run tests"
-#          command: |
-#            docker-compose -f "./docker-compose.tests.yaml" up multitool
+  python-tests:
+    docker:
+      - image: cimg/base:2022.06
+    resource_class: xlarge
+    steps:
+      - checkout
+      - python/install-packages:
+          pkg-manager: pip
+          pip-dependency-file: requirements/dev.txt
+      - run:
+          name: "Install Docker"
+          command: |
+            pip install docker
+            pip install docker-compose
+      - setup_remote_docker:
+          version: 20.10.14
+          docker_layer_caching: true
+      - run:
+          name: "Build Docker containers"
+          command: |
+            docker compose -f "docker-compose.tests.yaml" build
+      - run:
+          name: "Start containers"
+          command: |
+            docker compose -f "docker-compose.tests.yaml" up dvwa redis worker -d
+      - run:
+          name: "Wait for DVWA to start"
+          command: |
+            sleep 10
+      - run:
+          name: "Run tests"
+          command: |
+            docker-compose -f "./docker-compose.tests.yaml" up multitool
 
 
   integration-tests:
@@ -68,4 +68,5 @@ jobs:
 workflows:
   multitool-tests:
     jobs:
-      - integration-tests
+#      - integration-tests
+      - python-tests
