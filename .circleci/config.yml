@@ -8,7 +8,6 @@ jobs:
   python-tests:
     docker:
       - image: cimg/base:2022.06
-    resource_class: xlarge
     steps:
       - checkout
 #      - python/install-packages:
