@@ -8,6 +8,8 @@ services:
       - redis
       - worker
     command: pytest
+    env_file:
+      - .env
 
   dvwa:
     image: vulnerables/web-dvwa:1.9
@@ -15,12 +17,9 @@ services:
   worker:
     build: .
     entrypoint: celery
-    command: -q -A modules.task_queue worker -l ${CELERY_LOG_LEVEL} -E
+    command: -A modules.task_queue.celery -b "redis://${REDIS_HOST}:${REDIS_PORT}/${REDIS_DB}" --result-backend "redis://${REDIS_HOST}:${REDIS_PORT}/${REDIS_DB}" worker
     depends_on:
       - redis
-    environment:
-      CELERY_BROKER_URL: ${CELERY_BROKER_URL}
-      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
 
   redis:
-    image: circleci/redis
+    image: cimg/redis:7.0.11

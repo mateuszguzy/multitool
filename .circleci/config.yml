@@ -1,72 +1,43 @@
 version: 2.1
 
-orbs:
-  docker: circleci/docker@2.2.0
-#  python: circleci/python@1.5.0
-
 jobs:
-  python-tests:
+  tests:
     docker:
-      - image: cimg/base:2022.06
+      - image: cimg/base:2023.07
     steps:
       - checkout
-#      - python/install-packages:
-#          pkg-manager: pip
-#          pip-dependency-file: requirements/dev.txt
-#      - run:
-#          name: "Install Docker"
-#          command: |
-#            pip install docker
-#            pip install docker-compose
-      - setup_remote_docker:
-          version: 20.10.14
-          docker_layer_caching: true
+      - setup_remote_docker
       - run:
-          name: "Build Docker containers"
+          name: Create '.env' file to pass environment variables into containers
           command: |
-            docker compose -f "docker-compose.tests.yaml" build
+            touch ./.env
+            echo "REDIS_HOST=${REDIS_HOST}" >> ./.env
+            echo "REDIS_PORT=${REDIS_PORT}" >> ./.env
+            echo "REDIS_DB=${REDIS_DB}" >> ./.env
       - run:
-          name: "Start containers"
+          name: Build Docker containers
           command: |
-            docker compose -f "docker-compose.tests.yaml" up dvwa redis worker -d
+            sudo docker compose -f "docker-compose.tests.yaml" build
       - run:
-          name: "Wait for DVWA to start"
+          name: Run Redis
+          # always needs to recreate container, without it cannot start on second run
+          command: |
+            sudo docker compose -f "docker-compose.tests.yaml" up --force-recreate redis -d
+      - run:
+          name: Run DVWA & Celery worker
+          command: |
+            sudo docker compose -f "docker-compose.tests.yaml" up worker dvwa -d
+      - run:
+          name: Wait for DVWA to set up
           command: |
             sleep 10
       - run:
-          name: "Run tests"
+          name: Run tests
           command: |
-            docker-compose -f "./docker-compose.tests.yaml" up multitool
-
-
-  integration-tests:
-    executor:
-      name: docker/docker
-    steps:
-      - checkout
-      - docker/install-docker-tools
-      - setup_remote_docker:
-          version: 20.10.14
-      - run:
-          name: "Build Docker containers"
-          command: |
-            docker-compose -f "docker-compose.tests.yaml" build
-      - run:
-          name: "Start containers"
-          command: |
-            docker-compose -f "docker-compose.tests.yaml" up dvwa redis worker -d
-      - run:
-          name: "Wait for DVWA to start"
-          command: |
-            sleep 10
-      - run:
-          name: "Run tests"
-          command: |
-            docker-compose -f "docker-compose.tests.yaml" up multitool
+            sudo docker compose -f "docker-compose.tests.yaml"  up multitool
 
 
 workflows:
   multitool-tests:
     jobs:
-#      - integration-tests
-      - python-tests
+    - tests
