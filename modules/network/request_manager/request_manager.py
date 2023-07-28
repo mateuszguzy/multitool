@@ -48,18 +48,18 @@ class RequestManager(AbstractContextManager):
                 request_manager_logger.exception(
                     format_exception_with_traceback_for_logging(exc)
                 )
-                raise CustomConnectionError(exc=str(exc))
+                raise CustomConnectionError(f"Connection error: {exc}")
 
             except MissingSchema as exc:
                 request_manager_logger.exception(
                     format_exception_with_traceback_for_logging(exc)
                 )
-                raise InvalidUrl(exc=str(exc))
+                raise InvalidUrl(f"Invalid URL: {url}")
 
             except Exception as exc:
                 request_manager_logger.exception(
                     format_exception_with_traceback_for_logging(exc)
                 )
-                raise UnhandledException()
+                raise UnhandledException(f"Unhandled request manager error: {exc}")
         else:
-            raise UnhandledRequestMethod(method=method)
+            raise UnhandledRequestMethod(f"Unhandled request method used: {method}")
