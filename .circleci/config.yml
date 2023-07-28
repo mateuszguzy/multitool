@@ -34,7 +34,14 @@ jobs:
       - run:
           name: Run tests
           command: |
-            sudo docker compose -f "docker-compose.tests.yaml"  up multitool
+            sudo docker compose -f "docker-compose.tests.yaml"  up --force-recreate multitool | tee results.log
+      - run:
+          command: |
+            if
+              grep -o -i failed results.log | wc -l > 0
+            then
+              circleci-agent step halt
+            fi
 
 
 workflows:

@@ -43,3 +43,6 @@ class TestRequestManager:
 
         with pytest.raises(UnhandledRequestMethod):
             rm.run()
+
+    def test_made_to_fail(self):
+        assert 0 == 1

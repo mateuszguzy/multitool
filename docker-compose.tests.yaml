@@ -10,6 +10,10 @@ services:
     command: pytest
     env_file:
       - .env
+    volumes:
+      - type: bind
+        source: /
+        target: /project/
 
   dvwa:
     image: vulnerables/web-dvwa:1.9
