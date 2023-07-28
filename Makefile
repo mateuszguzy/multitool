@@ -47,24 +47,8 @@ setup s:
 run r:
 	@docker compose run --rm multitool
 
-.PHONY: stop
-stop:
-	@docker compose down --volumes
-	@whoami | xargs killall multitail -u &>/dev/null
-	@tmux kill-session -t multitool_session
-
-.PHONY: stop-m
-stop-m:
-	@tmux kill-session -t multitool_session
-
-.PHONY: clean c
-clean c:
-	@docker image prune && docker volume prune
-	@docker system prune
-
+.
 .PHONY: tests t
 tests t:
-	@docker compose -f "docker-compose.tests.yaml" up dvwa worker redis -d &>/dev/null
-	@sleep 5
-	@docker compose -f "docker-compose.tests.yaml" up multitool
+	@docker compose -s.yaml" up multitool
 	@docker compose down --volumes &>/dev/null
