@@ -30,7 +30,7 @@ click-plugins==1.1.1
     # via celery
 click-repl==0.3.0
     # via celery
-flower==1.2.0
+flower==2.0.0
     # via -r /home/mateusz/PycharmProjects/multitool/requirements/common.in
 humanize==4.7.0
     # via flower
@@ -48,7 +48,7 @@ pytz==2023.3
     #   flower
 redis==4.5.5
     # via -r /home/mateusz/PycharmProjects/multitool/requirements/common.in
-requests==2.30.0
+requests==2.31.0
     # via -r /home/mateusz/PycharmProjects/multitool/requirements/common.in
 tornado==6.3.2
     # via flower
