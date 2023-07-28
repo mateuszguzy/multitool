@@ -59,7 +59,7 @@ exceptiongroup==1.1.2
     # via pytest
 filelock==3.12.2
     # via virtualenv
-flower==1.2.0
+flower==2.0.0
     # via -r /home/mateusz/PycharmProjects/multitool/requirements/common.txt
 humanize==4.7.0
     # via
@@ -110,7 +110,7 @@ pyyaml==6.0.1
     # via pre-commit
 redis==4.5.5
     # via -r /home/mateusz/PycharmProjects/multitool/requirements/common.txt
-requests==2.30.0
+requests==2.31.0
     # via -r /home/mateusz/PycharmProjects/multitool/requirements/common.txt
 tomli==2.0.1
     # via pytest
@@ -141,3 +141,4 @@ web-pdb==1.6.0
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
+setuptools>=65.5.1 # not directly required, pinned by Snyk to avoid a vulnerability
