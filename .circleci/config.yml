@@ -33,14 +33,13 @@ jobs:
             sleep 10
       - run:
           name: Run tests
-          command: |
-            sudo docker compose -f "docker-compose.tests.yaml"  up --force-recreate multitool | tee results.log
-      - run:
-          command: |
+#         'if loop' is needed to pass exit code from bash to CircleCI to fail a build
+          command: | 
+            sudo docker compose -f "docker-compose.tests.yaml"  up --force-recreate multitool | tee test_results.log
             if
-              grep -o -i failed results.log | wc -l > 0
+              grep -o -i failed test_results.log | wc -l > 0
             then
-              circleci-agent step halt
+              exit 1
             fi
 
 
