@@ -1,0 +1,49 @@
+version: 2.1
+
+jobs:
+  tests:
+    docker:
+      - image: cimg/base:2023.07
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Create '.env' file to pass environment variables into containers
+          command: |
+            touch ./.env
+            echo "REDIS_HOST=${REDIS_HOST}" >> ./.env
+            echo "REDIS_PORT=${REDIS_PORT}" >> ./.env
+            echo "REDIS_DB=${REDIS_DB}" >> ./.env
+      - run:
+          name: Build Docker containers
+          command: |
+            sudo docker compose -f "docker-compose.tests.yaml" build
+      - run:
+          name: Run Redis
+          # always needs to recreate container, without it cannot start on second run
+          command: |
+            sudo docker compose -f "docker-compose.tests.yaml" up --force-recreate redis -d
+      - run:
+          name: Run DVWA & Celery worker
+          command: |
+            sudo docker compose -f "docker-compose.tests.yaml" up worker dvwa -d
+      - run:
+          name: Wait for DVWA to set up
+          command: |
+            sleep 10
+      - run:
+          name: Run tests
+#         'if loop' is needed to pass exit code from bash to CircleCI to fail a build
+          command: | 
+            sudo docker compose -f "docker-compose.tests.yaml"  up --force-recreate multitool | tee test_results.log
+            if
+              grep -o -i failed test_results.log | wc -l > 0
+            then
+              exit 1
+            fi
+
+
+workflows:
+  multitool-tests:
+    jobs:
+    - tests
