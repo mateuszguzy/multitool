@@ -10,6 +10,7 @@ services:
     depends_on:
       - dvwa
       - redis
+      - worker
     env_file:
       - .env
     command: python main.py
@@ -23,31 +24,23 @@ services:
     restart: unless-stopped
     build: .
     entrypoint: celery
-    command: -q -A modules.task_queue worker -l ${CELERY_LOG_LEVEL} -E
+    command: -A modules.task_queue.celery -b "redis://${REDIS_HOST}:${REDIS_PORT}/${REDIS_DB}" --result-backend "redis://${REDIS_HOST}:${REDIS_PORT}/${REDIS_DB}" worker
     depends_on:
       - redis
-    environment:
-      CELERY_BROKER_URL: ${CELERY_BROKER_URL}
-      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
-      PYTHONPATH: /app
     volumes:
       - type: bind
-        source: .
-        target: /app
+        source: ./logs
+        target: /app/logs
 
   flower:
     build: .
     image: mher/flower:2.0
-    command: celery -A modules.task_queue flower
-    working_dir: /app
+    command: celery -A modules.task_queue.celery flower
     ports:
       - "${CELERY_FLOWER_EXPOSED_PORT}:${CELERY_FLOWER_PORT}"
     depends_on:
       - worker
       - redis
-    environment:
-      CELERY_BROKER_URL: ${CELERY_BROKER_URL}
-      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
 
   redis:
     restart: unless-stopped
