@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 import logging.config as log_conf
 
 load_dotenv()
-`
+
 # --- GENERAL
 NUMBER_OF_AVAILABLE_CPU_CORES = multiprocessing.cpu_count() + 2
 CURRENT_DATE = datetime.datetime.utcnow().strftime("%Y%m%d")
