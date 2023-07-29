@@ -32,7 +32,7 @@ class CliInterface(AbstractModule):
     phase: str or None = None  # type: ignore
     module: str or None = None  # type: ignore
     use_type: str = ""
-    targets: list = []
+    targets: set = set()
     directory_bruteforce_list_size: str = ""
     directory_bruteforce_input: dict = {}
     recon_phase_input: dict = {}
