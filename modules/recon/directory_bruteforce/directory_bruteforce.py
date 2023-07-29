@@ -7,10 +7,10 @@ from config.settings import (
     NUMBER_OF_AVAILABLE_CPU_CORES,
     DIRECTORY_BRUTEFORCE_REQUEST_METHOD,
 )
-from modules.helper.redis_client import RedisClient
 from modules.network.request_manager.request_manager import RequestManager
 from modules.task_queue.tasks import web_request
 from utils.abstracts_classes import AbstractModule
+from utils.utils import store_module_results_in_database, convert_list_or_set_to_dict
 
 
 class DirectoryBruteforce(AbstractModule):
@@ -18,7 +18,7 @@ class DirectoryBruteforce(AbstractModule):
     request_url: str = str()
     file_path: str = str()
     wordlist: list[str] = list()
-    results: list = list()
+    results_after_multiprocessing: list = list()
 
     def __init__(self, request_url: str, list_size: str) -> None:
         super().__init__()
@@ -40,7 +40,7 @@ class DirectoryBruteforce(AbstractModule):
             for result in results:
                 # filter out all empty values (negative results) returned by multiprocess functions
                 if result is not None:
-                    self.results.append(result)
+                    self.results_after_multiprocessing.append(result)
 
     def _run_with_celery(self):
         self._read_wordlist()
@@ -48,21 +48,15 @@ class DirectoryBruteforce(AbstractModule):
         tasks = [
             web_request.s(
                 request_method=self.request_method,
-                url=f"{self.request_url}{word}",
+                url=self.request_url,
                 word=word,
                 module=__name__
             )
             for word in self.wordlist
         ]
 
-        results = celery.group(tasks).apply_async()
-
-        with RedisClient() as rc:
-            [
-                rc.set(f"directory_bruteforce_{result}:", result)
-                for result in results.join()
-                if result is not None
-            ]
+        results = convert_list_or_set_to_dict(list_of_items=celery.group(tasks).apply_async().join())
+        store_module_results_in_database(target=self.request_url, results=results, module="directory_bruteforce")
 
     def _read_wordlist(self) -> None:
         """
