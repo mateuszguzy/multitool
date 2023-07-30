@@ -117,10 +117,9 @@ def mock_click_prompt(mocker, expect):
 
 
 @pytest.fixture
-def mock_directory_bruteforce_questions(mocker, expect):
+def mock_directory_bruteforce_questions(mocker):
     mocker.patch(
         "modules.user_interface.cli.cli_interface.CliInterface.directory_bruteforce_questions",
-        return_value=expect,
     )
 
 
