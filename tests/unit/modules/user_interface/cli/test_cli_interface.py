@@ -122,13 +122,13 @@ class TestCliInterface:
     @pytest.mark.parametrize(
         "test_input, expect",
         [
-            ("small", {"list_size": "small"}),
-            ("medium", {"list_size": "medium"}),
-            ("large", {"list_size": "large"}),
+            ("small", {"directory_bruteforce": {"list_size": "small"}}),
+            ("medium", {"directory_bruteforce": {"list_size": "medium"}}),
+            ("large", {"directory_bruteforce": {"list_size": "large"}}),
         ],
     )
     def test_recon_phase_questions_success(self, test_input, expect, cli_interface):
-        cli_interface.directory_bruteforce_input = expect
+        cli_interface.directory_bruteforce_input = expect["directory_bruteforce"]
         cli_interface.recon_phase_questions()
 
-        assert cli_interface.recon_phase_input == {"directory_bruteforce": expect}
+        assert cli_interface.recon_phase_input == expect
