@@ -70,7 +70,9 @@ class CliInterface(AbstractModule):
                 directory_bruteforce=self.directory_bruteforce_input
             ).__dict__
 
-        self.output_question()
+        self.output_after_every_phase_question()
+        self.output_after_every_finding_question()
+        self.separator()
 
         self.user_input = UserInput(
             use_type=self.use_type,
@@ -144,7 +146,7 @@ class CliInterface(AbstractModule):
             value_proc=self.translate_wordlist_size,
         ).lower()
 
-    def output_question(self):
+    def output_after_every_phase_question(self):
         self.separator()
         self.output_after_every_phase = click.prompt(
             "Show output after every phase?\n\n",
@@ -152,6 +154,8 @@ class CliInterface(AbstractModule):
             # TODO: after develop phase change to False
             default=True,
         )
+
+    def output_after_every_finding_question(self):
         self.separator()
         self.output_after_every_finding = click.prompt(
             "Show output after every finding?\n\n",
@@ -159,7 +163,6 @@ class CliInterface(AbstractModule):
             # TODO: after develop phase change to False
             default=True,
         )
-        self.separator()
 
     @staticmethod
     def separator():
