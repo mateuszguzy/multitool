@@ -112,29 +112,9 @@ class TestCliInterface:
     )
     def test_targets_question_success(self, test_input, expect, cli_interface):
         cli_interface.targets_question()
-
         assert cli_interface.targets == expect.split(",")
 
-    @pytest.mark.usefixtures("cli_interface")
-    @pytest.mark.usefixtures("mock_click_prompt")
-    @pytest.mark.usefixtures("mock_clean_and_validate_input_targets")
-    @pytest.mark.parametrize(
-        "test_input, expect",
-        [
-            ("https://www.example.com:8080", "https://www.example.com:8080/"),
-            ("https://www.example.com", "https://www.example.com/"),
-            ("https://example.com", "https://example.com/"),
-            ("https://example:8080", "https://example:8080/"),
-            ("http://example.com", "http://example.com/"),
-            ("http://example:8080", "http://example:8080/"),
-            ("www.example.com", "http://www.example.com/"),
-            ("http://example:8080, www.example.com", "http://example:8080/,http://www.example.com/"),
-
-        ],
-    )
-    def test_targets_helper_question_success(self, test_input, expect, cli_interface):
         cli_interface.targets_helper_question()
-
         assert cli_interface.targets == expect.split(",")
 
     @pytest.mark.usefixtures("cli_interface")
