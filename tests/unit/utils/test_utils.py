@@ -4,6 +4,7 @@ from utils.utils import (
     clean_and_validate_input_targets,
     check_for_protocol_prefix_in_multiple_targets,
     check_for_trailing_slash_in_multiple_targets,
+    target_is_url,
 )
 
 URLS_WITHOUT_TRAILING_SLASH = [
@@ -44,12 +45,14 @@ URLS_WITH_PROTOCOL = [
     "http://example:8080",
 ]
 
+INVALID_URLS = [
+    "www.example",
+    "example",
+    "example example",
+]
+
 URLS_TO_VALIDATE = (
-    [
-        "www.example",
-        "example",
-        "example example",
-    ]
+    INVALID_URLS
     + URLS_WITHOUT_TRAILING_SLASH
     + URLS_WITHOUT_PROTOCOL
     + URLS_WITH_TRAILING_SLASH
@@ -109,3 +112,20 @@ class TestUtils:
 
         assert len(results) == len(expect)
         assert results == expect
+
+    @pytest.mark.parametrize(
+        "test_input, expect",
+        [
+            (URLS_WITHOUT_TRAILING_SLASH, True),
+            (URLS_WITHOUT_PROTOCOL, True),
+            (INVALID_URLS, False),
+        ],
+    )
+    def test_target_is_url(self, test_input, expect):
+        """
+        Test function verifying if given target can be treated as a URL.
+        """
+        for url in test_input:
+            result = target_is_url(target=url)
+
+            assert result == expect
