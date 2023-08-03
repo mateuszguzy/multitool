@@ -38,7 +38,10 @@ jobs:
             sudo docker compose -f "docker-compose.tests.yaml"  up --force-recreate multitool | tee test_results.log
             if
               grep -o -i failed test_results.log | wc -l > 0
-            elif
+            then
+              exit 1
+            fi
+            if
               grep -o -i error test_results.log | wc -l > 0
             then
               exit 1
