@@ -86,43 +86,43 @@ class CliInterface(AbstractModule):
 
     def use_type_question(self):
         self.separator()
-        self.use_type = click.prompt(
+        raw_input = click.prompt(
             text="Choose Multitool use type:\n - all [a]\n - single phase [sp]\n - single module [sm]:\n\n",
             type=click.Choice(["a", "sp", "sm"], case_sensitive=False),
             default="a",
-            value_proc=self.translate_use_type,
-        ).lower()
+        )
+        self.use_type = self._translate_abbreviations(key="use_type", abbreviation=raw_input)
 
     def phase_question(self):
         self.separator()
-        self.phase = click.prompt(
+        raw_input = click.prompt(
             "Choose Phase to execute:\n - recon [r]\n\n",
             type=click.Choice(["r"], case_sensitive=False),
             default="r",
-            value_proc=self.translate_phase,
-        ).lower()
+        )
+        self.phase = self._translate_abbreviations(key="phase", abbreviation=raw_input)
 
     def module_question(self):
         self.separator()
-        self.module = click.prompt(
+        raw_input = click.prompt(
             "Choose Module to execute:\n - directory bruteforce [dirb]\n\n",
             type=click.Choice(["dirb"], case_sensitive=False),
             default="dirb",
-            value_proc=self.translate_module,
-        ).lower()
+        )
+        self.module = self._translate_abbreviations(key="module", abbreviation=raw_input)
 
     def targets_question(self):
         self.separator()
         targets_raw = click.prompt(
             "Provide targets as comma separated values:\n", type=str
-        ).lower()
+        )
         self.targets = clean_and_validate_input_targets(targets_raw)
 
     def targets_helper_question(self):
         targets_raw = click.prompt(
             "Provide at least one target with correct format:\n www.example.com | example.com | example.com:port\n",
             type=str,
-        ).lower()
+        )
         self.targets = clean_and_validate_input_targets(targets_raw)
 
     def recon_phase_questions(self):
@@ -139,12 +139,12 @@ class CliInterface(AbstractModule):
 
     def directory_bruteforce_list_size_question(self):
         self.separator()
-        self.directory_bruteforce_list_size = click.prompt(
+        raw_input = click.prompt(
             "Choose size or bruteforce wordlist:\n - small [s]\n - medium [m]\n - test [t]\n\n",
             type=click.Choice(["s", "m", "t"], case_sensitive=False),
             default="s",
-            value_proc=self.translate_wordlist_size,
-        ).lower()
+        )
+        self.directory_bruteforce_list_size = self._translate_abbreviations(key="wordlist_size", abbreviation=raw_input.lower())
 
     def output_after_every_phase_question(self):
         self.separator()
@@ -169,17 +169,5 @@ class CliInterface(AbstractModule):
         return click.echo("-" * 20)
 
     @staticmethod
-    def translate_use_type(use_type: str) -> str:
-        return ABBREVIATIONS_DICTIONARY["use_type"][use_type]
-
-    @staticmethod
-    def translate_phase(phase: str) -> str:
-        return ABBREVIATIONS_DICTIONARY["phase"][phase]
-
-    @staticmethod
-    def translate_module(module: str) -> str:
-        return ABBREVIATIONS_DICTIONARY["module"][module]
-
-    @staticmethod
-    def translate_wordlist_size(wordlist_size: str) -> str:
-        return ABBREVIATIONS_DICTIONARY["wordlist_size"][wordlist_size]
+    def _translate_abbreviations(key: str, abbreviation: str) -> str:
+        return ABBREVIATIONS_DICTIONARY[key][abbreviation.lower()]
