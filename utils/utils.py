@@ -13,6 +13,18 @@ from modules.helper.redis_client import RedisClient
 
 
 def clean_and_validate_input_targets(targets: str) -> Set[str]:
+    """
+    Check if provided targets are following one of below conventions:
+        - <protocol>://<subdomain>.<domain_name>.<top_level_domain>:<port_number>
+        - <protocol>://<subdomain>.<domain_name>.<top_level_domain>
+        - <protocol>://<subdomain>.<domain_name>:<port_number>
+        - <subdomain>.<domain_name>.<top_level_domain>:<port_number>
+        - <subdomain>.<domain_name>.<top_level_domain>
+        - <subdomain>.<domain_name>:<port_number>
+        - <domain_name>.<top_level_domain>:<port_number>
+        - <domain_name>.<top_level_domain>
+        - <domain_name>:<port_number>
+    """
     split_targets = {target.strip() for target in targets.split(",")}
     valid_targets = {target for target in split_targets if target_is_url(target)}
 
@@ -23,6 +35,9 @@ def clean_and_validate_input_targets(targets: str) -> Set[str]:
 
 
 def check_for_trailing_slash_in_multiple_targets(targets: Set[str]) -> Set[str]:
+    """
+    Check if given target has a trailing slash, if not, add one.
+    """
     result: Set = set()
 
     for target in targets:
@@ -35,6 +50,9 @@ def check_for_trailing_slash_in_multiple_targets(targets: Set[str]) -> Set[str]:
 
 
 def check_for_protocol_prefix_in_multiple_targets(targets: Set[str]) -> Set[str]:
+    """
+    Check if given target has a protocol defined, if not, add one.
+    """
     result: Set = set()
 
     for target in targets:
@@ -47,6 +65,9 @@ def check_for_protocol_prefix_in_multiple_targets(targets: Set[str]) -> Set[str]
 
 
 def format_exception_with_traceback_for_logging(exc: Exception) -> str:
+    """
+    Logger related function passing whole traceback info into log file.
+    """
     tb = traceback.format_exc()
     message = f"Error:{exc.args[0]}{LOGGING_DIVIDER}TRACEBACK{LOGGING_DIVIDER}: {tb}"
 
@@ -54,6 +75,9 @@ def format_exception_with_traceback_for_logging(exc: Exception) -> str:
 
 
 def target_is_url(target: str) -> bool:
+    """
+    Verify if given target can be (with small changes) treated as a URL.
+    """
     match: bool = False
     if re.search(URL_CHECKING_REGEX_WITH_TLD, target):
         match = True
