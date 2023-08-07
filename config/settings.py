@@ -11,7 +11,7 @@ load_dotenv()
 
 # --- GENERAL
 NUMBER_OF_AVAILABLE_CPU_CORES = multiprocessing.cpu_count() + 2
-CURRENT_DATE = datetime.datetime.today().strftime("%Y%m%d")
+CURRENT_DATE = datetime.datetime.utcnow().strftime("%Y%m%d")
 SHOW_TRACEBACKS = 0  # 0 for FALSE / 1 for TRUE
 
 # DB / REDIS
@@ -130,6 +130,6 @@ LOGGING = {
 os.makedirs(LOGGING_DIR, exist_ok=True)
 log_conf.dictConfig(config=LOGGING)
 steering_module_logger = logging.getLogger("steering_module")
-bruteforce_logger = logging.getLogger("directory_bruteforce")
+directory_bruteforce_logger = logging.getLogger("directory_bruteforce")
 task_queue_logger = logging.getLogger("task_queue")
 request_manager_logger = logging.getLogger("request_manager")

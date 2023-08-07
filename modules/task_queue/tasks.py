@@ -1,4 +1,4 @@
-from config.settings import bruteforce_logger, steering_module_logger
+from config.settings import directory_bruteforce_logger, steering_module_logger
 from modules.task_queue.celery import app
 from modules.network.request_manager.request_manager import RequestManager
 
@@ -11,7 +11,7 @@ def log_results(result: str, module: str, target: str = "") -> None:
     if "__main__" in module:
         steering_module_logger.info(result)
     elif "directory_bruteforce" in module:
-        bruteforce_logger.info(result)
+        directory_bruteforce_logger.info(result)
 
 
 @app.task
