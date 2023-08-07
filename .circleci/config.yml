@@ -41,6 +41,11 @@ jobs:
             then
               exit 1
             fi
+            if
+              grep -o -i error test_results.log | wc -l > 0
+            then
+              exit 1
+            fi
 
 
 workflows:

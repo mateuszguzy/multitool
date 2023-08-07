@@ -6,7 +6,7 @@ import pytest
 from config.settings import TESTS_MOCKED_INPUT_DIR, BASE_DIR
 from modules.core.steering_module.steering_module import SteeringModule
 from modules.network.request_manager.request_manager import RequestManager
-
+from modules.user_interface.cli.cli_interface import CliInterface
 
 MOCK_USER_INPUT_SINGLE_MODULE_DIRECTORY_BRUTEFORCE = (
     f"{TESTS_MOCKED_INPUT_DIR}/mock_user_input_single_module_directory_bruteforce.json"
@@ -102,3 +102,58 @@ def request_manager_delete_request(request):
         method=request.param, url=TEST_URL
     )
     return request_manager
+
+
+@pytest.fixture()
+def cli_interface():
+    return CliInterface()
+
+
+@pytest.fixture
+def mock_click_prompt_without_return_value(mocker):
+    mocker.patch(
+        "modules.user_interface.cli.cli_interface.click.prompt"
+    )
+
+
+@pytest.fixture
+def mock_click_prompt_with_return_value(mocker, expect):
+    mocker.patch(
+        "modules.user_interface.cli.cli_interface.click.prompt", return_value=expect
+    )
+
+
+@pytest.fixture
+def mock_translate_abbreviations(mocker, expect):
+    mocker.patch(
+        "modules.user_interface.cli.cli_interface.CliInterface._translate_abbreviations", return_value=expect
+    )
+
+
+@pytest.fixture
+def mock_directory_bruteforce_questions(mocker):
+    mocker.patch(
+        "modules.user_interface.cli.cli_interface.CliInterface.directory_bruteforce_questions",
+    )
+
+
+@pytest.fixture
+def mock_directory_bruteforce_list_size_question(mocker):
+    mocker.patch(
+        "modules.user_interface.cli.cli_interface.CliInterface.directory_bruteforce_list_size_question",
+    )
+
+
+@pytest.fixture
+def mock_clean_and_validate_input_targets(mocker, expect):
+    mocker.patch("modules.user_interface.cli.cli_interface.clean_and_validate_input_targets", return_value=expect)
+
+
+@pytest.fixture
+def mock_check_for_protocol_prefix_in_multiple_targets(mocker, expect):
+    mocker.patch("utils.utils.check_for_protocol_prefix_in_multiple_targets", return_value=expect)
+
+
+@pytest.fixture
+def mock_check_for_trailing_slash_in_multiple_targets(mocker, expect):
+    mocker.patch("utils.utils.check_for_protocol_prefix_in_multiple_targets", return_value=expect)
