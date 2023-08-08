@@ -1,12 +1,14 @@
 import click
 
+from config.settings import RECON_PHASE_MODULES, DIRECTORY_BRUTEFORCE
+from modules.helper.redis_client import RedisClient
 from modules.user_interface.cli.cli_interface_dataclasses import (
     DirectoryBruteforceInput,
     ReconInput,
     UserInput,
 )
 from utils.abstracts_classes import AbstractModule
-from utils.utils import clean_and_validate_input_targets
+from utils.utils import clean_and_validate_input_targets, convert_list_or_set_to_dict
 
 ABBREVIATIONS_DICTIONARY = {
     "use_type": {
@@ -32,13 +34,14 @@ class CliInterface(AbstractModule):
     phase: str or None = None  # type: ignore
     module: str or None = None  # type: ignore
     use_type: str = ""
-    targets: list = []
+    targets: set = set()
     directory_bruteforce_list_size: str = ""
     directory_bruteforce_input: dict = {}
     recon_phase_input: dict = {}
     output_after_every_phase: bool = True
     output_after_every_finding: bool = True
     user_input: dict = {}
+    used_modules: set = set()
 
     def __init__(self):
         super().__init__()
@@ -83,6 +86,9 @@ class CliInterface(AbstractModule):
             output_after_every_phase=self.output_after_every_phase,
             output_after_every_finding=self.output_after_every_finding,
         ).__dict__
+
+        self.extract_used_modules_data_from_user_input()
+        self.save_reusable_data_in_db()
 
     def use_type_question(self):
         self.separator()
@@ -163,6 +169,38 @@ class CliInterface(AbstractModule):
             # TODO: after develop phase change to False
             default=True,
         )
+
+    def extract_used_modules_data_from_user_input(self):
+        # TODO: expand this list with every new phase or module implemented
+        if self.use_type == "all":
+            self.used_modules = RECON_PHASE_MODULES
+
+        elif self.use_type == "phase":
+            if self.phase == "recon":
+                self.used_modules = RECON_PHASE_MODULES
+
+        else:
+            if self.module == DIRECTORY_BRUTEFORCE:
+                self.used_modules = DIRECTORY_BRUTEFORCE
+
+    def save_reusable_data_in_db(self):
+        """
+        Save targets and modules data in Redis in form of dictionary for future use - pulling results.
+
+        targets: {
+            id: target
+        }
+
+        modules: {
+            id: module
+        }
+        """
+        targets_dictionary = convert_list_or_set_to_dict(list_of_items=self.targets)
+        modules_dictionary = convert_list_or_set_to_dict(list_of_items=self.used_modules)
+
+        with RedisClient() as rc:
+            rc.mset({"targets|" + str(k): v for k, v in targets_dictionary.items()})
+            rc.mset({"modules|" + str(k): v for k, v in modules_dictionary.items()})
 
     @staticmethod
     def separator():

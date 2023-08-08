@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List
+from typing import Set
 
 
 @dataclass
@@ -17,7 +17,7 @@ class UserInput:
     use_type: str
     phase: str or None  # type: ignore
     module: str or None  # type: ignore
-    targets: List[str]
+    targets: Set[str]
     recon: ReconInput or None  # type: ignore
     output_after_every_phase: bool
     output_after_every_finding: bool

@@ -7,7 +7,7 @@ from utils.utils import (
     target_is_url,
 )
 
-URLS_WITHOUT_TRAILING_SLASH = [
+URLS_WITHOUT_TRAILING_SLASH = {
     "https://www.example.com:8080",
     "https://www.example.com",
     "http://www.example.com:8080",
@@ -15,9 +15,9 @@ URLS_WITHOUT_TRAILING_SLASH = [
     "http://example.com",
     "www.example.com:8080",
     "www.example.com",
-]
+}
 
-URLS_WITH_TRAILING_SLASH = [
+URLS_WITH_TRAILING_SLASH = {
     "https://www.example.com:8080/",
     "https://www.example.com/",
     "http://www.example.com:8080/",
@@ -25,53 +25,61 @@ URLS_WITH_TRAILING_SLASH = [
     "http://example.com/",
     "www.example.com:8080/",
     "www.example.com/",
-]
+}
 
-URLS_WITHOUT_PROTOCOL = [
+URLS_WITHOUT_PROTOCOL = {
     "www.example.com:8080",
     "www.example.com",
     "www.example:8080",
     "example.com:8080",
     "example.com",
     "example:8080",
-]
+}
 
-URLS_WITH_PROTOCOL = [
+URLS_WITH_PROTOCOL = {
     "http://www.example.com:8080",
     "http://www.example.com",
     "http://www.example:8080",
     "http://example.com:8080",
     "http://example.com",
     "http://example:8080",
-]
+}
 
-INVALID_URLS = [
+INVALID_URLS = {
     "www.example",
     "example",
     "example example",
-]
+}
 
 URLS_TO_VALIDATE = (
     INVALID_URLS
-    + URLS_WITHOUT_TRAILING_SLASH
-    + URLS_WITHOUT_PROTOCOL
-    + URLS_WITH_TRAILING_SLASH
-    + URLS_WITH_PROTOCOL
+    | URLS_WITHOUT_TRAILING_SLASH
+    | URLS_WITHOUT_PROTOCOL
+    | URLS_WITH_TRAILING_SLASH
+    | URLS_WITH_PROTOCOL
 )
 
-
-VALIDATED_URLS = (
-    URLS_WITHOUT_TRAILING_SLASH
-    + URLS_WITHOUT_PROTOCOL
-    + URLS_WITH_TRAILING_SLASH
-    + URLS_WITH_PROTOCOL
-)
+VALIDATED_URLS = {
+    "http://example.com/",
+    "http://example.com:8080/",
+    "http://example:8080/",
+    "http://www.example.com/",
+    "http://www.example.com:8080/",
+    "http://www.example:8080/",
+    "https://www.example.com/",
+    "https://www.example.com:8080/",
+    "www.example.com/",
+    "www.example.com:8080/",
+}
 
 
 class TestUtils:
     @pytest.mark.usefixtures("mock_check_for_protocol_prefix_in_multiple_targets")
     @pytest.mark.usefixtures("mock_check_for_trailing_slash_in_multiple_targets")
-    @pytest.mark.parametrize("test_input, expect", [(URLS_TO_VALIDATE, VALIDATED_URLS)])
+    @pytest.mark.parametrize(
+        "test_input, expect",
+        [(URLS_TO_VALIDATE, VALIDATED_URLS)],
+    )
     def test_clean_and_validate_input_targets(self, test_input, expect):
         """
         Test if URL checking Regexes are working correctly.
