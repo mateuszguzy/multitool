@@ -9,7 +9,9 @@ class AbstractModule(ABC, BaseModel):
         pass
 
 
-class AbstractBaseContextManager(ABC):
+# TODO: add Pydantic 'BaseModel' as parent
+#  current tries give validation errors for Redis and Socket manager
+class AbstractContextManager(ABC):
     @abstractmethod
     def __init__(self):
         super().__init__()
@@ -21,15 +23,3 @@ class AbstractBaseContextManager(ABC):
     @abstractmethod
     def __exit__(self, exc_type, exc_value, exc_traceback):
         pass
-
-
-class AbstractContextManager(AbstractBaseContextManager, BaseModel):
-    @abstractmethod
-    def __init__(self):
-        super().__init__()
-
-
-class AbstractRedisContextManager(AbstractBaseContextManager):
-    @abstractmethod
-    def __init__(self):
-        super().__init__()
