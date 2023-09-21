@@ -1,5 +1,6 @@
+from typing import Union
+
 import requests
-from requests import Response
 from requests.exceptions import ConnectionError, MissingSchema
 
 from config.settings import request_manager_logger
@@ -16,14 +17,6 @@ from utils.utils import (
 
 
 class RequestManager(AbstractContextManager):
-    method: str = str()
-    url: str = str()
-    session: requests.Session = requests.Session()
-
-    # 'pydantic' required class - provide additional config to allow 'requests.Session' type check
-    class Config:
-        arbitrary_types_allowed = True
-
     def __init__(self, method: str, url: str) -> None:
         super().__init__()
         self.method = method
@@ -34,15 +27,19 @@ class RequestManager(AbstractContextManager):
         return self
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
-        self.session.close()
+        if self.session is not None:
+            self.session.close()
 
     def run(self):
-        return self._make_request(method=self.method, url=self.url)
+        return self._make_request()
 
-    def _make_request(self, method: str, url: str) -> Response or Exception:  # type: ignore
-        if method.lower() == "get":
+    def _make_request(self) -> Union[requests.Response, Exception]:
+        """
+        Make request to the given URL.
+        """
+        if self.method.lower() == "get":
             try:
-                return self.session.get(url=url, allow_redirects=False)
+                return self.session.get(url=self.url, allow_redirects=False)
 
             except ConnectionError as exc:
                 request_manager_logger.exception(
@@ -54,7 +51,7 @@ class RequestManager(AbstractContextManager):
                 request_manager_logger.exception(
                     format_exception_with_traceback_for_logging(exc)
                 )
-                raise InvalidUrl(f"Invalid URL: {url}")
+                raise InvalidUrl(f"Invalid URL: {self.url}")
 
             except Exception as exc:
                 request_manager_logger.exception(
@@ -62,4 +59,6 @@ class RequestManager(AbstractContextManager):
                 )
                 raise UnhandledException(f"Unhandled request manager error: {exc}")
         else:
-            raise UnhandledRequestMethod(f"Unhandled request method used: {method}")
+            raise UnhandledRequestMethod(
+                f"Unhandled request method used: {self.method}"
+            )
