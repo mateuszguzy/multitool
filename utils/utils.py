@@ -69,7 +69,10 @@ def format_exception_with_traceback_for_logging(exc: Exception) -> str:
     Logger related function passing whole traceback info into log file.
     """
     tb = traceback.format_exc()
-    message = f"Error:{exc.args[0]}{LOGGING_DIVIDER}TRACEBACK{LOGGING_DIVIDER}: {tb}"
+    try:
+        message = f"Error:{exc.args[0]}{LOGGING_DIVIDER}TRACEBACK{LOGGING_DIVIDER}: {tb}"
+    except IndexError:
+        message = f"Error:{exc}{LOGGING_DIVIDER}TRACEBACK{LOGGING_DIVIDER}: {tb}"
 
     return message
 

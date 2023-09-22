@@ -12,3 +12,7 @@ class UnhandledRequestMethod(Exception):
 
 class UnhandledException(Exception):
     pass
+
+
+class AbortException(Exception):
+    pass

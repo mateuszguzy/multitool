@@ -1,25 +1,38 @@
 from abc import ABC, abstractmethod
+from typing import Any
 
-from pydantic import BaseModel
 
-
-class AbstractModule(ABC, BaseModel):
+class AbstractModule(ABC):
+    """
+    AbstractModule is a base class for implementing modules.
+    It provides an interface for running the module.
+    """
     @abstractmethod
-    def run(self, **kwargs):
+    def run(self) -> Any:
+        """
+        Run the module with the given arguments.
+
+        Returns:
+            The result of running the module.
+        """
         pass
 
 
-# TODO: add Pydantic 'BaseModel' as parent
-#  current tries give validation errors for Redis and Socket manager
 class AbstractContextManager(ABC):
-    @abstractmethod
-    def __init__(self):
-        super().__init__()
+    """
+    Abstract class for all context managers.
+    """
 
     @abstractmethod
-    def __enter__(self):
-        pass
+    def __enter__(self) -> Any:
+        """
+        Enter the context and return the context manager object.
+        """
+        raise NotImplementedError("Subclasses must implement the __enter__ method.")
 
     @abstractmethod
-    def __exit__(self, exc_type, exc_value, exc_traceback):
-        pass
+    def __exit__(self, exc_type: type, exc_value: BaseException, exc_traceback: BaseException) -> Any:
+        """
+        Exit the context and handle any exceptions raised within the context.
+        """
+        raise NotImplementedError("Subclasses must implement the __exit__ method.")

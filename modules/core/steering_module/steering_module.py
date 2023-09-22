@@ -1,3 +1,5 @@
+from typing import Set
+
 from config.settings import RECON_PHASE_MODULES
 from modules.recon.credential_leaks_check.credential_leaks_check import (
     CredentialLeaksCheck,
@@ -12,19 +14,19 @@ class SteeringModule(AbstractModule):
     use_type: str = str()
     phase: str = str()
     module: str = str()
-    targets: list[str] = list()
+    targets: Set[str] = set()
     directory_bruteforce_list_size: str = str()
     output_after_every_phase: bool = bool()
     output_after_every_finding: bool = bool()
-    recon_phase_modules: list[str] = list()
-    scan_phase_modules: list[str] = list()
+    recon_phase_modules: Set[str] = set()
+    scan_phase_modules: Set[str] = set()
 
     def __init__(self, user_input: dict) -> None:
         super().__init__()
         self._assign_json_values_to_class_attributes(user_input=user_input)
         self.recon_phase_modules = RECON_PHASE_MODULES
 
-    def run(self, **kwargs) -> None:
+    def run(self) -> None:
         """
         First function to run after user input is passed. Defines app top level behaviour.
         """
@@ -36,15 +38,17 @@ class SteeringModule(AbstractModule):
 
         elif self.use_type == "single_module":
             self._run_module(module=self.module)
+        else:
+            raise ValueError(f"Invalid use_type: {self.use_type}")
 
     # --- MODULES
     def _directory_bruteforce(self) -> None:
         """
         Function launching directory bruteforce module.
         """
-        for url_to_check in self.targets:
+        for target in self.targets:
             directory_bruteforce = DirectoryBruteforce(
-                list_size=self.directory_bruteforce_list_size, request_url=url_to_check
+                list_size=self.directory_bruteforce_list_size, request_url=target
             )
             directory_bruteforce.run()
 
@@ -74,10 +78,16 @@ class SteeringModule(AbstractModule):
 
     # --- PHASES
     def _run_recon(self):
+        """
+        Function launching recon phase.
+        """
         for module in self.recon_phase_modules:
             self._run_module(module=module)
 
     def _run_scan(self):
+        """
+        Function launching scan phase.
+        """
         for module in self.scan_phase_modules:
             self._run_module(module=module)
 
@@ -94,28 +104,32 @@ class SteeringModule(AbstractModule):
         Run single phase of hacking process.
         :param phase: e.g. recon / scan / gain_access / maintain_access / cover_tracks
         """
-        if phase == "recon":
-            self._run_recon()
-
-        elif phase == "scan":
-            self._run_scan()
+        phase_mapping = {
+            "recon": self._run_recon,
+            "scan": self._run_scan
+        }
+        if phase in phase_mapping:
+            phase_mapping[phase]()
+        # double validation, beside input validation on UI side - safety net
+        else:
+            raise ValueError(f"Invalid phase: {phase}")
 
     def _run_module(self, module: str) -> None:
         """
         Run single module of any hacking process phase.
         :param module: e.g. directory_bruteforce / port_scan / lfi_rfi
         """
-        if module == "directory_bruteforce":
-            self._directory_bruteforce()
-
-        elif module == "email_scraping":
-            self._email_scraping()
-
-        elif module == "credential_leaks_check":
-            self._credential_leaks_check()
-
-        elif module == "port_scan":
-            self._port_scan()
+        module_mapping = {
+            "directory_bruteforce": self._directory_bruteforce,
+            "email_scraping": self._email_scraping,
+            "credential_leaks_check": self._credential_leaks_check,
+            "port_scan": self._port_scan
+        }
+        if module in module_mapping:
+            module_mapping[module]()
+        # double validation, beside input validation on UI side - safety net
+        else:
+            raise ValueError(f"Invalid module: {module}")
 
     # --- UTILS
     def _assign_json_values_to_class_attributes(self, user_input: dict) -> None:
