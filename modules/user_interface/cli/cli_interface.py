@@ -24,7 +24,6 @@ MODULE_MAPPING: dict = {
 
 class CliInterface(AbstractModule):
     valid_targets: set = set()
-    used_modules: set = set()
     questions: List[dict] = list()
 
     def __init__(self):
