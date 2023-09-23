@@ -30,7 +30,7 @@ click-plugins==1.1.1
     # via celery
 click-repl==0.3.0
     # via celery
-flower==2.0.0
+flower==1.2.0
     # via -r /home/mateusz/PycharmProjects/multitool/requirements/common.in
 humanize==4.7.0
     # via flower
@@ -40,15 +40,19 @@ kombu==5.3.1
     # via celery
 prometheus-client==0.17.1
     # via flower
-prompt-toolkit==3.0.39
-    # via click-repl
+prompt-toolkit==3.0.36
+    # via
+    #   click-repl
+    #   questionary
 pytz==2023.3
     # via
     #   celery
     #   flower
+questionary==2.0.1
+    # via -r /home/mateusz/PycharmProjects/multitool/requirements/common.in
 redis==4.5.5
     # via -r /home/mateusz/PycharmProjects/multitool/requirements/common.in
-requests==2.31.0
+requests==2.30.0
     # via -r /home/mateusz/PycharmProjects/multitool/requirements/common.in
 tornado==6.3.2
     # via flower
@@ -58,7 +62,6 @@ urllib3==1.26.6
     #   requests
 vine==5.0.0
     # via
-    #   amqp
     #   celery
     #   kombu
 wcwidth==0.2.6
