@@ -56,7 +56,7 @@ class TestDirectoryBruteforce:
         ) as mocked_open:
             directory_bruteforce._read_wordlist()
 
-            assert directory_bruteforce.wordlist is None
+            assert directory_bruteforce.wordlist == set()
             mocked_open.assert_called_with(
                 f"{WORDLISTS_DIR}/dir_bruteforce_small.txt", "r", encoding="utf-8"
             )
