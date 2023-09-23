@@ -8,7 +8,7 @@ from modules.network.request_manager.request_manager import RequestManager
 
 # Constants for module names
 STEERING_MODULE = "__main__"
-DIRECTORY_BRUTEFORCE_MODULE = "directory_bruteforce"
+DIRECTORY_BRUTEFORCE_MODULE = "modules.recon.directory_bruteforce.directory_bruteforce"
 
 # Dictionary mapping module names to loggers
 loggers = {
@@ -29,7 +29,7 @@ def log_results(result: str, module: str, target: str = "") -> None:
     if module in loggers:
         loggers[module].info(result)
     else:
-        loggers[STEERING_MODULE].error(f"Wrong type of module used. Result: {result}")
+        loggers[STEERING_MODULE].error(f"Wrong type of module used: {module}")
 
 
 @app.task
