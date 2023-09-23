@@ -1,188 +1,174 @@
 import pytest
 
+from modules.user_interface.cli.cli_interface import CliInterface, MODULE_MAPPING
+
 
 class TestCliInterface:
-    """
-    Test CLI Interface module.
-    """
-
-    @pytest.mark.usefixtures("cli_interface")
-    @pytest.mark.usefixtures("mock_click_prompt_without_return_value")
-    @pytest.mark.usefixtures("mock_translate_abbreviations")
-    @pytest.mark.parametrize(
-        "test_input, expect",
-        [
-            ("a", "all"),
-            ("A", "all"),
-            ("sm", "single_module"),
-            ("SM", "single_module"),
-            ("sp", "single_phase"),
-            ("SP", "single_phase"),
-        ],
+    test_url = "https://example.com"
+    save_reusable_data_in_db_function_path = (
+        "modules.user_interface.cli.cli_interface.CliInterface.save_reusable_data_in_db"
     )
-    def test_use_type_question_success(self, test_input, expect, cli_interface):
-        cli_interface.use_type_question()
-
-        assert cli_interface.use_type == expect
-
-    @pytest.mark.usefixtures("cli_interface")
-    @pytest.mark.usefixtures("mock_click_prompt_without_return_value")
-    @pytest.mark.usefixtures("mock_translate_abbreviations")
-    @pytest.mark.parametrize(
-        "test_input, expect",
-        [
-            ("r", "recon"),
-            ("R", "recon"),
-        ],
+    valid_targets_function_path = (
+        "modules.user_interface.cli.cli_interface.CliInterface.valid_targets"
     )
-    def test_phase_question_success(self, test_input, expect, cli_interface):
-        cli_interface.phase_question()
+    questionary_prompt_path = "modules.user_interface.cli.cli_interface.prompt"
 
-        assert cli_interface.phase == expect
+    #  User selects 'all' use type and enters valid URLs as targets
+    def test_all_use_type_valid_urls(self, mocker):
+        """
+        Test if CliInterface returns expected dictionary when user selects 'all' use type and enters valid URLs
+        as targets
+        """
+        mocker.patch(
+            self.save_reusable_data_in_db_function_path,
+            return_value=None,
+        )
+        mocker.patch(
+            self.valid_targets_function_path,
+            {self.test_url},
+        )
+        mocker.patch(
+            self.questionary_prompt_path,
+            return_value={
+                "use_type": "all",
+                "directory_bruteforce_list_size": "small",
+                "output_after_every_phase": True,
+                "output_after_every_finding": True,
+            },
+        )
+        cli_interface = CliInterface()
+        result = cli_interface.run()
 
-    @pytest.mark.usefixtures("cli_interface")
-    @pytest.mark.usefixtures("mock_click_prompt_without_return_value")
-    @pytest.mark.usefixtures("mock_translate_abbreviations")
-    @pytest.mark.parametrize(
-        "test_input, expect",
-        [
-            ("dirb", "directory_bruteforce"),
-            ("DIRB", "directory_bruteforce"),
-        ],
-    )
-    def test_module_question_success(self, test_input, expect, cli_interface):
-        cli_interface.module_question()
+        assert result == {
+            "use_type": "all",
+            "phase": None,
+            "module": None,
+            "targets": {self.test_url},
+            "recon": {"directory_bruteforce": {"list_size": "small"}},
+            "output_after_every_phase": True,
+            "output_after_every_finding": True,
+        }
 
-        assert cli_interface.module == expect
+    def test_single_phase_recon_valid_urls(self, mocker):
+        """
+        Test if CliInterface returns expected dictionary when user selects 'single_phase' use type,
+        'recon' phase and enters valid URLs as targets
+        """
+        mocker.patch(
+            self.save_reusable_data_in_db_function_path,
+            return_value=None,
+        )
+        mocker.patch(
+            self.valid_targets_function_path,
+            {self.test_url},
+        )
+        mocker.patch(
+            self.questionary_prompt_path,
+            return_value={
+                "use_type": "single_phase",
+                "phase": "recon",
+                "directory_bruteforce_list_size": "small",
+                "output_after_every_phase": True,
+                "output_after_every_finding": True,
+            },
+        )
 
-    @pytest.mark.usefixtures("cli_interface")
-    @pytest.mark.usefixtures("mock_click_prompt_without_return_value")
-    @pytest.mark.usefixtures("mock_clean_and_validate_input_targets")
-    @pytest.mark.parametrize(
-        "test_input, expect",
-        [
-            ("https://www.example.com:8080", ["https://www.example.com:8080/"]),
-            ("https://www.example.com", ["https://www.example.com/"]),
-            ("https://example.com", ["https://example.com/"]),
-            ("https://example:8080", ["https://example:8080/"]),
-            ("http://example.com", ["http://example.com/"]),
-            ("http://example:8080", ["http://example:8080/"]),
-            ("www.example.com", ["http://www.example.com/"]),
-            ("http://example:8080, www.example.com", ["http://example:8080/", "http://www.example.com/"]),
+        cli_interface = CliInterface()
+        result = cli_interface.run()
 
-        ],
-    )
-    def test_targets_question_success(self, test_input, expect, cli_interface):
-        cli_interface.targets_question()
-        assert cli_interface.targets == expect
+        assert result == {
+            "use_type": "single_phase",
+            "phase": "recon",
+            "module": None,
+            "targets": {self.test_url},
+            "recon": {"directory_bruteforce": {"list_size": "small"}},
+            "output_after_every_phase": True,
+            "output_after_every_finding": True,
+        }
 
-        cli_interface.targets_helper_question()
-        assert cli_interface.targets == expect
+    def test_single_module_directory_bruteforce_valid_urls(self, mocker):
+        """
+        Test if CliInterface returns expected dictionary when user selects 'single_module' use type,
+        'directory_bruteforce' module and enters valid URLs as targets
+        """
+        mocker.patch(
+            self.save_reusable_data_in_db_function_path,
+            return_value=None,
+        )
+        mocker.patch(
+            self.valid_targets_function_path,
+            {self.test_url},
+        )
+        mocker.patch(
+            self.questionary_prompt_path,
+            return_value={
+                "use_type": "single_module",
+                "module": "directory_bruteforce",
+                "directory_bruteforce_list_size": "small",
+                "output_after_every_phase": True,
+                "output_after_every_finding": True,
+            },
+        )
 
-    @pytest.mark.usefixtures("cli_interface")
-    @pytest.mark.usefixtures("mock_directory_bruteforce_questions")
-    @pytest.mark.parametrize(
-        "test_input, expect",
-        [
-            ("small", {"directory_bruteforce": {"list_size": "small"}}),
-            ("medium", {"directory_bruteforce": {"list_size": "medium"}}),
-            ("large", {"directory_bruteforce": {"list_size": "large"}}),
-        ],
-    )
-    def test_recon_phase_questions_success(self, test_input, expect, cli_interface):
-        cli_interface.directory_bruteforce_input = expect["directory_bruteforce"]
-        cli_interface.recon_phase_questions()
+        cli_interface = CliInterface()
+        result = cli_interface.run()
 
-        assert cli_interface.recon_phase_input == expect
+        assert result == {
+            "use_type": "single_module",
+            "phase": None,
+            "module": "directory_bruteforce",
+            "targets": {"https://example.com"},
+            "recon": {"directory_bruteforce": {"list_size": "small"}},
+            "output_after_every_phase": True,
+            "output_after_every_finding": True,
+        }
 
-    @pytest.mark.usefixtures("cli_interface")
-    @pytest.mark.usefixtures("mock_directory_bruteforce_list_size_question")
-    @pytest.mark.parametrize(
-        "test_input, expect",
-        [
-            ("small", {"list_size": "small"}),
-            ("medium", {"list_size": "medium"}),
-            ("large", {"list_size": "large"}),
-        ],
-    )
-    def test_directory_bruteforce_questions_success(self, test_input, expect, cli_interface):
-        cli_interface.directory_bruteforce_list_size = test_input
-        cli_interface.directory_bruteforce_questions()
+    def test_returns_set_of_modules_when_use_type_is_all(self):
+        """
+        Test if CliInterface returns expected set of modules when user selects 'all' use type
+        """
+        answers = {"use_type": "all"}
+        expected_modules = MODULE_MAPPING["all"]
 
-        assert cli_interface.directory_bruteforce_input == expect
+        result = CliInterface.extract_used_modules_data_from_user_input(answers)
 
-    @pytest.mark.usefixtures("cli_interface")
-    @pytest.mark.usefixtures("mock_click_prompt_with_return_value")
-    @pytest.mark.parametrize(
-        "test_input, expect",
-        [
-            (True, True),
-            (False, False),
-        ],
-    )
-    def test_output_after_every_phase_question_success(self, test_input, expect, cli_interface):
-        cli_interface.output_after_every_phase_question()
+        assert result == expected_modules
 
-        assert cli_interface.output_after_every_phase == expect
+    def test_returns_set_of_modules_when_use_type_is_single_phase_and_phase_is_valid(
+        self,
+    ):
+        """
+        Test if CliInterface returns expected set of modules when user selects 'single_phase' use type
+        and 'recon' phase
+        """
+        answers = {"use_type": "single_phase", "phase": "recon"}
+        expected_modules = MODULE_MAPPING["single_phase"]["recon"]
 
-    @pytest.mark.usefixtures("cli_interface")
-    @pytest.mark.usefixtures("mock_click_prompt_with_return_value")
-    @pytest.mark.parametrize(
-        "test_input, expect",
-        [
-            (True, True),
-            (False, False),
-        ],
-    )
-    def test_output_after_every_finding_question_success(self, test_input, expect, cli_interface):
-        cli_interface.output_after_every_finding_question()
+        result = CliInterface.extract_used_modules_data_from_user_input(answers)
 
-        assert cli_interface.output_after_every_finding == expect
+        assert result == expected_modules
 
-    @pytest.mark.usefixtures("cli_interface")
-    @pytest.mark.parametrize(
-        "test_input_key, test_input_abbrev, expect",
-        [
-            ("use_type", "a", "all"),
-            ("use_type", "A", "all"),
-            ("use_type", "sp", "single_phase"),
-            ("use_type", "SP", "single_phase"),
-            ("use_type", "sm", "single_module"),
-            ("use_type", "SM", "single_module"),
-            ("phase", "r", "recon"),
-            ("phase", "R", "recon"),
-            ("module", "dirb", "directory_bruteforce"),
-            ("module", "DIRB", "directory_bruteforce"),
-            ("wordlist_size", "s", "small"),
-            ("wordlist_size", "S", "small"),
-            ("wordlist_size", "m", "medium"),
-            ("wordlist_size", "M", "medium"),
-            ("wordlist_size", "t", "test"),
-            ("wordlist_size", "T", "test"),
-        ]
-    )
-    def test_translate_abbreviations_success(self, test_input_key, test_input_abbrev, expect, cli_interface):
-        result = cli_interface._translate_abbreviations(key=test_input_key, abbreviation=test_input_abbrev)
+    def test_returns_set_of_modules_when_use_type_is_single_module_and_module_is_valid(
+        self,
+    ):
+        """
+        Test if CliInterface returns expected set of modules when user selects 'single_module' use type
+        and 'directory_bruteforce' module
+        """
+        answers = {"use_type": "single_module", "module": "directory_bruteforce"}
+        expected_modules = MODULE_MAPPING["single_module"]["directory_bruteforce"]
 
-        assert result == expect
+        result = CliInterface.extract_used_modules_data_from_user_input(answers)
 
-    @pytest.mark.usefixtures("cli_interface")
-    @pytest.mark.parametrize(
-        "test_input_key, test_input_abbrev, expect",
-        [
-            ("use_type", "all", ""),
-            ("use_type", "single", ""),
-            ("use_type", "phase", ""),
-            ("use_type", "single_module", ""),
-            ("phase", "recon", ""),
-            ("module", "directory_bruteforce", ""),
-            ("module", "port_scan", ""),
-            ("wordlist_size", "l", ""),
-            ("wordlist_size", "medium", ""),
-            ("wordlist_size", "test", ""),
-            ("wordlist_size", "large", ""),
-        ]
-    )
-    def test_translate_abbreviations_fail(self, test_input_key, test_input_abbrev, expect, cli_interface):
-        with pytest.raises(KeyError):
-            cli_interface._translate_abbreviations(key=test_input_key, abbreviation=test_input_abbrev)
+        assert result == expected_modules
+
+    def test_raises_value_error_when_use_type_is_not_all_single_phase_or_single_module(
+        self,
+    ):
+        """
+        Test if CliInterface raises ValueError when user selects invalid use type
+        """
+        answers = {"use_type": "invalid"}
+
+        with pytest.raises(ValueError):
+            CliInterface.extract_used_modules_data_from_user_input(answers)
