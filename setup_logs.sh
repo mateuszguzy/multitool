@@ -1,7 +1,7 @@
 #!/bin/bash
 
 MODULES=$(grep -o "RESULTS_FOR_USER_FROM_MODULES = \[\(.*\)\]" config/settings.py | cut -d "[" -f2 | cut -d "]" -f1 | tr -d " '")
-CURRENT_DATE=$(date +'%Y%m%d')
+CURRENT_DATE=$(date -u +'%Y%m%d')
 MULTITAIL_COMMAND_STRING="multitail "
 LOGGING_DIR="./logs/${CURRENT_DATE}"
 
