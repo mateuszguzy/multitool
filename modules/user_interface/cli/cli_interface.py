@@ -1,4 +1,5 @@
 import dataclasses
+import pdb
 from typing import List, Set
 
 from questionary import prompt
@@ -175,7 +176,9 @@ class CliInterface(AbstractModule):
             return MODULE_MAPPING[answers["use_type"]][answers["phase"]]
 
         elif answers["use_type"] == SINGLE_MODULE:
-            return MODULE_MAPPING[answers["use_type"]][answers["module"]]
+            # needs to be wrapped in set() because it is a single module and not a list of modules
+            # in other case it would be a list of characters which would be added to Redis as separate keys
+            return set(MODULE_MAPPING[answers["use_type"]][answers["module"]])
 
         else:
             raise ValueError("Invalid module name")
