@@ -38,7 +38,7 @@ def web_request(request_method: str, url: str, word: str, module: str) -> Option
         response = rm.run()
 
         if response.ok:
-            log_results.apply_async(args=[word, module], kwargs={'target': url})
+            log_results.delay(result=word, module=module, target=url)
             return word
         else:
             return  # type: ignore
