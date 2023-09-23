@@ -21,7 +21,7 @@ def main():
     user_interface = UserInterface()
 
     try:
-        user_interface.run()
+        user_input = user_interface.run()
     except Abort as exc:
         steering_module_logger.exception(
             format_exception_with_traceback_for_logging(exc)
@@ -33,7 +33,6 @@ def main():
         )
         raise UnhandledException("Unhandled exception")
 
-    user_input = getattr(user_interface.cli_interface, "user_input")
     steering_module = SteeringModule(user_input=user_input)
     steering_module.run()
 

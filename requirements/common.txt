@@ -40,12 +40,16 @@ kombu==5.3.1
     # via celery
 prometheus-client==0.17.1
     # via flower
-prompt-toolkit==3.0.39
-    # via click-repl
+prompt-toolkit==3.0.36
+    # via
+    #   click-repl
+    #   questionary
 pytz==2023.3
     # via
     #   celery
     #   flower
+questionary==2.0.1
+    # via -r /home/mateusz/PycharmProjects/multitool/requirements/common.in
 redis==4.5.5
     # via -r /home/mateusz/PycharmProjects/multitool/requirements/common.in
 requests==2.31.0
@@ -58,8 +62,10 @@ urllib3==1.26.6
     #   requests
 vine==5.0.0
     # via
-    #   amqp
     #   celery
     #   kombu
 wcwidth==0.2.6
     # via prompt-toolkit
+
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools

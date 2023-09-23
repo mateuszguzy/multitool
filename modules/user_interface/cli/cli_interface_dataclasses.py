@@ -1,23 +1,23 @@
 from dataclasses import dataclass
-from typing import Set
+from typing import Set, Optional
 
 
 @dataclass
 class DirectoryBruteforceInput:
-    list_size: str
+    list_size: Optional[str]
 
 
 @dataclass
 class ReconInput:
-    directory_bruteforce: DirectoryBruteforceInput or None  # type: ignore
+    directory_bruteforce: dict
 
 
 @dataclass
 class UserInput:
     use_type: str
-    phase: str or None  # type: ignore
-    module: str or None  # type: ignore
+    phase: Optional[str]
+    module: Optional[str]
     targets: Set[str]
-    recon: ReconInput or None  # type: ignore
+    recon: dict
     output_after_every_phase: bool
     output_after_every_finding: bool
