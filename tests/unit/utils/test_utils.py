@@ -4,7 +4,7 @@ from utils.utils import (
     clean_and_validate_input_targets,
     check_for_protocol_prefix_in_multiple_targets,
     check_for_trailing_slash_in_multiple_targets,
-    target_is_url,
+    target_is_url, convert_list_or_set_to_dict,
 )
 
 URLS_WITHOUT_TRAILING_SLASH = {
@@ -137,3 +137,25 @@ class TestUtils:
             result = target_is_url(target=url)
 
             assert result == expect
+
+
+class TestConvertListOrSetToDict:
+    def test_with_list_of_integers(self):
+        input_list = [1, 2, 3, 4, 5]
+        expected_output = {0: 1, 1: 2, 2: 3, 3: 4, 4: 5}
+        assert convert_list_or_set_to_dict(input_list) == expected_output
+
+    def test_with_empty_list(self):
+        input_list = []
+        expected_output = {}
+        assert convert_list_or_set_to_dict(input_list) == expected_output
+
+    def test_with_list_containing_duplicates(self):
+        input_list = [1, 2, 3, 2, 4, 5, 4]
+        expected_output = {0: 1, 1: 2, 2: 3, 3: 4, 4: 5}
+        assert convert_list_or_set_to_dict(input_list) == expected_output
+
+    def test_with_list_of_none_values(self):
+        input_list = [None, None, None]
+        expected_output = {}
+        assert convert_list_or_set_to_dict(input_list) == expected_output
