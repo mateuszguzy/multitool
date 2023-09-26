@@ -1,11 +1,11 @@
 from typing import Set
 
-from config.settings import RECON_PHASE_MODULES
 from modules.recon.credential_leaks_check.credential_leaks_check import (
     CredentialLeaksCheck,
 )
 from modules.recon.directory_bruteforce.directory_bruteforce import DirectoryBruteforce
 from modules.recon.email_scraping.email_scraping import EmailScraping
+from modules.recon.recon import Recon
 from modules.scan.port_scan.port_scan import PortScan
 from utils.abstracts_classes import AbstractModule
 
@@ -24,7 +24,6 @@ class SteeringModule(AbstractModule):
     def __init__(self, user_input: dict) -> None:
         super().__init__()
         self._assign_json_values_to_class_attributes(user_input=user_input)
-        self.recon_phase_modules = RECON_PHASE_MODULES
 
     def run(self) -> None:
         """
@@ -77,12 +76,16 @@ class SteeringModule(AbstractModule):
         port_scan.run()
 
     # --- PHASES
-    def _run_recon(self):
+    def _run_recon(self) -> None:
         """
         Function launching recon phase.
         """
-        for module in self.recon_phase_modules:
-            self._run_module(module=module)
+        for target in self.targets:
+            recon_phase = Recon(
+                directory_bruteforce_list_size=self.directory_bruteforce_list_size,
+                target=target,
+            )
+            recon_phase.run()
 
     def _run_scan(self):
         """
@@ -104,10 +107,7 @@ class SteeringModule(AbstractModule):
         Run single phase of hacking process.
         :param phase: e.g. recon / scan / gain_access / maintain_access / cover_tracks
         """
-        phase_mapping = {
-            "recon": self._run_recon,
-            "scan": self._run_scan
-        }
+        phase_mapping = {"recon": self._run_recon, "scan": self._run_scan}
         if phase in phase_mapping:
             phase_mapping[phase]()
         # double validation, beside input validation on UI side - safety net
@@ -123,7 +123,7 @@ class SteeringModule(AbstractModule):
             "directory_bruteforce": self._directory_bruteforce,
             "email_scraping": self._email_scraping,
             "credential_leaks_check": self._credential_leaks_check,
-            "port_scan": self._port_scan
+            "port_scan": self._port_scan,
         }
         if module in module_mapping:
             module_mapping[module]()
