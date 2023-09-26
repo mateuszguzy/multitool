@@ -12,11 +12,11 @@ class Recon(AbstractModule):
         self.directory_bruteforce_list_size = directory_bruteforce_list_size
         self.target = target
 
-    def run(self):
+    def run(self) -> None:
         for module in self.recon_phase_modules:
             getattr(self, f"_run_{module}")()
 
-    def _run_directory_bruteforce(self):
+    def _run_directory_bruteforce(self) -> None:
         directory_bruteforce = DirectoryBruteforce(
             request_url=self.target, list_size=self.directory_bruteforce_list_size
         )
