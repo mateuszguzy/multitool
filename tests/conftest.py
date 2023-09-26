@@ -6,6 +6,7 @@ import pytest
 from config.settings import TESTS_MOCKED_INPUT_DIR, BASE_DIR
 from modules.core.steering_module.steering_module import SteeringModule
 from modules.network.request_manager.request_manager import RequestManager
+from modules.recon.recon import Recon
 from modules.user_interface.cli.cli_interface import CliInterface
 
 MOCK_USER_INPUT_SINGLE_MODULE_DIRECTORY_BRUTEFORCE = (
@@ -109,6 +110,12 @@ def cli_interface():
     return CliInterface()
 
 
+@pytest.fixture
+def recon():
+    return Recon(directory_bruteforce_list_size="small", target="example.com")
+
+
+# MOCKS
 @pytest.fixture
 def mock_click_prompt_without_return_value(mocker):
     mocker.patch(
