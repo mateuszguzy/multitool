@@ -19,7 +19,8 @@ ALL, SINGLE_PHASE, SINGLE_MODULE = "all", "single_phase", "single_module"
 MODULE_MAPPING: dict = {
     ALL: RECON_PHASE_MODULES,
     SINGLE_PHASE: {RECON_PHASE: RECON_PHASE_MODULES},
-    SINGLE_MODULE: {DIRECTORY_BRUTEFORCE: DIRECTORY_BRUTEFORCE},
+    # single modules need to be wrapped in set() because it is stored in Redis each letter as separate key
+    SINGLE_MODULE: {DIRECTORY_BRUTEFORCE: {DIRECTORY_BRUTEFORCE}},
 }
 
 
@@ -176,9 +177,7 @@ class CliInterface(AbstractModule):
             return MODULE_MAPPING[answers["use_type"]][answers["phase"]]
 
         elif answers["use_type"] == SINGLE_MODULE:
-            # needs to be wrapped in set() because it is a single module and not a list of modules
-            # in other case it would be a list of characters which would be added to Redis as separate keys
-            return set(MODULE_MAPPING[answers["use_type"]][answers["module"]])
+            return MODULE_MAPPING[answers["use_type"]][answers["module"]]
 
         else:
             raise ValueError("Invalid module name")
