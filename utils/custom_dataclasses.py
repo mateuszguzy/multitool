@@ -9,15 +9,15 @@ class DirectoryBruteforceInput:
 
 @dataclass
 class ReconInput:
-    directory_bruteforce: dict
+    directory_bruteforce: DirectoryBruteforceInput
 
 
 @dataclass
 class UserInput:
     use_type: str
-    phase: Optional[str]
+    phase: str
     module: Optional[str]
     targets: Set[str]
-    recon: dict
+    recon: ReconInput
     output_after_every_phase: bool
     output_after_every_finding: bool
