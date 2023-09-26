@@ -1,10 +1,9 @@
 import dataclasses
-import pdb
 from typing import List, Set
 
 from questionary import prompt
 
-from config.settings import RECON_PHASE_MODULES, DIRECTORY_BRUTEFORCE, RECON_PHASE
+from config.settings import RECON_PHASE_MODULES, DIRECTORY_BRUTEFORCE, RECON_PHASE, AVAILABLE_PHASES
 from modules.helper.redis_client import RedisClient
 from modules.user_interface.cli.cli_interface_dataclasses import (
     DirectoryBruteforceInput,
@@ -68,15 +67,23 @@ class CliInterface(AbstractModule):
                 "type": "select",
                 "name": "phase",
                 "message": "Choose Phase to execute:",
-                "choices": ["recon"],
+                "choices": AVAILABLE_PHASES,
                 "default": "recon",
                 "when": lambda answers: answers["use_type"] == "single_phase",
             },
             {
                 "type": "select",
+                "name": "phase",
+                "message": "From which phase a module should be executed:",
+                "choices": AVAILABLE_PHASES,
+                "default": "recon",
+                "when": lambda answers: answers["use_type"] == "single_module",
+            },
+            {
+                "type": "select",
                 "name": "module",
                 "message": "Choose Module to execute:",
-                "choices": ["directory_bruteforce"],
+                "choices": RECON_PHASE_MODULES,
                 "default": "directory_bruteforce",
                 "when": lambda answers: answers["use_type"] == "single_module",
             },
