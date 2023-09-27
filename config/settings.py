@@ -1,11 +1,12 @@
 import datetime
 import logging
+import logging.config as log_conf
 import multiprocessing
 import os
 import re
 from pathlib import Path
+
 from dotenv import load_dotenv
-import logging.config as log_conf
 
 load_dotenv()
 
@@ -44,7 +45,8 @@ DIRECTORY_BRUTEFORCE = "directory_bruteforce"
 DIRECTORY_BRUTEFORCE_REQUEST_METHOD = "GET"
 
 CORE_MODULES = {STEERING_MODULE, TASK_QUEUE, REQUEST_MANAGER}
-RECON_PHASE_MODULES = {DIRECTORY_BRUTEFORCE}
+RECON_PHASE_MODULES = [DIRECTORY_BRUTEFORCE]
+AVAILABLE_PHASES = [RECON_PHASE]  # PHASES AVAILABLE TO RUN AT THE MOMENT
 
 # make sure user will not get tracebacks and similar data in terminal
 RESULTS_FOR_USER_FROM_MODULES = [STEERING_MODULE, DIRECTORY_BRUTEFORCE]

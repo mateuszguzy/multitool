@@ -1,17 +1,15 @@
-import dataclasses
-import pdb
 from typing import List, Set
 
 from questionary import prompt
 
-from config.settings import RECON_PHASE_MODULES, DIRECTORY_BRUTEFORCE, RECON_PHASE
+from config.settings import RECON_PHASE_MODULES, DIRECTORY_BRUTEFORCE, RECON_PHASE, AVAILABLE_PHASES
 from modules.helper.redis_client import RedisClient
-from modules.user_interface.cli.cli_interface_dataclasses import (
+from utils.abstracts_classes import AbstractModule
+from utils.custom_dataclasses import (
     DirectoryBruteforceInput,
     ReconInput,
     UserInput,
 )
-from utils.abstracts_classes import AbstractModule
 from utils.utils import clean_and_validate_input_targets, convert_list_or_set_to_dict
 
 ALL, SINGLE_PHASE, SINGLE_MODULE = "all", "single_phase", "single_module"
@@ -32,24 +30,22 @@ class CliInterface(AbstractModule):
         super().__init__()
         self.questions = self.prepare_questions()
 
-    def run(self):
+    def run(self) -> UserInput:
         answers = prompt(self.questions)
         recon_phase_input = self.aggregate_phase_specific_data(answers=answers)
 
         used_modules = self.extract_used_modules_data_from_user_input(answers=answers)
         self.save_reusable_data_in_db(used_modules=used_modules)
 
-        return dataclasses.asdict(
-            UserInput(
-                use_type=answers.get("use_type"),
-                phase=answers.get("phase", None),
+        return UserInput(
+                use_type=answers.get("use_type", ""),
+                phase=answers.get("phase", ""),
                 module=answers.get("module", None),
                 targets=self.valid_targets,
                 recon=recon_phase_input,
-                output_after_every_phase=answers.get("output_after_every_phase"),
-                output_after_every_finding=answers.get("output_after_every_finding"),
+                output_after_every_phase=answers.get("output_after_every_phase", 0),
+                output_after_every_finding=answers.get("output_after_every_finding", 0),
             )
-        )
 
     def prepare_questions(self) -> List[dict]:
         """
@@ -68,15 +64,23 @@ class CliInterface(AbstractModule):
                 "type": "select",
                 "name": "phase",
                 "message": "Choose Phase to execute:",
-                "choices": ["recon"],
+                "choices": AVAILABLE_PHASES,
                 "default": "recon",
                 "when": lambda answers: answers["use_type"] == "single_phase",
             },
             {
                 "type": "select",
+                "name": "phase",
+                "message": "From which phase a module should be executed:",
+                "choices": AVAILABLE_PHASES,
+                "default": "recon",
+                "when": lambda answers: answers["use_type"] == "single_module",
+            },
+            {
+                "type": "select",
                 "name": "module",
                 "message": "Choose Module to execute:",
-                "choices": ["directory_bruteforce"],
+                "choices": RECON_PHASE_MODULES,
                 "default": "directory_bruteforce",
                 "when": lambda answers: answers["use_type"] == "single_module",
             },
@@ -137,32 +141,28 @@ class CliInterface(AbstractModule):
         else:
             return False
 
-    def aggregate_phase_specific_data(self, answers: dict) -> dict:
+    def aggregate_phase_specific_data(self, answers: dict) -> ReconInput:
         """
         Aggregate phase specific data from user input and return it in form of dictionary.
         """
         recon_phase_input = self.aggregate_recon_phase_data(answers=answers)
         return recon_phase_input
 
-    def aggregate_recon_phase_data(self, answers: dict) -> dict:
+    def aggregate_recon_phase_data(self, answers: dict) -> ReconInput:
         """
         Aggregate recon phase data from user input and return it in form of dictionary.
         """
         directory_bruteforce_input = self.aggregate_directory_bruteforce_data(answers=answers)
-        return dataclasses.asdict(
-            ReconInput(directory_bruteforce=directory_bruteforce_input)
-        )
+        return ReconInput(directory_bruteforce=directory_bruteforce_input)
 
     @staticmethod
-    def aggregate_directory_bruteforce_data(answers: dict) -> dict:
+    def aggregate_directory_bruteforce_data(answers: dict) -> DirectoryBruteforceInput:
         """
         Aggregate directory bruteforce data from user input and return it in form of dictionary.
         """
-        return dataclasses.asdict(
-            DirectoryBruteforceInput(
+        return DirectoryBruteforceInput(
                 list_size=answers.get("directory_bruteforce_list_size", None)
             )
-        )
 
     @staticmethod
     def extract_used_modules_data_from_user_input(answers: dict) -> Set[str]:

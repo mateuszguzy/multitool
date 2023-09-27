@@ -7,6 +7,7 @@ from config.settings import (
     DIRECTORY_BRUTEFORCE_REQUEST_METHOD,
 )
 from modules.task_queue.tasks import web_request
+from utils.custom_dataclasses import DirectoryBruteforceInput
 from utils.abstracts_classes import AbstractModule
 from utils.utils import store_module_results_in_database, convert_list_or_set_to_dict
 
@@ -15,9 +16,10 @@ class DirectoryBruteforce(AbstractModule):
     request_method: str = DIRECTORY_BRUTEFORCE_REQUEST_METHOD
     file_path: str = str()
 
-    def __init__(self, request_url: str, list_size: str) -> None:
+    def __init__(self, directory_bruteforce_input: DirectoryBruteforceInput, target: str) -> None:
         super().__init__()
-        self.request_url: str = request_url
+        self.target: str = target
+        list_size = getattr(directory_bruteforce_input, "list_size")
         self.file_path: str = f"{WORDLISTS_DIR}/dir_bruteforce_{list_size}.txt"
         self.wordlist: Set[str] = set()
 
@@ -33,7 +35,7 @@ class DirectoryBruteforce(AbstractModule):
         tasks = [
             web_request.s(
                 request_method=self.request_method,
-                url=self.request_url,
+                url=self.target,
                 word=word,
                 module=__name__,
             )
@@ -44,7 +46,7 @@ class DirectoryBruteforce(AbstractModule):
             list_of_items=celery.group(tasks).apply_async().join()
         )
         store_module_results_in_database(
-            target=self.request_url, results=results, module="directory_bruteforce"
+            target=self.target, results=results, module="directory_bruteforce"
         )
 
     def _read_wordlist(self) -> None:
@@ -54,4 +56,3 @@ class DirectoryBruteforce(AbstractModule):
         with open(self.file_path, "r", encoding="utf-8") as wordlist:
             for line in wordlist:
                 self.wordlist.add(line.strip())
-

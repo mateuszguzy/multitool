@@ -1,6 +1,7 @@
 import pytest
 
 from modules.user_interface.cli.cli_interface import CliInterface, MODULE_MAPPING
+from utils.custom_dataclasses import UserInput, DirectoryBruteforceInput, ReconInput
 
 
 class TestCliInterface:
@@ -21,7 +22,6 @@ class TestCliInterface:
         """
         mocker.patch(
             self.save_reusable_data_in_db_function_path,
-            return_value=None,
         )
         mocker.patch(
             self.valid_targets_function_path,
@@ -39,15 +39,15 @@ class TestCliInterface:
         cli_interface = CliInterface()
         result = cli_interface.run()
 
-        assert result == {
-            "use_type": "all",
-            "phase": None,
-            "module": None,
-            "targets": {self.test_url},
-            "recon": {"directory_bruteforce": {"list_size": "small"}},
-            "output_after_every_phase": True,
-            "output_after_every_finding": True,
-        }
+        assert result == UserInput(
+            use_type="all",
+            phase="",
+            module=None,
+            targets={self.test_url},
+            recon=ReconInput(directory_bruteforce=DirectoryBruteforceInput(list_size="small")),
+            output_after_every_phase=True,
+            output_after_every_finding=True,
+        )
 
     def test_single_phase_recon_valid_urls(self, mocker):
         """
@@ -56,7 +56,6 @@ class TestCliInterface:
         """
         mocker.patch(
             self.save_reusable_data_in_db_function_path,
-            return_value=None,
         )
         mocker.patch(
             self.valid_targets_function_path,
@@ -76,15 +75,15 @@ class TestCliInterface:
         cli_interface = CliInterface()
         result = cli_interface.run()
 
-        assert result == {
-            "use_type": "single_phase",
-            "phase": "recon",
-            "module": None,
-            "targets": {self.test_url},
-            "recon": {"directory_bruteforce": {"list_size": "small"}},
-            "output_after_every_phase": True,
-            "output_after_every_finding": True,
-        }
+        assert result == UserInput(
+            use_type="single_phase",
+            phase="recon",
+            module=None,
+            targets={self.test_url},
+            recon=ReconInput(directory_bruteforce=DirectoryBruteforceInput(list_size="small")),
+            output_after_every_phase=True,
+            output_after_every_finding=True,
+        )
 
     def test_single_module_directory_bruteforce_valid_urls(self, mocker):
         """
@@ -93,7 +92,6 @@ class TestCliInterface:
         """
         mocker.patch(
             self.save_reusable_data_in_db_function_path,
-            return_value=None,
         )
         mocker.patch(
             self.valid_targets_function_path,
@@ -113,15 +111,15 @@ class TestCliInterface:
         cli_interface = CliInterface()
         result = cli_interface.run()
 
-        assert result == {
-            "use_type": "single_module",
-            "phase": None,
-            "module": "directory_bruteforce",
-            "targets": {"https://example.com"},
-            "recon": {"directory_bruteforce": {"list_size": "small"}},
-            "output_after_every_phase": True,
-            "output_after_every_finding": True,
-        }
+        assert result == UserInput(
+            use_type="single_module",
+            phase="",
+            module="directory_bruteforce",
+            targets={self.test_url},
+            recon=ReconInput(directory_bruteforce=DirectoryBruteforceInput(list_size="small")),
+            output_after_every_phase=True,
+            output_after_every_finding=True,
+        )
 
     def test_returns_set_of_modules_when_use_type_is_all(self):
         """
