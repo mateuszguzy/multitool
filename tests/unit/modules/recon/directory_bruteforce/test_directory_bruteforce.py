@@ -1,62 +1,79 @@
-from unittest import mock
-
+import celery  # type: ignore
 import pytest
 
 from config.settings import WORDLISTS_DIR
-from modules.recon.directory_bruteforce.directory_bruteforce import DirectoryBruteforce
+from modules.task_queue.tasks import web_request
 
 
 class TestDirectoryBruteforce:
-    test_url = "http://example.com"
+    target = "http://example.com"
     expected_wordlist = {"word1", "word2", "word3"}
-    test_list_size = "small"
+    module_name = "modules.recon.directory_bruteforce.directory_bruteforce"
 
-    def test_store_results(self, mocker):
-        mocker.patch(
-            "modules.recon.directory_bruteforce.directory_bruteforce.DirectoryBruteforce._read_wordlist",
-        )
-        mock_store_results = mocker.patch(
-            "modules.recon.directory_bruteforce.directory_bruteforce.store_module_results_in_database"
-        )
-        mocker.patch(
-            "modules.recon.directory_bruteforce.directory_bruteforce.convert_list_or_set_to_dict",
-        )
-        mocker.patch(
-            "modules.recon.directory_bruteforce.directory_bruteforce.web_request",
-        )
+    def test_read_wordlist_and_run_tasks(
+        self, mocker, directory_bruteforce, mock_open_with_data, mock_celery_group
+    ):
+        mocker.patch(f"{self.module_name}.convert_list_or_set_to_dict")
+        mocker.patch(f"{self.module_name}.store_module_results_in_database")
 
-        directory_bruteforce = DirectoryBruteforce(self.test_url, self.test_list_size)
         directory_bruteforce.run()
 
-        assert mock_store_results.call_count == 1
+        assert mock_open_with_data.call_count == 1
+        assert mock_open_with_data.call_args == mocker.call(
+            f"{WORDLISTS_DIR}/dir_bruteforce_small.txt", "r", encoding="utf-8"
+        )
+        assert celery.group.call_count == 1
+        assert celery.group.call_args(
+            [
+                mocker.call(
+                    web_request.s(
+                        request_method="GET",
+                        url=self.target,
+                        word="word1",
+                        module=self.module_name,
+                    )
+                ),
+                mocker.call(
+                    web_request.s(
+                        request_method="GET",
+                        url=self.target,
+                        word="word2",
+                        module=self.module_name,
+                    )
+                ),
+                mocker.call(
+                    web_request.s(
+                        request_method="GET",
+                        url=self.target,
+                        word="word3",
+                        module=self.module_name,
+                    )
+                ),
+            ]
+        )
 
-    def test_handle_nonexistent_wordlist_file(self):
-        directory_bruteforce = DirectoryBruteforce(self.test_url, self.test_list_size)
+    def test_handle_nonexistent_wordlist_file(
+        self, directory_bruteforce, mock_open_with_file_not_found_error
+    ):
+        with pytest.raises(FileNotFoundError):
+            directory_bruteforce.run()
 
-        with mock.patch("builtins.open", side_effect=FileNotFoundError):
-            with pytest.raises(FileNotFoundError):
-                directory_bruteforce.run()
+    def test_read_wordlist_successfully_converts_to_set(
+        self, mocker, directory_bruteforce, mock_open_with_data
+    ):
+        directory_bruteforce._read_wordlist()
 
-    def test_read_wordlist_successfully_converts_to_set(self):
-        directory_bruteforce = DirectoryBruteforce(self.test_url, self.test_list_size)
-        with mock.patch(
-            "builtins.open", mock.mock_open(read_data="word1\nword2\nword3")
-        ) as mocked_open:
-            directory_bruteforce._read_wordlist()
+        assert directory_bruteforce.wordlist == self.expected_wordlist
+        assert mock_open_with_data.call_args == mocker.call(
+            f"{WORDLISTS_DIR}/dir_bruteforce_small.txt", "r", encoding="utf-8"
+        )
 
-            assert directory_bruteforce.wordlist == self.expected_wordlist
-            mocked_open.assert_called_with(
-                f"{WORDLISTS_DIR}/dir_bruteforce_small.txt", "r", encoding="utf-8"
-            )
+    def test_empty_wordlist_file(
+        self, mocker, directory_bruteforce, mock_open_without_data
+    ):
+        directory_bruteforce._read_wordlist()
 
-    def test_empty_wordlist_file(self):
-        directory_bruteforce = DirectoryBruteforce(self.test_url, self.test_list_size)
-        with mock.patch(
-            "modules.recon.directory_bruteforce.directory_bruteforce.open", mock.mock_open(read_data="")
-        ) as mocked_open:
-            directory_bruteforce._read_wordlist()
-
-            assert directory_bruteforce.wordlist == set()
-            mocked_open.assert_called_with(
-                f"{WORDLISTS_DIR}/dir_bruteforce_small.txt", "r", encoding="utf-8"
-            )
+        assert directory_bruteforce.wordlist == set()
+        assert mock_open_without_data.call_args == mocker.call(
+            f"{WORDLISTS_DIR}/dir_bruteforce_small.txt", "r", encoding="utf-8"
+        )
