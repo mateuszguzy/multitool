@@ -123,46 +123,6 @@ def directory_bruteforce():
 
 # MOCKS
 @pytest.fixture
-def mock_click_prompt_without_return_value(mocker):
-    mocker.patch(
-        "modules.user_interface.cli.cli_interface.click.prompt"
-    )
-
-
-@pytest.fixture
-def mock_click_prompt_with_return_value(mocker, expect):
-    mocker.patch(
-        "modules.user_interface.cli.cli_interface.click.prompt", return_value=expect
-    )
-
-
-@pytest.fixture
-def mock_translate_abbreviations(mocker, expect):
-    mocker.patch(
-        "modules.user_interface.cli.cli_interface.CliInterface._translate_abbreviations", return_value=expect
-    )
-
-
-@pytest.fixture
-def mock_directory_bruteforce_questions(mocker):
-    mocker.patch(
-        "modules.user_interface.cli.cli_interface.CliInterface.directory_bruteforce_questions",
-    )
-
-
-@pytest.fixture
-def mock_directory_bruteforce_list_size_question(mocker):
-    mocker.patch(
-        "modules.user_interface.cli.cli_interface.CliInterface.directory_bruteforce_list_size_question",
-    )
-
-
-@pytest.fixture
-def mock_clean_and_validate_input_targets(mocker, expect):
-    mocker.patch("modules.user_interface.cli.cli_interface.clean_and_validate_input_targets", return_value=expect)
-
-
-@pytest.fixture
 def mock_check_for_protocol_prefix_in_multiple_targets(mocker, expect):
     mocker.patch(
         "utils.utils.check_for_protocol_prefix_in_multiple_targets", return_value=expect
