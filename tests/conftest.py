@@ -9,7 +9,7 @@ from modules.network.request_manager.request_manager import RequestManager
 from modules.recon.directory_bruteforce.directory_bruteforce import DirectoryBruteforce
 from modules.recon.recon import Recon
 from modules.user_interface.cli.cli_interface import CliInterface
-from utils.custom_dataclasses import DirectoryBruteforceInput, ReconInput
+from utils.custom_dataclasses import DirectoryBruteforceInput, ReconInput, UserInput
 
 MOCK_USER_INPUT_SINGLE_MODULE_DIRECTORY_BRUTEFORCE = (
     f"{TESTS_MOCKED_INPUT_DIR}/mock_user_input_single_module_directory_bruteforce.json"
@@ -21,16 +21,32 @@ MOCK_USER_INPUT_ALL = f"{TESTS_MOCKED_INPUT_DIR}/mock_user_input_all.json"
 TEST_URL = "https://www.example.com"
 DIRECTORY_BRUTEFORCE_WORDLIST_MOCK_INPUT = "word1\nword2\nword3"
 BUILTINS_OPEN_PATH = "builtins.open"
-DIRECTORY_BRUTEFORCE_MODULE = DirectoryBruteforceInput(list_size="small")
+DIRECTORY_BRUTEFORCE_INPUT = DirectoryBruteforceInput(list_size="small")
 
 
-def convert_user_input_to_dict(path: str):
+def convert_json_input_to_dict(path: str):
     user_input = open(path)
     return json.load(user_input)
 
 
+def convert_user_input_to_dataclass(path: str) -> UserInput:
+    user_input_dict = convert_json_input_to_dict(path=path)
+    directory_bruteforce_input = DirectoryBruteforceInput(
+        user_input_dict.get("recon").get("directory_bruteforce").get("list_size")
+    )
+    return UserInput(
+        use_type=user_input_dict.get("use_type"),
+        phase=user_input_dict.get("phase"),
+        module=user_input_dict.get("module"),
+        targets=set(user_input_dict.get("targets")),
+        recon=ReconInput(directory_bruteforce_input),
+        output_after_every_phase=False,
+        output_after_every_finding=True,
+    )
+
+
 def create_steering_module_instance_with_user_input(user_input):
-    return SteeringModule(convert_user_input_to_dict(user_input))
+    return SteeringModule(convert_user_input_to_dataclass(user_input))
 
 
 # --- INTEGRATION
@@ -112,14 +128,18 @@ def cli_interface():
 @pytest.fixture(scope="function")
 def directory_bruteforce():
     return DirectoryBruteforce(
-        directory_bruteforce_input=DIRECTORY_BRUTEFORCE_MODULE,
+        directory_bruteforce_input=DIRECTORY_BRUTEFORCE_INPUT,
         target=TEST_URL,
     )
 
 
 @pytest.fixture
 def recon_whole_phase(directory_bruteforce):
-    return Recon(recon_input=ReconInput(DIRECTORY_BRUTEFORCE_MODULE), target=TEST_URL, single_module=None)
+    return Recon(
+        recon_input=ReconInput(DIRECTORY_BRUTEFORCE_INPUT),
+        target=TEST_URL,
+        single_module=None,
+    )
 
 
 # MOCKS

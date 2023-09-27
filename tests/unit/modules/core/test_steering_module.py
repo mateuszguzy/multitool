@@ -1,5 +1,11 @@
+from utils.custom_dataclasses import DirectoryBruteforceInput, ReconInput
+
+
 class TestSteeringModule:
-    testing_targets = ["http://dvwa:80/"]
+    testing_targets = {"http://dvwa:80/"}
+    expected_recon_input = ReconInput(
+        directory_bruteforce=DirectoryBruteforceInput(list_size="small")
+    )
 
     def test_assign_class_attributes_for_single_module_directory_bruteforce(
         self,
@@ -11,7 +17,7 @@ class TestSteeringModule:
         assert sm.phase is None
         assert sm.module == "directory_bruteforce"
         assert sm.targets == self.testing_targets
-        assert sm.directory_bruteforce_list_size == "small"
+        assert sm.recon_input == self.expected_recon_input
         assert sm.output_after_every_phase is False
         assert sm.output_after_every_finding is True
 
@@ -25,7 +31,7 @@ class TestSteeringModule:
         assert sm.phase == "recon"
         assert sm.module is None
         assert sm.targets == self.testing_targets
-        assert sm.directory_bruteforce_list_size == "small"
+        assert sm.recon_input == self.expected_recon_input
         assert sm.output_after_every_phase is False
         assert sm.output_after_every_finding is True
 
@@ -36,6 +42,6 @@ class TestSteeringModule:
         assert sm.phase is None
         assert sm.module is None
         assert sm.targets == self.testing_targets
-        assert sm.directory_bruteforce_list_size == "small"
+        assert sm.recon_input == self.expected_recon_input
         assert sm.output_after_every_phase is False
         assert sm.output_after_every_finding is True
