@@ -9,7 +9,7 @@ from modules.network.request_manager.request_manager import RequestManager
 from modules.recon.directory_bruteforce.directory_bruteforce import DirectoryBruteforce
 from modules.recon.recon import Recon
 from modules.user_interface.cli.cli_interface import CliInterface
-from utils.custom_dataclasses import DirectoryBruteforceInput
+from utils.custom_dataclasses import DirectoryBruteforceInput, ReconInput
 
 MOCK_USER_INPUT_SINGLE_MODULE_DIRECTORY_BRUTEFORCE = (
     f"{TESTS_MOCKED_INPUT_DIR}/mock_user_input_single_module_directory_bruteforce.json"
@@ -21,6 +21,7 @@ MOCK_USER_INPUT_ALL = f"{TESTS_MOCKED_INPUT_DIR}/mock_user_input_all.json"
 TEST_URL = "https://www.example.com"
 DIRECTORY_BRUTEFORCE_WORDLIST_MOCK_INPUT = "word1\nword2\nword3"
 BUILTINS_OPEN_PATH = "builtins.open"
+DIRECTORY_BRUTEFORCE_MODULE = DirectoryBruteforceInput(list_size="small")
 
 
 def convert_user_input_to_dict(path: str):
@@ -108,17 +109,17 @@ def cli_interface():
     return CliInterface()
 
 
-@pytest.fixture
-def recon():
-    return Recon(directory_bruteforce_list_size="small", target="example.com")
-
-
 @pytest.fixture(scope="function")
 def directory_bruteforce():
     return DirectoryBruteforce(
-        directory_bruteforce_input=DirectoryBruteforceInput(list_size="small"),
+        directory_bruteforce_input=DIRECTORY_BRUTEFORCE_MODULE,
         target=TEST_URL,
     )
+
+
+@pytest.fixture
+def recon_whole_phase(directory_bruteforce):
+    return Recon(recon_input=ReconInput(DIRECTORY_BRUTEFORCE_MODULE), target=TEST_URL, single_module=None)
 
 
 # MOCKS
