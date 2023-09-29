@@ -96,7 +96,7 @@ prompt-toolkit==3.0.36
     #   -r /home/mateusz/PycharmProjects/multitool/requirements/common.txt
     #   click-repl
     #   questionary
-pydantic==1.10.7
+pydantic==2.4.0
     # via -r /home/mateusz/PycharmProjects/multitool/requirements/dev.in
 pytest==7.3.1
     # via
