@@ -127,7 +127,7 @@ tornado==6.3.2
     #   flower
 typing-extensions==4.7.1
     # via pydantic
-urllib3==1.26.6
+urllib3==1.26.17
     # via
     #   -r /home/mateusz/PycharmProjects/multitool/requirements/common.txt
     #   requests
