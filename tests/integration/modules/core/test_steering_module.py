@@ -8,7 +8,7 @@ class TestSteeringModule:
         integration_steering_module_with_directory_bruteforce_test_input.run()
 
         with RedisClient() as rc:
-            keys = rc.keys("http://dvwa:80/|directory_bruteforce|*")
+            keys = rc.keys("http://dvwa:80/|recon|directory_bruteforce|*")
             result = rc.mget(keys)
 
         assert result == [b"vulnerabilities"]
