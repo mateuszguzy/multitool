@@ -1,6 +1,6 @@
 from typing import Set
 
-from config.settings import AVAILABLE_PHASES, RECON_PHASE_MODULES
+from config.settings import AVAILABLE_FUNCTIONALITY, RECON_PHASE_MODULES
 from modules.recon.recon import Recon
 from utils.custom_dataclasses import ReconInput, UserInput
 from utils.abstracts_classes import AbstractModule
@@ -14,7 +14,6 @@ class SteeringModule(AbstractModule):
     recon_input: ReconInput
     output_after_every_phase: bool = bool()
     output_after_every_finding: bool = bool()
-    available_phases: list = AVAILABLE_PHASES
 
     def __init__(self, user_input: UserInput) -> None:
         super().__init__()
@@ -60,7 +59,7 @@ class SteeringModule(AbstractModule):
         """
         Run all the functionalities that app holds.
         """
-        for phase in self.available_phases:
+        for phase in AVAILABLE_FUNCTIONALITY:
             self._run_phase(phase=phase)
 
     def _run_phase(self, phase: str) -> None:

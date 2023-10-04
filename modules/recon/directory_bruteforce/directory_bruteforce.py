@@ -46,7 +46,7 @@ class DirectoryBruteforce(AbstractModule):
             list_of_items=celery.group(tasks).apply_async().join()
         )
         store_module_results_in_database(
-            target=self.target, results=results, module="directory_bruteforce"
+            target=self.target, results=results, phase="recon", module="directory_bruteforce"
         )
 
     def _read_wordlist(self) -> None:
