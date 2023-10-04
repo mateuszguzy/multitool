@@ -2,7 +2,11 @@ from typing import List, Set
 
 from questionary import prompt
 
-from config.settings import RECON_PHASE_MODULES, DIRECTORY_BRUTEFORCE, RECON_PHASE, AVAILABLE_PHASES
+from config.settings import (
+    AVAILABLE_FUNCTIONALITY,
+    AVAILABLE_PHASES,
+    RECON_PHASE_MODULES,
+)
 from modules.helper.redis_client import RedisClient
 from utils.abstracts_classes import AbstractModule
 from utils.custom_dataclasses import (
@@ -13,13 +17,6 @@ from utils.custom_dataclasses import (
 from utils.utils import clean_and_validate_input_targets, convert_list_or_set_to_dict
 
 ALL, SINGLE_PHASE, SINGLE_MODULE = "all", "single_phase", "single_module"
-
-MODULE_MAPPING: dict = {
-    ALL: RECON_PHASE_MODULES,
-    SINGLE_PHASE: {RECON_PHASE: RECON_PHASE_MODULES},
-    # single modules need to be wrapped in set() because it is stored in Redis each letter as separate key
-    SINGLE_MODULE: {DIRECTORY_BRUTEFORCE: {DIRECTORY_BRUTEFORCE}},
-}
 
 
 class CliInterface(AbstractModule):
@@ -34,7 +31,9 @@ class CliInterface(AbstractModule):
         answers = prompt(self.questions)
         recon_phase_input = self.aggregate_phase_specific_data(answers=answers)
 
-        used_modules = self.extract_used_modules_data_from_user_input(answers=answers)
+        used_modules = self.extract_used_phases_and_modules_data_from_user_input(
+            answers=answers
+        )
         self.save_reusable_data_in_db(used_modules=used_modules)
 
         return UserInput(
@@ -82,7 +81,7 @@ class CliInterface(AbstractModule):
                 "message": "Choose Module to execute:",
                 "choices": RECON_PHASE_MODULES,
                 "default": "directory_bruteforce",
-                "when": lambda answers: answers["use_type"] == "single_module",
+                "when": lambda answers: self.recon_single_module_is_used(answers),
             },
             {
                 "type": "text",
@@ -116,6 +115,16 @@ class CliInterface(AbstractModule):
                 "default": True,
             },
         ]
+
+    @staticmethod
+    def recon_single_module_is_used(answers: dict) -> bool:
+        """
+        Check if recon is used in current run by checking which modules are used.
+        """
+        if answers["use_type"] == "single_module" and answers["phase"] == "recon":
+            return True
+        else:
+            return False
 
     @staticmethod
     def directory_bruteforce_is_executed(answers: dict) -> bool:
@@ -165,22 +174,26 @@ class CliInterface(AbstractModule):
             )
 
     @staticmethod
-    def extract_used_modules_data_from_user_input(answers: dict) -> Set[str]:
+    def extract_used_phases_and_modules_data_from_user_input(answers: dict) -> Set[str]:
         """
         Extract used modules data from user input and save it in self.used_modules,
         for future use - saving in db and later - pulling results.
         """
+        used_modules: set = set()
+
         if answers["use_type"] == ALL:
-            return MODULE_MAPPING[answers["use_type"]]
+            for phase in AVAILABLE_PHASES:
+                for module in AVAILABLE_FUNCTIONALITY[phase]:
+                    used_modules.add(f"{phase}|{module}")
 
         elif answers["use_type"] == SINGLE_PHASE:
-            return MODULE_MAPPING[answers["use_type"]][answers["phase"]]
+            for module in AVAILABLE_FUNCTIONALITY[answers["phase"]]:
+                used_modules.add(f"{answers['phase']}|{module}")
 
         elif answers["use_type"] == SINGLE_MODULE:
-            return MODULE_MAPPING[answers["use_type"]][answers["module"]]
+            used_modules.add(f"{answers['phase']}|{answers['module']}")
 
-        else:
-            raise ValueError("Invalid module name")
+        return used_modules
 
     def save_reusable_data_in_db(self, used_modules: Set[str]) -> None:
         """

@@ -107,11 +107,18 @@ def prepare_final_results_dictionary() -> dict:
         targets = rc.mget(keys)
 
         for target in targets:
-            results[target.decode("utf-8")] = {}
+            target = target.decode("utf-8")
+            results[target] = {}
 
-            for module in used_modules:
-                keys = rc.keys(f"{target.decode('utf-8')}|{module.decode('utf-8')}|*")
-                results[target.decode("utf-8")][module.decode("utf-8")] = [
+            for used_module in used_modules:
+                used_module = used_module.decode("utf-8")
+                phase = used_module.split("|")[0]
+                module = used_module.split("|")[1]
+
+                keys = rc.keys(f"{target}|{phase}|{module}|*")
+
+                results[target][phase] = {}
+                results[target][phase][module] = [
                     result.decode("utf-8") for result in rc.mget(keys)
                 ]
 
@@ -120,7 +127,9 @@ def prepare_final_results_dictionary() -> dict:
     return results
 
 
-def store_module_results_in_database(target: str, results: dict, module: str) -> None:
+def store_module_results_in_database(
+    target: str, results: dict, phase: str, module: str
+) -> None:
     """
     Stare results in Redis in form of following dictionary:
 
@@ -131,7 +140,7 @@ def store_module_results_in_database(target: str, results: dict, module: str) ->
     }
     """
     with RedisClient() as rc:
-        rc.mset({f"{target}|{module}|" + str(k): v for k, v in results.items()})
+        rc.mset({f"{target}|{phase}|{module}|" + str(k): v for k, v in results.items()})
 
 
 def convert_list_or_set_to_dict(list_of_items: List or Set) -> dict:  # type: ignore

@@ -7,8 +7,6 @@ from utils.abstracts_classes import AbstractModule
 
 
 class Recon(AbstractModule):
-    recon_phase_modules: list = RECON_PHASE_MODULES
-
     def __init__(
         self, recon_input: ReconInput, target: str, single_module: Optional[str]
     ) -> None:
@@ -19,13 +17,13 @@ class Recon(AbstractModule):
 
     def run(self) -> None:
         if not self.single_module:
-            for module in self.recon_phase_modules:
+            for module in RECON_PHASE_MODULES:
                 getattr(self, f"_run_{module}")()
         else:
-            if self.single_module not in self.recon_phase_modules:
+            if self.single_module not in RECON_PHASE_MODULES:
                 raise ValueError(
                     f"Invalid module name: {self.single_module}. "
-                    f"Available modules: {self.recon_phase_modules}"
+                    f"Available modules: {RECON_PHASE_MODULES}"
                 )
             getattr(self, f"_run_{self.single_module}")()
 

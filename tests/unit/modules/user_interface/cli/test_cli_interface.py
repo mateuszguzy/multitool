@@ -1,6 +1,4 @@
-import pytest
-
-from modules.user_interface.cli.cli_interface import CliInterface, MODULE_MAPPING
+from modules.user_interface.cli.cli_interface import CliInterface
 from utils.custom_dataclasses import UserInput, DirectoryBruteforceInput, ReconInput
 
 
@@ -13,6 +11,7 @@ class TestCliInterface:
         "modules.user_interface.cli.cli_interface.CliInterface.valid_targets"
     )
     questionary_prompt_path = "modules.user_interface.cli.cli_interface.prompt"
+    expected_result = {"recon|directory_bruteforce"}
 
     #  User selects 'all' use type and enters valid URLs as targets
     def test_all_use_type_valid_urls(self, mocker):
@@ -44,7 +43,9 @@ class TestCliInterface:
             phase="",
             module=None,
             targets={self.test_url},
-            recon=ReconInput(directory_bruteforce=DirectoryBruteforceInput(list_size="small")),
+            recon=ReconInput(
+                directory_bruteforce=DirectoryBruteforceInput(list_size="small")
+            ),
             output_after_every_phase=True,
             output_after_every_finding=True,
         )
@@ -80,7 +81,9 @@ class TestCliInterface:
             phase="recon",
             module=None,
             targets={self.test_url},
-            recon=ReconInput(directory_bruteforce=DirectoryBruteforceInput(list_size="small")),
+            recon=ReconInput(
+                directory_bruteforce=DirectoryBruteforceInput(list_size="small")
+            ),
             output_after_every_phase=True,
             output_after_every_finding=True,
         )
@@ -101,6 +104,7 @@ class TestCliInterface:
             self.questionary_prompt_path,
             return_value={
                 "use_type": "single_module",
+                "phase": "recon",
                 "module": "directory_bruteforce",
                 "directory_bruteforce_list_size": "small",
                 "output_after_every_phase": True,
@@ -113,10 +117,12 @@ class TestCliInterface:
 
         assert result == UserInput(
             use_type="single_module",
-            phase="",
+            phase="recon",
             module="directory_bruteforce",
             targets={self.test_url},
-            recon=ReconInput(directory_bruteforce=DirectoryBruteforceInput(list_size="small")),
+            recon=ReconInput(
+                directory_bruteforce=DirectoryBruteforceInput(list_size="small")
+            ),
             output_after_every_phase=True,
             output_after_every_finding=True,
         )
@@ -126,9 +132,11 @@ class TestCliInterface:
         Test if CliInterface returns expected set of modules when user selects 'all' use type
         """
         answers = {"use_type": "all"}
-        expected_modules = MODULE_MAPPING["all"]
+        expected_modules = self.expected_result
 
-        result = CliInterface.extract_used_modules_data_from_user_input(answers)
+        result = CliInterface.extract_used_phases_and_modules_data_from_user_input(
+            answers
+        )
 
         assert result == expected_modules
 
@@ -140,9 +148,11 @@ class TestCliInterface:
         and 'recon' phase
         """
         answers = {"use_type": "single_phase", "phase": "recon"}
-        expected_modules = MODULE_MAPPING["single_phase"]["recon"]
+        expected_modules = self.expected_result
 
-        result = CliInterface.extract_used_modules_data_from_user_input(answers)
+        result = CliInterface.extract_used_phases_and_modules_data_from_user_input(
+            answers
+        )
 
         assert result == expected_modules
 
@@ -153,20 +163,15 @@ class TestCliInterface:
         Test if CliInterface returns expected set of modules when user selects 'single_module' use type
         and 'directory_bruteforce' module
         """
-        answers = {"use_type": "single_module", "module": "directory_bruteforce"}
-        expected_modules = MODULE_MAPPING["single_module"]["directory_bruteforce"]
+        answers = {
+            "use_type": "single_module",
+            "phase": "recon",
+            "module": "directory_bruteforce",
+        }
+        expected_module = self.expected_result
 
-        result = CliInterface.extract_used_modules_data_from_user_input(answers)
+        result = CliInterface.extract_used_phases_and_modules_data_from_user_input(
+            answers
+        )
 
-        assert result == expected_modules
-
-    def test_raises_value_error_when_use_type_is_not_all_single_phase_or_single_module(
-        self,
-    ):
-        """
-        Test if CliInterface raises ValueError when user selects invalid use type
-        """
-        answers = {"use_type": "invalid"}
-
-        with pytest.raises(ValueError):
-            CliInterface.extract_used_modules_data_from_user_input(answers)
+        assert result == expected_module
