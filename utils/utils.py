@@ -8,6 +8,7 @@ from config.settings import (
     PROTOCOL_PREFIX_REGEX,
     LOGGING_DIVIDER,
     URL_CHECKING_REGEX_WITHOUT_TLD,
+    steering_module_logger,
 )
 from modules.helper.redis_client import RedisClient
 
@@ -151,3 +152,12 @@ def convert_list_or_set_to_dict(list_of_items: List or Set) -> dict:  # type: ig
     final_dict = {k: v for k, v in zip(range(len(middle_set)), middle_set)}
 
     return final_dict
+
+
+def log_exception(exc_type, value, tb) -> None:
+    exception_info = {
+        "ExceptionType": exc_type.__name__,
+        "Value": str(value),
+        "Traceback": traceback.format_exception(exc_type, value, tb),
+    }
+    steering_module_logger.error(exception_info)
