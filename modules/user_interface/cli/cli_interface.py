@@ -87,12 +87,7 @@ class CliInterface(AbstractModule):
                 "type": "text",
                 "name": "targets",
                 "message": "Enter URLs as comma separated values: (only correct ULRs will be accepted)",
-            },
-            {
-                "type": "text",
-                "name": "targets",
-                "message": "No previously entered URL is a valid one. Please enter correct URLs:",
-                "when": lambda answers: self.validate_targets(targets=answers["targets"]),
+                "validate": lambda val: self.validate_targets(targets=val),
             },
             {
                 "type": "select",
@@ -146,9 +141,8 @@ class CliInterface(AbstractModule):
         """
         self.valid_targets = clean_and_validate_input_targets(targets=targets)
         if len(self.valid_targets) == 0:
-            return True
-        else:
             return False
+        return True
 
     def aggregate_phase_specific_data(self, answers: dict) -> ReconInput:
         """
