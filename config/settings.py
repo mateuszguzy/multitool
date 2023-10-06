@@ -34,10 +34,16 @@ STEERING_MODULE = "steering_module"
 # TASK_QUEUE
 TASK_QUEUE = "task_queue"
 
-# REQUEST_MANAGER
+# -- MANAGERS
 REQUEST_MANAGER = "request_manager"
+SOCKET_MANAGER = "socket_manager"
 
-# RECON_PHASE
+# -- SCAN_PHASE
+SCAN_PHASE = "scan"
+# PORT_SCAN
+PORT_SCAN = "port_scan"
+
+# -- RECON_PHASE
 RECON_PHASE = "recon"
 # DIRECTORY_BRUTEFORCE
 DIRECTORY_BRUTEFORCE = "directory_bruteforce"
@@ -47,14 +53,18 @@ DIRECTORY_BRUTEFORCE_REQUEST_METHOD = "GET"
 AVAILABLE_FUNCTIONALITY: dict = {
     RECON_PHASE: {
         DIRECTORY_BRUTEFORCE,
+    },
+    SCAN_PHASE: {
+        PORT_SCAN,
     }
 }
 RECON_PHASE_MODULES = list(AVAILABLE_FUNCTIONALITY["recon"])
+SCAN_PHASE_MODULES = list(AVAILABLE_FUNCTIONALITY["scan"])
 AVAILABLE_PHASES = list(AVAILABLE_FUNCTIONALITY.keys())
 ALL_MODULES = {module for phase in AVAILABLE_FUNCTIONALITY.values() for module in phase}
 
 # make sure user will not get tracebacks and similar data in terminal
-RESULTS_FOR_USER_FROM_MODULES = [STEERING_MODULE, DIRECTORY_BRUTEFORCE]
+RESULTS_FOR_USER_FROM_MODULES = [STEERING_MODULE, DIRECTORY_BRUTEFORCE, PORT_SCAN]
 
 # --- REGEX
 URL_CHECKING_PATTERN_WITH_TLD = r"^(https?:\/\/)?(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$"
@@ -97,6 +107,14 @@ LOGGING = {
             ),
             "formatter": "file",
         },
+        "port_scan": {
+            "level": LOGGING_LEVEL_MODULES,
+            "class": LOGGING_HANDLER_CLASS,
+            "filename": (
+                    LOGGING_FILE_FORMAT % (LOGGING_DIR, CURRENT_DATE, PORT_SCAN)
+            ),
+            "formatter": "file",
+        },
         "task_queue": {
             "level": LOGGING_LEVEL_MODULES,
             "class": LOGGING_HANDLER_CLASS,
@@ -108,6 +126,14 @@ LOGGING = {
             "class": LOGGING_HANDLER_CLASS,
             "filename": (
                 LOGGING_FILE_FORMAT % (LOGGING_DIR, CURRENT_DATE, REQUEST_MANAGER)
+            ),
+            "formatter": "file",
+        },
+        "socket_manager": {
+            "level": LOGGING_LEVEL_MODULES,
+            "class": LOGGING_HANDLER_CLASS,
+            "filename": (
+                    LOGGING_FILE_FORMAT % (LOGGING_DIR, CURRENT_DATE, SOCKET_MANAGER)
             ),
             "formatter": "file",
         },
@@ -123,6 +149,11 @@ LOGGING = {
             "level": LOGGING_LEVEL_MODULES,
             "propagate": True,
         },
+        "port_scan": {
+            "handlers": ["port_scan"],
+            "level": LOGGING_LEVEL_MODULES,
+            "propagate": True,
+        },
         "task_queue": {
             "handlers": ["task_queue"],
             "level": LOGGING_LEVEL_MODULES,
@@ -133,6 +164,11 @@ LOGGING = {
             "level": LOGGING_LEVEL_MODULES,
             "propagate": True,
         },
+        "socket_manager": {
+            "handlers": ["socket_manager"],
+            "level": LOGGING_LEVEL_MODULES,
+            "propagate": True,
+        },
     },
 }
 
@@ -140,5 +176,7 @@ os.makedirs(LOGGING_DIR, exist_ok=True)
 log_conf.dictConfig(config=LOGGING)
 steering_module_logger = logging.getLogger("steering_module")
 directory_bruteforce_logger = logging.getLogger("directory_bruteforce")
+port_scan_logger = logging.getLogger("port_scan")
 task_queue_logger = logging.getLogger("task_queue")
 request_manager_logger = logging.getLogger("request_manager")
+socket_manager_logger = logging.getLogger("socket_manager")

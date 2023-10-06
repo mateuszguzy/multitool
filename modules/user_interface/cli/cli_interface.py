@@ -1,4 +1,4 @@
-from typing import List, Set
+from typing import List, Set, Tuple
 
 from questionary import prompt
 
@@ -13,14 +13,21 @@ from utils.custom_dataclasses import (
     DirectoryBruteforceInput,
     ReconInput,
     UserInput,
+    ScanInput,
+    PortScanInput,
 )
-from utils.utils import clean_and_validate_input_targets, convert_list_or_set_to_dict
+from utils.utils import (
+    clean_and_validate_input_targets,
+    convert_list_or_set_to_dict,
+    clean_and_validate_input_ports,
+)
 
 ALL, SINGLE_PHASE, SINGLE_MODULE = "all", "single_phase", "single_module"
 
 
 class CliInterface(AbstractModule):
     valid_targets: set = set()
+    valid_ports: set = set()
     questions: List[dict] = list()
 
     def __init__(self):
@@ -29,8 +36,9 @@ class CliInterface(AbstractModule):
 
     def run(self) -> UserInput:
         answers = prompt(self.questions)
-        recon_phase_input = self.aggregate_phase_specific_data(answers=answers)
-
+        recon_phase_input, scan_phase_input = self.aggregate_phase_specific_data(
+            answers=answers
+        )
         used_modules = self.extract_used_phases_and_modules_data_from_user_input(
             answers=answers
         )
@@ -42,6 +50,7 @@ class CliInterface(AbstractModule):
                 module=answers.get("module", None),
                 targets=self.valid_targets,
                 recon=recon_phase_input,
+                scan=scan_phase_input,
                 output_after_every_phase=answers.get("output_after_every_phase", 0),
                 output_after_every_finding=answers.get("output_after_every_finding", 0),
             )
@@ -95,7 +104,16 @@ class CliInterface(AbstractModule):
                 "message": "Choose size or bruteforce wordlist:",
                 "choices": ["small", "medium", "test"],
                 "default": "small",
-                "when": lambda answers: self.directory_bruteforce_is_executed(answers=answers),
+                "when": lambda answers: self.directory_bruteforce_is_executed(
+                    answers=answers
+                ),
+            },
+            {
+                "type": "text",
+                "name": "ports_to_scan",
+                "message": "Specify ports to scan as comma separated values:",
+                "when": lambda answers: self.port_scan_is_executed(answers=answers),
+                "validate": lambda val: self.validate_ports_to_scan(ports_to_scan=val),
             },
             {
                 "type": "confirm",
@@ -135,6 +153,20 @@ class CliInterface(AbstractModule):
         else:
             return False
 
+    @staticmethod
+    def port_scan_is_executed(answers: dict) -> bool:
+        """
+        Check if directory bruteforce is executed in current run by checking which modules are used.
+        """
+        if "use_type" in answers and answers["use_type"] == "all":
+            return True
+        elif "phase" in answers and answers["phase"] == "scan":
+            return True
+        elif "module" in answers and answers["module"] == "port_scan":
+            return True
+        else:
+            return False
+
     def validate_targets(self, targets: str) -> bool:
         """
         Validate targets and return True if any of them are valid.
@@ -144,19 +176,41 @@ class CliInterface(AbstractModule):
             return False
         return True
 
-    def aggregate_phase_specific_data(self, answers: dict) -> ReconInput:
+    def validate_ports_to_scan(self, ports_to_scan: str) -> bool:
+        """
+        Validate ports to scan and return True if any of them are valid.
+        """
+        self.valid_ports = clean_and_validate_input_ports(ports_to_scan=ports_to_scan)
+        if len(self.valid_ports) == 0:
+            return False
+        return True
+
+    def aggregate_phase_specific_data(
+        self, answers: dict
+    ) -> Tuple[ReconInput, ScanInput]:
         """
         Aggregate phase specific data from user input and return it in form of dictionary.
         """
         recon_phase_input = self.aggregate_recon_phase_data(answers=answers)
-        return recon_phase_input
+        scan_phase_input = self.aggregate_scan_phase_data()
+
+        return recon_phase_input, scan_phase_input
 
     def aggregate_recon_phase_data(self, answers: dict) -> ReconInput:
         """
         Aggregate recon phase data from user input and return it in form of dictionary.
         """
-        directory_bruteforce_input = self.aggregate_directory_bruteforce_data(answers=answers)
+        directory_bruteforce_input = self.aggregate_directory_bruteforce_data(
+            answers=answers
+        )
         return ReconInput(directory_bruteforce=directory_bruteforce_input)
+
+    def aggregate_scan_phase_data(self) -> ScanInput:
+        """
+        Aggregate scan phase data from user input and return it in form of dictionary.
+        """
+        port_scan_input = self.aggregate_port_scan_data()
+        return ScanInput(port_scan=port_scan_input)
 
     @staticmethod
     def aggregate_directory_bruteforce_data(answers: dict) -> DirectoryBruteforceInput:
@@ -166,6 +220,12 @@ class CliInterface(AbstractModule):
         return DirectoryBruteforceInput(
                 list_size=answers.get("directory_bruteforce_list_size", None)
             )
+
+    def aggregate_port_scan_data(self) -> PortScanInput:
+        """
+        Aggregate port scan data from user input and return it in form of dictionary.
+        """
+        return PortScanInput(ports=self.valid_ports)
 
     @staticmethod
     def extract_used_phases_and_modules_data_from_user_input(answers: dict) -> Set[str]:

@@ -2,7 +2,8 @@ from typing import Set
 
 from config.settings import AVAILABLE_FUNCTIONALITY, RECON_PHASE_MODULES
 from modules.recon.recon import Recon
-from utils.custom_dataclasses import ReconInput, UserInput
+from modules.scan.scan import Scan
+from utils.custom_dataclasses import ReconInput, UserInput, ScanInput
 from utils.abstracts_classes import AbstractModule
 
 
@@ -12,6 +13,7 @@ class SteeringModule(AbstractModule):
     module: str = str()
     targets: Set[str] = set()
     recon_input: ReconInput
+    scan_input: ScanInput
     output_after_every_phase: bool = bool()
     output_after_every_finding: bool = bool()
 
@@ -52,7 +54,13 @@ class SteeringModule(AbstractModule):
         """
         Function launching scan phase.
         """
-        pass
+        for target in self.targets:
+            recon_phase = Scan(
+                scan_input=self.scan_input,
+                target=target,
+                single_module=self.module if self.module else None,
+            )
+            recon_phase.run()
 
     # --- MAIN
     def _run_all(self) -> None:
@@ -95,5 +103,6 @@ class SteeringModule(AbstractModule):
         self.module = getattr(user_input, "module")
         self.targets = getattr(user_input, "targets")
         self.recon_input = getattr(user_input, "recon")
+        self.scan_input = getattr(user_input, "scan")
         self.output_after_every_phase = getattr(user_input, "output_after_every_phase")
         self.output_after_every_finding = getattr(user_input, "output_after_every_finding")

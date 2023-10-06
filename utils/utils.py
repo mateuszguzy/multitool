@@ -1,3 +1,4 @@
+import pdb
 import re
 import traceback
 from typing import Set, List
@@ -33,6 +34,26 @@ def clean_and_validate_input_targets(targets: str) -> Set[str]:
     final_targets = check_for_trailing_slash_in_multiple_targets(targets_with_protocol)
 
     return final_targets
+
+
+def clean_and_validate_input_ports(ports_to_scan: str) -> Set[int]:
+    """
+    Check if provided ports are following one of below conventions:
+        - <port_number>
+        - <port_number>,<port_number>,<port_number>
+    """
+    valid_ports = set()
+    split_ports = {port.strip() for port in ports_to_scan.split(",")}
+
+    for port in split_ports:
+        try:
+            port_number = int(port)
+            if port_number in range(1, 65536):
+                valid_ports.add(port_number)
+        except ValueError:
+            pass
+
+    return valid_ports
 
 
 def check_for_trailing_slash_in_multiple_targets(targets: Set[str]) -> Set[str]:
@@ -140,8 +161,9 @@ def store_module_results_in_database(
         }
     }
     """
-    with RedisClient() as rc:
-        rc.mset({f"{target}|{phase}|{module}|" + str(k): v for k, v in results.items()})
+    if results:
+        with RedisClient() as rc:
+            rc.mset({f"{target}|{phase}|{module}|" + str(k): v for k, v in results.items()})
 
 
 def convert_list_or_set_to_dict(list_of_items: List or Set) -> dict:  # type: ignore
