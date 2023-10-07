@@ -20,3 +20,7 @@ class AbortException(Exception):
 
 class InvalidHostname(Exception):
     pass
+
+
+class ConnectionTimedOut(Exception):
+    pass
