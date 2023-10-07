@@ -1,5 +1,6 @@
 import json
 import os
+from unittest import mock
 
 import pytest
 
@@ -8,6 +9,8 @@ from modules.core.steering_module.steering_module import SteeringModule
 from modules.network.request_manager.request_manager import RequestManager
 from modules.recon.directory_bruteforce.directory_bruteforce import DirectoryBruteforce
 from modules.recon.recon import Recon
+from modules.scan.port_scan.port_scan import PortScan
+from modules.scan.scan import Scan
 from modules.user_interface.cli.cli_interface import CliInterface
 from utils.custom_dataclasses import DirectoryBruteforceInput, ReconInput, UserInput, PortScanInput, ScanInput
 
@@ -24,10 +27,12 @@ MOCK_USER_INPUT_SINGLE_PHASE_SCAN = (
     f"{TESTS_MOCKED_INPUT_DIR}/mock_user_input_single_phase_scan.json"
 )
 MOCK_USER_INPUT_ALL = f"{TESTS_MOCKED_INPUT_DIR}/mock_user_input_all.json"
-TEST_URL = "https://www.example.com"
+TEST_TARGET = "https://www.example.com"
+TEST_PORT_SCAN_TARGET = "www.example.com"
 DIRECTORY_BRUTEFORCE_WORDLIST_MOCK_INPUT = "word1\nword2\nword3"
 BUILTINS_OPEN_PATH = "builtins.open"
 DIRECTORY_BRUTEFORCE_INPUT = DirectoryBruteforceInput(list_size="small")
+TEST_PORTS = {80, 443}
 
 
 def convert_json_input_to_dict(path: str):
@@ -116,7 +121,7 @@ def steering_module_for_all():
     ],
 )
 def request_manager_get_request(request):
-    request_manager = RequestManager(method=request.param, url=TEST_URL)
+    request_manager = RequestManager(method=request.param, url=TEST_TARGET)
     return request_manager
 
 
@@ -128,7 +133,7 @@ def request_manager_get_request(request):
     ],
 )
 def request_manager_post_request(request):
-    request_manager = RequestManager(method=request.param, url=TEST_URL)
+    request_manager = RequestManager(method=request.param, url=TEST_TARGET)
     return request_manager
 
 
@@ -140,7 +145,7 @@ def request_manager_post_request(request):
     ],
 )
 def request_manager_delete_request(request):
-    request_manager = RequestManager(method=request.param, url=TEST_URL)
+    request_manager = RequestManager(method=request.param, url=TEST_TARGET)
     return request_manager
 
 
@@ -153,7 +158,15 @@ def cli_interface():
 def directory_bruteforce():
     return DirectoryBruteforce(
         directory_bruteforce_input=DIRECTORY_BRUTEFORCE_INPUT,
-        target=TEST_URL,
+        target=TEST_TARGET,
+    )
+
+
+@pytest.fixture(scope="function")
+def port_scan():
+    return PortScan(
+        target=TEST_TARGET,
+        port_scan_input=PortScanInput(ports=TEST_PORTS),
     )
 
 
@@ -161,7 +174,16 @@ def directory_bruteforce():
 def recon_whole_phase(directory_bruteforce):
     return Recon(
         recon_input=ReconInput(DIRECTORY_BRUTEFORCE_INPUT),
-        target=TEST_URL,
+        target=TEST_TARGET,
+        single_module=None,
+    )
+
+
+@pytest.fixture
+def scan_whole_phase():
+    return Scan(
+        scan_input=ScanInput(PortScanInput(ports=TEST_PORTS)),
+        target=TEST_TARGET,
         single_module=None,
     )
 
@@ -193,5 +215,16 @@ def mock_open_with_file_not_found_error(mocker):
 
 
 @pytest.fixture(scope="function")
-def mock_celery_group(mocker):
-    return mocker.patch("celery.group")
+def mock_celery_group():
+    group_mock = mock.Mock()
+    group_mock.apply_async.return_value.join.return_value = "mocked results"
+
+    return group_mock
+
+
+@pytest.fixture(scope="function")
+def mock_socket_request():
+    socket_request_mock = mock.Mock()
+    socket_request_mock.s.return_value = socket_request_mock
+
+    return socket_request_mock
