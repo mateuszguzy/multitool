@@ -7,6 +7,7 @@ import pytest
 from config.settings import TESTS_MOCKED_INPUT_DIR, BASE_DIR
 from modules.core.steering_module.steering_module import SteeringModule
 from modules.network.request_manager.request_manager import RequestManager
+from modules.network.socket_manager.socket_manager import SocketManager
 from modules.recon.directory_bruteforce.directory_bruteforce import DirectoryBruteforce
 from modules.recon.recon import Recon
 from modules.scan.port_scan.port_scan import PortScan
@@ -33,6 +34,7 @@ DIRECTORY_BRUTEFORCE_WORDLIST_MOCK_INPUT = "word1\nword2\nword3"
 BUILTINS_OPEN_PATH = "builtins.open"
 DIRECTORY_BRUTEFORCE_INPUT = DirectoryBruteforceInput(list_size="small")
 TEST_PORTS = {80, 443}
+TEST_PORT = 80
 
 
 def convert_json_input_to_dict(path: str):
@@ -168,6 +170,11 @@ def port_scan():
         target=TEST_TARGET,
         port_scan_input=PortScanInput(ports=TEST_PORTS),
     )
+
+
+@pytest.fixture(scope="function")
+def socket_manager():
+    return SocketManager(target=TEST_PORT_SCAN_TARGET, port=TEST_PORT)
 
 
 @pytest.fixture
