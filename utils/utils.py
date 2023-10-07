@@ -31,6 +31,7 @@ def url_formatter(input_target: str, module: Optional[str] = None) -> str:
 
     return final_url
 
+
 def clean_and_validate_input_ports(ports_to_scan: str) -> Set[int]:
     """
     Check if provided ports are following one of below conventions:
@@ -103,7 +104,9 @@ def store_module_results_in_database(
     """
     if results:
         with RedisClient() as rc:
-            rc.mset({f"{target}|{phase}|{module}|" + str(k): v for k, v in results.items()})
+            rc.mset(
+                {f"{target}|{phase}|{module}|" + str(k): v for k, v in results.items()}
+            )
 
 
 def convert_list_or_set_to_dict(list_of_items: List or Set) -> dict:  # type: ignore
