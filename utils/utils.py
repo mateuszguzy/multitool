@@ -3,7 +3,6 @@ from typing import Set, List, Optional
 from urllib.parse import urlparse
 
 from config.settings import (
-    LOGGING_DIVIDER,
     steering_module_logger,
 )
 from modules.helper.redis_client import RedisClient
@@ -28,19 +27,6 @@ def url_formatter(input_target: str, module: Optional[str] = None) -> str:
         final_url = url.geturl()
 
     return final_url
-
-
-def format_exception_with_traceback_for_logging(exc: Exception) -> str:
-    """
-    Logger related function passing whole traceback info into log file.
-    """
-    tb = traceback.format_exc()
-    try:
-        message = f"Error:{exc.args[0]}{LOGGING_DIVIDER}TRACEBACK{LOGGING_DIVIDER}: {tb}"
-    except IndexError:
-        message = f"Error:{exc}{LOGGING_DIVIDER}TRACEBACK{LOGGING_DIVIDER}: {tb}"
-
-    return message
 
 
 def prepare_final_results_dictionary() -> dict:
