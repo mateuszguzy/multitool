@@ -14,7 +14,7 @@ from utils.custom_dataclasses import (
     ReconInput,
     UserInput,
 )
-from utils.utils import clean_and_validate_input_targets, convert_list_or_set_to_dict
+from utils.utils import convert_list_or_set_to_dict, url_formatter
 
 ALL, SINGLE_PHASE, SINGLE_MODULE = "all", "single_phase", "single_module"
 
@@ -34,6 +34,7 @@ class CliInterface(AbstractModule):
         used_modules = self.extract_used_phases_and_modules_data_from_user_input(
             answers=answers
         )
+        self.format_targets_as_urls(answers["targets"])
         self.save_reusable_data_in_db(used_modules=used_modules)
 
         return UserInput(
@@ -60,6 +61,11 @@ class CliInterface(AbstractModule):
                 "default": "all",
             },
             {
+                "type": "text",
+                "name": "targets",
+                "message": "Enter URLs as comma separated values:",
+            },
+            {
                 "type": "select",
                 "name": "phase",
                 "message": "Choose Phase to execute:",
@@ -82,12 +88,6 @@ class CliInterface(AbstractModule):
                 "choices": RECON_PHASE_MODULES,
                 "default": "directory_bruteforce",
                 "when": lambda answers: self.recon_single_module_is_used(answers),
-            },
-            {
-                "type": "text",
-                "name": "targets",
-                "message": "Enter URLs as comma separated values: (only correct ULRs will be accepted)",
-                "validate": lambda val: self.validate_targets(targets=val),
             },
             {
                 "type": "select",
@@ -135,14 +135,12 @@ class CliInterface(AbstractModule):
         else:
             return False
 
-    def validate_targets(self, targets: str) -> bool:
+    def format_targets_as_urls(self, targets: str) -> None:
         """
         Validate targets and return True if any of them are valid.
         """
-        self.valid_targets = clean_and_validate_input_targets(targets=targets)
-        if len(self.valid_targets) == 0:
-            return False
-        return True
+        split_targets = targets.split(",")
+        self.valid_targets = {url_formatter(input_target=target.strip()) for target in split_targets}
 
     def aggregate_phase_specific_data(self, answers: dict) -> ReconInput:
         """
