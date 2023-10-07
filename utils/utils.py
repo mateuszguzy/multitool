@@ -1,40 +1,35 @@
-import pdb
-import re
 import traceback
-from typing import Set, List
+from typing import Set, List, Optional
+from urllib.parse import urlparse
 
 from config.settings import (
-    URL_CHECKING_REGEX_WITH_TLD,
-    TRAILING_SLASH_REGEX,
-    PROTOCOL_PREFIX_REGEX,
-    LOGGING_DIVIDER,
-    URL_CHECKING_REGEX_WITHOUT_TLD,
     steering_module_logger,
 )
 from modules.helper.redis_client import RedisClient
 
 
-def clean_and_validate_input_targets(targets: str) -> Set[str]:
+def url_formatter(input_target: str, module: Optional[str] = None) -> str:
     """
-    Check if provided targets are following one of below conventions:
-        - <protocol>://<subdomain>.<domain_name>.<top_level_domain>:<port_number>
-        - <protocol>://<subdomain>.<domain_name>.<top_level_domain>
-        - <protocol>://<subdomain>.<domain_name>:<port_number>
-        - <subdomain>.<domain_name>.<top_level_domain>:<port_number>
-        - <subdomain>.<domain_name>.<top_level_domain>
-        - <subdomain>.<domain_name>:<port_number>
-        - <domain_name>.<top_level_domain>:<port_number>
-        - <domain_name>.<top_level_domain>
-        - <domain_name>:<port_number>
+    Format URL to be in form of http://target
     """
-    split_targets = {target.strip() for target in targets.split(",")}
-    valid_targets = {target for target in split_targets if target_is_url(target)}
+    final_url = ""
+    url = urlparse(input_target)
 
-    targets_with_protocol = check_for_protocol_prefix_in_multiple_targets(valid_targets)
-    final_targets = check_for_trailing_slash_in_multiple_targets(targets_with_protocol)
+    if not url.scheme and url.path:
+        path = url.path
+        url = url._replace(netloc=path, path="/", scheme="http")
 
-    return final_targets
+    if not url.path:
+        url = url._replace(path="/")
 
+    if module == "port_scan":
+        if url.scheme:
+            url = url._replace(scheme="", path="")
+            final_url = url.netloc + url.path
+    else:
+        final_url = url.geturl()
+
+    return final_url
 
 def clean_and_validate_input_ports(ports_to_scan: str) -> Set[int]:
     """
@@ -54,61 +49,6 @@ def clean_and_validate_input_ports(ports_to_scan: str) -> Set[int]:
             pass
 
     return valid_ports
-
-
-def check_for_trailing_slash_in_multiple_targets(targets: Set[str]) -> Set[str]:
-    """
-    Check if given target has a trailing slash, if not, add one.
-    """
-    result: Set = set()
-
-    for target in targets:
-        if re.search(TRAILING_SLASH_REGEX, target) is None:
-            result.add(target + "/")
-        else:
-            result.add(target)
-
-    return result
-
-
-def check_for_protocol_prefix_in_multiple_targets(targets: Set[str]) -> Set[str]:
-    """
-    Check if given target has a protocol defined, if not, add one.
-    """
-    result: Set = set()
-
-    for target in targets:
-        if re.search(PROTOCOL_PREFIX_REGEX, target) is None:
-            result.add("http://" + target)
-        else:
-            result.add(target)
-
-    return result
-
-
-def format_exception_with_traceback_for_logging(exc: Exception) -> str:
-    """
-    Logger related function passing whole traceback info into log file.
-    """
-    tb = traceback.format_exc()
-    try:
-        message = f"Error:{exc.args[0]}{LOGGING_DIVIDER}TRACEBACK{LOGGING_DIVIDER}: {tb}"
-    except IndexError:
-        message = f"Error:{exc}{LOGGING_DIVIDER}TRACEBACK{LOGGING_DIVIDER}: {tb}"
-
-    return message
-
-
-def target_is_url(target: str) -> bool:
-    """
-    Verify if given target can be (with small changes) treated as a URL.
-    """
-    match: bool = False
-    if re.search(URL_CHECKING_REGEX_WITH_TLD, target):
-        match = True
-    if re.search(URL_CHECKING_REGEX_WITHOUT_TLD, target):
-        match = True
-    return match
 
 
 def prepare_final_results_dictionary() -> dict:

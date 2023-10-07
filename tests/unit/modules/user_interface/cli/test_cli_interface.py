@@ -10,6 +10,7 @@ class TestCliInterface:
     valid_targets_function_path = (
         "modules.user_interface.cli.cli_interface.CliInterface.valid_targets"
     )
+    format_targets_as_urls_path = "modules.user_interface.cli.cli_interface.CliInterface.format_targets_as_urls"
     questionary_prompt_path = "modules.user_interface.cli.cli_interface.prompt"
     expected_result = {"recon|directory_bruteforce"}
 
@@ -22,6 +23,7 @@ class TestCliInterface:
         mocker.patch(
             self.save_reusable_data_in_db_function_path,
         )
+        mocker.patch(self.format_targets_as_urls_path)
         mocker.patch(
             self.valid_targets_function_path,
             {self.test_url},
@@ -30,6 +32,7 @@ class TestCliInterface:
             self.questionary_prompt_path,
             return_value={
                 "use_type": "all",
+                "targets": self.test_url,
                 "directory_bruteforce_list_size": "small",
                 "output_after_every_phase": True,
                 "output_after_every_finding": True,
@@ -58,6 +61,7 @@ class TestCliInterface:
         mocker.patch(
             self.save_reusable_data_in_db_function_path,
         )
+        mocker.patch(self.format_targets_as_urls_path)
         mocker.patch(
             self.valid_targets_function_path,
             {self.test_url},
@@ -66,6 +70,7 @@ class TestCliInterface:
             self.questionary_prompt_path,
             return_value={
                 "use_type": "single_phase",
+                "targets": self.test_url,
                 "phase": "recon",
                 "directory_bruteforce_list_size": "small",
                 "output_after_every_phase": True,
@@ -96,6 +101,7 @@ class TestCliInterface:
         mocker.patch(
             self.save_reusable_data_in_db_function_path,
         )
+        mocker.patch(self.format_targets_as_urls_path)
         mocker.patch(
             self.valid_targets_function_path,
             {self.test_url},
@@ -104,6 +110,7 @@ class TestCliInterface:
             self.questionary_prompt_path,
             return_value={
                 "use_type": "single_module",
+                "targets": self.test_url,
                 "phase": "recon",
                 "module": "directory_bruteforce",
                 "directory_bruteforce_list_size": "small",

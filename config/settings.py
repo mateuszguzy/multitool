@@ -66,16 +66,6 @@ ALL_MODULES = {module for phase in AVAILABLE_FUNCTIONALITY.values() for module i
 # make sure user will not get tracebacks and similar data in terminal
 RESULTS_FOR_USER_FROM_MODULES = [STEERING_MODULE, DIRECTORY_BRUTEFORCE, PORT_SCAN]
 
-# --- REGEX
-URL_CHECKING_PATTERN_WITH_TLD = r"^(https?:\/\/)?(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$"
-URL_CHECKING_REGEX_WITH_TLD = re.compile(URL_CHECKING_PATTERN_WITH_TLD)
-URL_CHECKING_PATTERN_WITHOUT_TLD = r"^(https?:\/\/)?(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}(:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$"
-URL_CHECKING_REGEX_WITHOUT_TLD = re.compile(URL_CHECKING_PATTERN_WITHOUT_TLD)
-TRAILING_SLASH_PATTERN = "/$"
-TRAILING_SLASH_REGEX = re.compile(TRAILING_SLASH_PATTERN)
-PROTOCOL_PREFIX_PATTERN = "^(http|https)://"
-PROTOCOL_PREFIX_REGEX = re.compile(PROTOCOL_PREFIX_PATTERN)
-
 # --- LOGGING
 # LOGGING_LEVEL_MODULES = "INFO"  # production
 LOGGING_LEVEL_MODULES = "DEBUG"  # development
