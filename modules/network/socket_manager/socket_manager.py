@@ -1,7 +1,7 @@
 import socket
 
 from utils.abstracts_classes import AbstractContextManager
-from utils.custom_exceptions import UnhandledException
+from utils.custom_exceptions import UnhandledException, InvalidHostname
 
 
 class SocketManager(AbstractContextManager):
@@ -31,7 +31,7 @@ class SocketManager(AbstractContextManager):
             return self.socket.connect_ex((target, port))
 
         except socket.gaierror:
-            raise UnhandledException("Hostname could not be resolved")
+            raise InvalidHostname("Hostname could not be resolved")
 
         except Exception:
             raise UnhandledException("Unhandled exception")

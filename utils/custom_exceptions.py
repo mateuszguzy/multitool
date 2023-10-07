@@ -16,3 +16,7 @@ class UnhandledException(Exception):
 
 class AbortException(Exception):
     pass
+
+
+class InvalidHostname(Exception):
+    pass
