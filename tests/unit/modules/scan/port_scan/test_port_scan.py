@@ -18,12 +18,12 @@ class TestPortScan:
         assert port_scan.ports == self.test_ports
 
     def test_all_ports_open_and_scanned_successfully(
-        self, mocker, port_scan, mock_socket_request, mock_celery_group
+        self, mocker, port_scan, mock_socket_request_task, mock_celery_group
     ):
         """
         Test all calls for all ports are made
         """
-        mocker.patch(f"{self.module_name}.socket_request", mock_socket_request)
+        mocker.patch(f"{self.module_name}.socket_request", mock_socket_request_task)
         mocker.patch.object(celery, "group", mock_celery_group)
 
         mocker.patch(f"{self.module_name}.convert_list_or_set_to_dict")
@@ -31,8 +31,8 @@ class TestPortScan:
 
         port_scan.run()
 
-        assert mock_socket_request.s.call_count == len(self.test_ports)
-        assert mock_socket_request.s.call_args_list == [
+        assert mock_socket_request_task.s.call_count == len(self.test_ports)
+        assert mock_socket_request_task.s.call_args_list == [
             mock.call(target=self.test_target, port=port, module=self.module_name)
             for port in self.test_ports
         ]
