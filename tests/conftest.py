@@ -228,3 +228,11 @@ def mock_socket_request():
     socket_request_mock.s.return_value = socket_request_mock
 
     return socket_request_mock
+
+
+@pytest.fixture(scope="function")
+def mock_web_request():
+    web_request_mock = mock.Mock()
+    web_request_mock.s.return_value = web_request_mock
+
+    return web_request_mock
