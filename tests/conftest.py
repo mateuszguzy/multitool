@@ -223,7 +223,7 @@ def mock_celery_group():
 
 
 @pytest.fixture(scope="function")
-def mock_socket_request():
+def mock_socket_request_task():
     socket_request_mock = mock.Mock()
     socket_request_mock.s.return_value = socket_request_mock
 
@@ -231,7 +231,7 @@ def mock_socket_request():
 
 
 @pytest.fixture(scope="function")
-def mock_web_request():
+def mock_web_request_task():
     web_request_mock = mock.Mock()
     web_request_mock.s.return_value = web_request_mock
 
