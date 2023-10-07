@@ -9,13 +9,19 @@ from modules.network.request_manager.request_manager import RequestManager
 from modules.recon.directory_bruteforce.directory_bruteforce import DirectoryBruteforce
 from modules.recon.recon import Recon
 from modules.user_interface.cli.cli_interface import CliInterface
-from utils.custom_dataclasses import DirectoryBruteforceInput, ReconInput, UserInput
+from utils.custom_dataclasses import DirectoryBruteforceInput, ReconInput, UserInput, PortScanInput, ScanInput
 
 MOCK_USER_INPUT_SINGLE_MODULE_DIRECTORY_BRUTEFORCE = (
     f"{TESTS_MOCKED_INPUT_DIR}/mock_user_input_single_module_directory_bruteforce.json"
 )
+MOCK_USER_INPUT_SINGLE_MODULE_PORT_SCAN = (
+    f"{TESTS_MOCKED_INPUT_DIR}/mock_user_input_single_module_port_scan.json"
+)
 MOCK_USER_INPUT_SINGLE_PHASE_RECON = (
     f"{TESTS_MOCKED_INPUT_DIR}/mock_user_input_single_phase_recon.json"
+)
+MOCK_USER_INPUT_SINGLE_PHASE_SCAN = (
+    f"{TESTS_MOCKED_INPUT_DIR}/mock_user_input_single_phase_scan.json"
 )
 MOCK_USER_INPUT_ALL = f"{TESTS_MOCKED_INPUT_DIR}/mock_user_input_all.json"
 TEST_URL = "https://www.example.com"
@@ -34,12 +40,16 @@ def convert_user_input_to_dataclass(path: str) -> UserInput:
     directory_bruteforce_input = DirectoryBruteforceInput(
         user_input_dict.get("recon").get("directory_bruteforce").get("list_size")
     )
+    port_scan_input = PortScanInput(
+        ports=set(user_input_dict.get("scan").get("port_scan").get("ports"))
+    )
     return UserInput(
         use_type=user_input_dict.get("use_type"),
         phase=user_input_dict.get("phase"),
         module=user_input_dict.get("module"),
         targets=set(user_input_dict.get("targets")),
         recon=ReconInput(directory_bruteforce_input),
+        scan=ScanInput(port_scan_input),
         output_after_every_phase=False,
         output_after_every_finding=True,
     )
@@ -73,9 +83,23 @@ def steering_module_for_single_module_directory_bruteforce():
 
 
 @pytest.fixture(scope="module")
+def steering_module_for_single_module_port_scan():
+    return create_steering_module_instance_with_user_input(
+        MOCK_USER_INPUT_SINGLE_MODULE_PORT_SCAN
+    )
+
+
+@pytest.fixture(scope="module")
 def steering_module_for_single_phase_recon():
     return create_steering_module_instance_with_user_input(
         MOCK_USER_INPUT_SINGLE_PHASE_RECON
+    )
+
+
+@pytest.fixture(scope="module")
+def steering_module_for_single_phase_scan():
+    return create_steering_module_instance_with_user_input(
+        MOCK_USER_INPUT_SINGLE_PHASE_SCAN
     )
 
 
@@ -145,13 +169,6 @@ def recon_whole_phase(directory_bruteforce):
 # MOCKS
 @pytest.fixture
 def mock_check_for_protocol_prefix_in_multiple_targets(mocker, expect):
-    mocker.patch(
-        "utils.utils.check_for_protocol_prefix_in_multiple_targets", return_value=expect
-    )
-
-
-@pytest.fixture
-def mock_check_for_trailing_slash_in_multiple_targets(mocker, expect):
     mocker.patch(
         "utils.utils.check_for_protocol_prefix_in_multiple_targets", return_value=expect
     )

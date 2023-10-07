@@ -1,11 +1,16 @@
 {
   "use_type": "single_module",
   "phase": null,
-  "module": "credential_leaks_check",
-  "targets": [],
+  "module": "port_scan",
+  "targets": ["http://dvwa:80/"],
   "recon": {
     "directory_bruteforce": {
-      "list_size": "small"
+      "list_size": null
+    }
+  },
+  "scan": {
+    "port_scan": {
+      "ports": [80]
     }
   },
   "output_after_every_phase": false,
