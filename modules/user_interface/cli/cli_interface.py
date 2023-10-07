@@ -5,7 +5,7 @@ from questionary import prompt
 from config.settings import (
     AVAILABLE_FUNCTIONALITY,
     AVAILABLE_PHASES,
-    RECON_PHASE_MODULES,
+    RECON_PHASE_MODULES, SCAN_PHASE_MODULES,
 )
 from modules.helper.redis_client import RedisClient
 from utils.abstracts_classes import AbstractModule
@@ -96,6 +96,14 @@ class CliInterface(AbstractModule):
             },
             {
                 "type": "select",
+                "name": "module",
+                "message": "Choose Module to execute:",
+                "choices": SCAN_PHASE_MODULES,
+                "default": "port_scan",
+                "when": lambda answers: self.scan_single_module_is_used(answers),
+            },
+            {
+                "type": "select",
                 "name": "directory_bruteforce_list_size",
                 "message": "Choose size or bruteforce wordlist:",
                 "choices": ["small", "medium", "test"],
@@ -131,6 +139,16 @@ class CliInterface(AbstractModule):
         Check if recon is used in current run by checking which modules are used.
         """
         if answers["use_type"] == "single_module" and answers["phase"] == "recon":
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def scan_single_module_is_used(answers: dict) -> bool:
+        """
+        Check if recon is used in current run by checking which modules are used.
+        """
+        if answers["use_type"] == "single_module" and answers["phase"] == "scan":
             return True
         else:
             return False

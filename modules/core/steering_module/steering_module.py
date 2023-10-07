@@ -1,6 +1,6 @@
 from typing import Set
 
-from config.settings import AVAILABLE_FUNCTIONALITY, RECON_PHASE_MODULES
+from config.settings import AVAILABLE_FUNCTIONALITY, RECON_PHASE_MODULES, SCAN_PHASE_MODULES
 from modules.recon.recon import Recon
 from modules.scan.scan import Scan
 from utils.custom_dataclasses import ReconInput, UserInput, ScanInput
@@ -89,6 +89,8 @@ class SteeringModule(AbstractModule):
         """
         if module in RECON_PHASE_MODULES:
             self._run_recon()
+        elif module in SCAN_PHASE_MODULES:
+            self._run_scan()
         else:
             raise ValueError(f"Invalid module: {module}")
 
