@@ -3,7 +3,7 @@ import celery  # type: ignore
 from modules.task_queue.tasks import socket_request
 from utils.abstracts_classes import AbstractModule
 from utils.custom_dataclasses import PortScanInput
-from utils.utils import convert_list_or_set_to_dict, store_module_results_in_database
+from utils.utils import convert_list_or_set_to_dict, store_module_results_in_database, url_formatter
 
 
 class PortScan(AbstractModule):
@@ -12,7 +12,7 @@ class PortScan(AbstractModule):
 
     def __init__(self, target: str, port_scan_input: PortScanInput) -> None:
         super().__init__()
-        self.target = target
+        self.target = url_formatter(input_target=target, module="port_scan")
         self.ports = getattr(port_scan_input, "ports")
 
     def run(self):
