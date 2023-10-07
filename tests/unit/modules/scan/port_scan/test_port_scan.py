@@ -23,9 +23,7 @@ class TestPortScan:
         """
         Test all calls for all ports are made
         """
-        mocker.patch(
-            "modules.scan.port_scan.port_scan.socket_request", mock_socket_request
-        )
+        mocker.patch(f"{self.module_name}.socket_request", mock_socket_request)
         mocker.patch.object(celery, "group", mock_celery_group)
 
         mocker.patch(f"{self.module_name}.convert_list_or_set_to_dict")
