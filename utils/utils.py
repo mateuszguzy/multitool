@@ -12,17 +12,20 @@ def url_formatter(input_target: str, module: Optional[str] = None) -> str:
     """
     Format URL to be in form of http://target
     """
-    final_url = str()
+    final_url = ""
     url = urlparse(input_target)
 
     if not url.scheme and url.path:
         path = url.path
         url = url._replace(netloc=path, path="/", scheme="http")
 
+    if not url.path:
+        url = url._replace(path="/")
+
     if module == "port_scan":
         if url.scheme:
-            # due to "//" in url after concatenating we need to remove them
-            final_url = url._replace(scheme="", path="").geturl()[2:]
+            url = url._replace(scheme="", path="")
+            final_url = url.netloc + url.path
     else:
         final_url = url.geturl()
 
