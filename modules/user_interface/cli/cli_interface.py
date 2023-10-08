@@ -24,6 +24,7 @@ from utils.utils import (
 )
 
 ALL, SINGLE_PHASE, SINGLE_MODULE = "all", "single_phase", "single_module"
+PORT_SCAN_TYPES = ["important", "top_1000", "all", "custom"]
 
 
 class CliInterface(AbstractModule):
@@ -83,6 +84,8 @@ class CliInterface(AbstractModule):
                 "default": "recon",
                 "when": lambda answers: answers["use_type"] == "single_phase",
             },
+            # this question allows to always have 'phase' populated,
+            # so it's easier to determine if further questions need to be asked
             {
                 "type": "select",
                 "name": "phase",
@@ -97,7 +100,7 @@ class CliInterface(AbstractModule):
                 "message": "Choose Module to execute:",
                 "choices": RECON_PHASE_MODULES,
                 "default": "directory_bruteforce",
-                "when": lambda answers: self.recon_single_module_is_used(answers),
+                "when": lambda answers: answers["phase"] == "recon",
             },
             {
                 "type": "select",
@@ -105,7 +108,7 @@ class CliInterface(AbstractModule):
                 "message": "Choose Module to execute:",
                 "choices": SCAN_PHASE_MODULES,
                 "default": "port_scan",
-                "when": lambda answers: self.scan_single_module_is_used(answers),
+                "when": lambda answers: answers["phase"] == "scan",
             },
             {
                 "type": "select",
@@ -118,10 +121,20 @@ class CliInterface(AbstractModule):
                 ),
             },
             {
+                "type": "select",
+                "name": "port_scan_type",
+                "message": "Choose ports to scan:",
+                "choices": PORT_SCAN_TYPES,
+                "default": "important",
+                "when": lambda answers: self.port_scan_is_executed(answers=answers),
+            },
+            {
                 "type": "text",
                 "name": "ports_to_scan",
                 "message": "Specify ports to scan as comma separated values:",
-                "when": lambda answers: self.port_scan_is_executed(answers=answers),
+                "when": lambda answers: self.custom_port_scan_is_executed(
+                    answers=answers
+                ),
                 "validate": lambda val: self.validate_ports_to_scan(ports_to_scan=val),
             },
             {
@@ -137,26 +150,6 @@ class CliInterface(AbstractModule):
                 "default": True,
             },
         ]
-
-    @staticmethod
-    def recon_single_module_is_used(answers: dict) -> bool:
-        """
-        Check if recon is used in current run by checking which modules are used.
-        """
-        if answers["use_type"] == "single_module" and answers["phase"] == "recon":
-            return True
-        else:
-            return False
-
-    @staticmethod
-    def scan_single_module_is_used(answers: dict) -> bool:
-        """
-        Check if recon is used in current run by checking which modules are used.
-        """
-        if answers["use_type"] == "single_module" and answers["phase"] == "scan":
-            return True
-        else:
-            return False
 
     @staticmethod
     def directory_bruteforce_is_executed(answers: dict) -> bool:
@@ -186,6 +179,16 @@ class CliInterface(AbstractModule):
         else:
             return False
 
+    @staticmethod
+    def custom_port_scan_is_executed(answers: dict) -> bool:
+        """
+        Check if custom port scan is executed in current run by checking which modules are used.
+        """
+        if "port_scan_type" in answers and answers["port_scan_type"] == "custom":
+            return True
+        else:
+            return False
+
     def format_targets_as_urls(self, targets: str) -> None:
         """
         Validate targets and return True if any of them are valid.
@@ -211,7 +214,7 @@ class CliInterface(AbstractModule):
         Aggregate phase specific data from user input and return it in form of dictionary.
         """
         recon_phase_input = self.aggregate_recon_phase_data(answers=answers)
-        scan_phase_input = self.aggregate_scan_phase_data()
+        scan_phase_input = self.aggregate_scan_phase_data(answers=answers)
 
         return recon_phase_input, scan_phase_input
 
@@ -224,11 +227,11 @@ class CliInterface(AbstractModule):
         )
         return ReconInput(directory_bruteforce=directory_bruteforce_input)
 
-    def aggregate_scan_phase_data(self) -> ScanInput:
+    def aggregate_scan_phase_data(self, answers: dict) -> ScanInput:
         """
         Aggregate scan phase data from user input and return it in form of dictionary.
         """
-        port_scan_input = self.aggregate_port_scan_data()
+        port_scan_input = self.aggregate_port_scan_data(answers=answers)
         return ScanInput(port_scan=port_scan_input)
 
     @staticmethod
@@ -240,11 +243,14 @@ class CliInterface(AbstractModule):
             list_size=answers.get("directory_bruteforce_list_size", None)
         )
 
-    def aggregate_port_scan_data(self) -> PortScanInput:
+    def aggregate_port_scan_data(self, answers: dict) -> PortScanInput:
         """
         Aggregate port scan data from user input and return it in form of dictionary.
         """
-        return PortScanInput(ports=self.valid_ports)
+        return PortScanInput(
+            port_scan_type=answers["port_scan_type"] if "port_scan_type" in answers else None,
+            ports=self.valid_ports
+        )
 
     @staticmethod
     def extract_used_phases_and_modules_data_from_user_input(answers: dict) -> Set[str]:

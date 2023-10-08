@@ -9,7 +9,8 @@ class DirectoryBruteforceInput:
 
 @dataclass
 class PortScanInput:
-    ports: Set[int]
+    port_scan_type: Optional[str]
+    ports: Set[Optional[int]]
 
 
 @dataclass
