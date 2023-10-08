@@ -50,7 +50,8 @@ def web_request(request_method: str, url: str, word: str, module: str) -> Option
 def socket_request(target: str, port: int, module: str) -> Optional[int]:
     with SocketManager(target=target, port=port) as sm:
         response = sm.run()
-        if response:
+        # the error indicator is 0 if the operation succeeded
+        if response == 0:
             log_results.delay(result=port, module=module, target=target)
             return port
         else:
