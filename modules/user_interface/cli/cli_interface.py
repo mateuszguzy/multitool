@@ -5,7 +5,8 @@ from questionary import prompt
 from config.settings import (
     AVAILABLE_FUNCTIONALITY,
     AVAILABLE_PHASES,
-    RECON_PHASE_MODULES, SCAN_PHASE_MODULES,
+    RECON_PHASE_MODULES,
+    SCAN_PHASE_MODULES,
 )
 from modules.helper.redis_client import RedisClient
 from utils.abstracts_classes import AbstractModule
@@ -16,7 +17,11 @@ from utils.custom_dataclasses import (
     ScanInput,
     PortScanInput,
 )
-from utils.utils import convert_list_or_set_to_dict, url_formatter, clean_and_validate_input_ports
+from utils.utils import (
+    convert_list_or_set_to_dict,
+    url_formatter,
+    clean_and_validate_input_ports,
+)
 
 ALL, SINGLE_PHASE, SINGLE_MODULE = "all", "single_phase", "single_module"
 
@@ -42,15 +47,15 @@ class CliInterface(AbstractModule):
         self.save_reusable_data_in_db(used_modules=used_modules)
 
         return UserInput(
-                use_type=answers.get("use_type", ""),
-                phase=answers.get("phase", ""),
-                module=answers.get("module", None),
-                targets=self.valid_targets,
-                recon=recon_phase_input,
-                scan=scan_phase_input,
-                output_after_every_phase=answers.get("output_after_every_phase", 0),
-                output_after_every_finding=answers.get("output_after_every_finding", 0),
-            )
+            use_type=answers.get("use_type", ""),
+            phase=answers.get("phase", ""),
+            module=answers.get("module", None),
+            targets=self.valid_targets,
+            recon=recon_phase_input,
+            scan=scan_phase_input,
+            output_after_every_phase=answers.get("output_after_every_phase", 0),
+            output_after_every_finding=answers.get("output_after_every_finding", 0),
+        )
 
     def prepare_questions(self) -> List[dict]:
         """
@@ -186,7 +191,9 @@ class CliInterface(AbstractModule):
         Validate targets and return True if any of them are valid.
         """
         split_targets = targets.split(",")
-        self.valid_targets = {url_formatter(input_target=target.strip()) for target in split_targets}
+        self.valid_targets = {
+            url_formatter(input_target=target.strip()) for target in split_targets
+        }
 
     def validate_ports_to_scan(self, ports_to_scan: str) -> bool:
         """
@@ -230,8 +237,8 @@ class CliInterface(AbstractModule):
         Aggregate directory bruteforce data from user input and return it in form of dictionary.
         """
         return DirectoryBruteforceInput(
-                list_size=answers.get("directory_bruteforce_list_size", None)
-            )
+            list_size=answers.get("directory_bruteforce_list_size", None)
+        )
 
     def aggregate_port_scan_data(self) -> PortScanInput:
         """
@@ -276,9 +283,7 @@ class CliInterface(AbstractModule):
         targets_dictionary = convert_list_or_set_to_dict(
             list_of_items=self.valid_targets
         )
-        modules_dictionary = convert_list_or_set_to_dict(
-            list_of_items=used_modules
-        )
+        modules_dictionary = convert_list_or_set_to_dict(list_of_items=used_modules)
 
         with RedisClient() as rc:
             rc.mset({"targets|" + str(k): v for k, v in targets_dictionary.items()})
