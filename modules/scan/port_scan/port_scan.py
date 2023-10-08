@@ -30,10 +30,7 @@ class PortScan(AbstractModule):
     def _determine_use_type(self):
         # 'port_scan_type' is optional to None in case it's not used e.g. while 'recon' phase is run
         # Below check is to prevent 'None' while PortScan is executed
-        if self.port_scan_type is None:
-            raise ValueError("port_scan_type cannot be None")
-
-        elif self.port_scan_type == "all":
+        if self.port_scan_type == "all":
             self.ports = set(range(1, 65536))
 
         elif self.port_scan_type == "important":
@@ -41,6 +38,9 @@ class PortScan(AbstractModule):
 
         elif self.port_scan_type == "top_1000":
             self.ports = set(range(1, 1001))
+
+        else:
+            raise ValueError(f"Invalid port scan type: {self.port_scan_type}")
 
     def _run_with_celery(self):
         """
