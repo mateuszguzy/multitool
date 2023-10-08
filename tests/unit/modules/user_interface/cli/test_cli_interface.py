@@ -115,7 +115,7 @@ class TestCliInterface:
             output_after_every_finding=True,
         )
 
-    def test_single_phase_port_scan_valid_urls(self, mocker, cli_interface):
+    def test_single_phase_scan_valid_urls(self, mocker, cli_interface):
         """
         Test if CliInterface returns expected dictionary when user selects 'single_phase' use type,
         'scan' phase and enters valid URLs as targets
