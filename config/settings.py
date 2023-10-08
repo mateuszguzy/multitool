@@ -3,7 +3,6 @@ import logging
 import logging.config as log_conf
 import multiprocessing
 import os
-import re
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -78,7 +77,7 @@ AVAILABLE_FUNCTIONALITY: dict = {
     },
     SCAN_PHASE: {
         PORT_SCAN,
-    }
+    },
 }
 RECON_PHASE_MODULES = list(AVAILABLE_FUNCTIONALITY["recon"])
 SCAN_PHASE_MODULES = list(AVAILABLE_FUNCTIONALITY["scan"])
@@ -94,9 +93,6 @@ LOGGING_LEVEL_MODULES = "DEBUG"  # development
 LOGGING_FORMAT_FILE = "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
 LOGGING_FILE_FORMAT = "%s%s_%s.log"
 LOGGING_HANDLER_CLASS = "logging.FileHandler"
-LOGGING_DIVIDER_NUMER_OF_CHARACTERS = 10
-LOGGING_DIVIDER_CHARACTER = "-"
-LOGGING_DIVIDER = f"\n{LOGGING_DIVIDER_CHARACTER * LOGGING_DIVIDER_NUMER_OF_CHARACTERS}\n"
 
 LOGGING = {
     "version": 1,
@@ -122,9 +118,7 @@ LOGGING = {
         "port_scan": {
             "level": LOGGING_LEVEL_MODULES,
             "class": LOGGING_HANDLER_CLASS,
-            "filename": (
-                    LOGGING_FILE_FORMAT % (LOGGING_DIR, CURRENT_DATE, PORT_SCAN)
-            ),
+            "filename": (LOGGING_FILE_FORMAT % (LOGGING_DIR, CURRENT_DATE, PORT_SCAN)),
             "formatter": "file",
         },
         "task_queue": {
@@ -145,7 +139,7 @@ LOGGING = {
             "level": LOGGING_LEVEL_MODULES,
             "class": LOGGING_HANDLER_CLASS,
             "filename": (
-                    LOGGING_FILE_FORMAT % (LOGGING_DIR, CURRENT_DATE, SOCKET_MANAGER)
+                LOGGING_FILE_FORMAT % (LOGGING_DIR, CURRENT_DATE, SOCKET_MANAGER)
             ),
             "formatter": "file",
         },
