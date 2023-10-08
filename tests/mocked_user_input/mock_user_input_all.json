@@ -10,6 +10,7 @@
   },
     "scan": {
     "port_scan": {
+      "port_scan_type": "custom",
       "ports": [80]
     }
   },

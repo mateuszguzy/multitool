@@ -10,10 +10,10 @@ class TestSteeringModule:
         directory_bruteforce=DirectoryBruteforceInput(list_size=None)
     )
     expected_scan_input = ScanInput(
-        port_scan=PortScanInput(ports={80})
+        port_scan=PortScanInput(port_scan_type="custom", ports={80})
     )
     expected_empty_scan_input = ScanInput(
-        port_scan=PortScanInput(ports=set())
+        port_scan=PortScanInput(port_scan_type="custom", ports=set())
     )
 
     def test_assign_class_attributes_for_single_module_directory_bruteforce(

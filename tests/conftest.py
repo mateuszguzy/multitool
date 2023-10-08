@@ -13,7 +13,13 @@ from modules.recon.recon import Recon
 from modules.scan.port_scan.port_scan import PortScan
 from modules.scan.scan import Scan
 from modules.user_interface.cli.cli_interface import CliInterface
-from utils.custom_dataclasses import DirectoryBruteforceInput, ReconInput, UserInput, PortScanInput, ScanInput
+from utils.custom_dataclasses import (
+    DirectoryBruteforceInput,
+    ReconInput,
+    UserInput,
+    PortScanInput,
+    ScanInput,
+)
 
 MOCK_USER_INPUT_SINGLE_MODULE_DIRECTORY_BRUTEFORCE = (
     f"{TESTS_MOCKED_INPUT_DIR}/mock_user_input_single_module_directory_bruteforce.json"
@@ -45,10 +51,15 @@ def convert_json_input_to_dict(path: str):
 def convert_user_input_to_dataclass(path: str) -> UserInput:
     user_input_dict = convert_json_input_to_dict(path=path)
     directory_bruteforce_input = DirectoryBruteforceInput(
-        user_input_dict.get("recon").get("directory_bruteforce").get("list_size")
+        list_size=user_input_dict.get("recon")
+        .get("directory_bruteforce")
+        .get("list_size")
     )
     port_scan_input = PortScanInput(
-        ports=set(user_input_dict.get("scan").get("port_scan").get("ports"))
+        ports=set(user_input_dict.get("scan").get("port_scan").get("ports")),
+        port_scan_type=user_input_dict.get("scan")
+        .get("port_scan")
+        .get("port_scan_type"),
     )
     return UserInput(
         use_type=user_input_dict.get("use_type"),
@@ -168,7 +179,7 @@ def directory_bruteforce():
 def port_scan():
     return PortScan(
         target=TEST_TARGET,
-        port_scan_input=PortScanInput(ports=TEST_PORTS),
+        port_scan_input=PortScanInput(port_scan_type="custom", ports=TEST_PORTS),
     )
 
 
@@ -189,7 +200,7 @@ def recon_whole_phase(directory_bruteforce):
 @pytest.fixture
 def scan_whole_phase():
     return Scan(
-        scan_input=ScanInput(PortScanInput(ports=TEST_PORTS)),
+        scan_input=ScanInput(PortScanInput(port_scan_type="custom", ports=TEST_PORTS)),
         target=TEST_TARGET,
         single_module=None,
     )

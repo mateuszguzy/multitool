@@ -56,6 +56,7 @@ class TestCliInterface:
                 "use_type": "all",
                 "targets": self.test_url,
                 "directory_bruteforce_list_size": "small",
+                "port_scan_type": "custom",
                 "output_after_every_phase": True,
                 "output_after_every_finding": True,
             },
@@ -70,7 +71,7 @@ class TestCliInterface:
             recon=ReconInput(
                 directory_bruteforce=DirectoryBruteforceInput(list_size="small")
             ),
-            scan=ScanInput(port_scan=PortScanInput(ports=self.test_ports)),
+            scan=ScanInput(port_scan=PortScanInput(port_scan_type="custom", ports=self.test_ports)),
             output_after_every_phase=True,
             output_after_every_finding=True,
         )
@@ -110,7 +111,7 @@ class TestCliInterface:
             recon=ReconInput(
                 directory_bruteforce=DirectoryBruteforceInput(list_size="small")
             ),
-            scan=ScanInput(PortScanInput(ports=set())),
+            scan=ScanInput(PortScanInput(port_scan_type=None, ports=set())),
             output_after_every_phase=True,
             output_after_every_finding=True,
         )
@@ -138,6 +139,7 @@ class TestCliInterface:
                 "use_type": "single_phase",
                 "targets": self.test_url,
                 "phase": "scan",
+                "port_scan_type": "custom",
                 "ports_to_scan": "80",
                 "output_after_every_phase": True,
                 "output_after_every_finding": True,
@@ -154,7 +156,7 @@ class TestCliInterface:
             recon=ReconInput(
                 directory_bruteforce=DirectoryBruteforceInput(list_size=None)
             ),
-            scan=ScanInput(PortScanInput(ports=self.test_ports)),
+            scan=ScanInput(PortScanInput(port_scan_type="custom", ports=self.test_ports)),
             output_after_every_phase=True,
             output_after_every_finding=True,
         )
@@ -195,7 +197,7 @@ class TestCliInterface:
             recon=ReconInput(
                 directory_bruteforce=DirectoryBruteforceInput(list_size="small")
             ),
-            scan=ScanInput(PortScanInput(ports=set())),
+            scan=ScanInput(PortScanInput(port_scan_type=None, ports=set())),
             output_after_every_phase=True,
             output_after_every_finding=True,
         )
@@ -224,6 +226,7 @@ class TestCliInterface:
                 "targets": self.test_url,
                 "phase": "scan",
                 "module": "port_scan",
+                "port_scan_type": "custom",
                 "ports_to_scan": "80",
                 "output_after_every_phase": True,
                 "output_after_every_finding": True,
@@ -240,7 +243,7 @@ class TestCliInterface:
             recon=ReconInput(
                 directory_bruteforce=DirectoryBruteforceInput(list_size=None)
             ),
-            scan=ScanInput(PortScanInput(ports=self.test_ports)),
+            scan=ScanInput(PortScanInput(port_scan_type="custom", ports=self.test_ports)),
             output_after_every_phase=True,
             output_after_every_finding=True,
         )
