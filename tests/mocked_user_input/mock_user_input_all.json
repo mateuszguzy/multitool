@@ -1,6 +1,6 @@
 {
   "use_type": "all",
-  "phase": null,
+  "phase": "",
   "module": null,
   "targets": ["http://dvwa:80/"],
   "recon": {
@@ -8,10 +8,10 @@
       "list_size": "small"
     }
   },
-    "scan": {
+  "scan": {
     "port_scan": {
       "port_scan_type": "custom",
-      "ports": [80]
+      "ports": [80, 443]
     }
   },
   "output_after_every_phase": false,

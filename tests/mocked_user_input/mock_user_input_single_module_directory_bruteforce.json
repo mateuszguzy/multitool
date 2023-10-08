@@ -1,6 +1,6 @@
 {
   "use_type": "single_module",
-  "phase": null,
+  "phase": "recon",
   "module": "directory_bruteforce",
   "targets": ["http://dvwa:80/"],
   "recon": {

@@ -1,6 +1,6 @@
 {
   "use_type": "single_module",
-  "phase": null,
+  "phase": "scan",
   "module": "port_scan",
   "targets": ["http://dvwa:80/"],
   "recon": {
@@ -11,7 +11,7 @@
   "scan": {
     "port_scan": {
       "port_scan_type": "custom",
-      "ports": [80]
+      "ports": [80, 443]
     }
   },
   "output_after_every_phase": false,

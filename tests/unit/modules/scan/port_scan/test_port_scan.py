@@ -11,16 +11,16 @@ class TestPortScan:
     test_ports = TEST_PORTS
     module_name = "modules.scan.port_scan.port_scan"
 
-    def test_port_scan_object_created_successfully(self, port_scan):
+    def test_port_scan_object_created_successfully(self, test_port_scan):
         """
         Test PortScan object is created successfully
         """
-        assert port_scan.target == self.test_target
-        assert port_scan.formatted_target == self.test_socket_request_target
-        assert port_scan.ports == self.test_ports
+        assert test_port_scan.target == self.test_target
+        assert test_port_scan.formatted_target == self.test_socket_request_target
+        assert test_port_scan.ports == self.test_ports
 
     def test_all_ports_open_and_scanned_successfully(
-        self, mocker, port_scan, mock_socket_request_task, mock_celery_group
+        self, mocker, test_port_scan, mock_socket_request_task, mock_celery_group
     ):
         """
         Test all calls for all ports are made
@@ -31,7 +31,7 @@ class TestPortScan:
         mocker.patch(f"{self.module_name}.convert_list_or_set_to_dict")
         mocker.patch(f"{self.module_name}.store_module_results_in_database")
 
-        port_scan.run()
+        test_port_scan.run()
 
         assert mock_socket_request_task.s.call_count == len(self.test_ports)
         assert mock_socket_request_task.s.call_args_list == [

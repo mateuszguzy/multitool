@@ -23,24 +23,24 @@ class TestSocketManager:
             assert isinstance(socket_manager, SocketManager)
         assert socket_manager.socket._closed
 
-    def test_successful_connection(self, mocker, socket_manager):
+    def test_successful_connection(self, mocker, test_socket_manager):
         mocker.patch.object(socket.socket, "connect_ex", return_value=0)
-        result = socket_manager.run()
+        result = test_socket_manager.run()
 
         assert result == 0
 
     def test_raises_invalid_hostname_when_hostname_cannot_be_resolved(
-        self, mocker, socket_manager
+        self, mocker, test_socket_manager
     ):
         mocker.patch.object(socket.socket, "connect_ex", side_effect=socket.gaierror)
 
         with pytest.raises(InvalidHostname):
-            socket_manager.run()
+            test_socket_manager.run()
 
     def test_raises_invalid_hostname_when_connection_timed_out(
-        self, mocker, socket_manager
+        self, mocker, test_socket_manager
     ):
         mocker.patch.object(socket.socket, "connect_ex", side_effect=socket.timeout)
 
         with pytest.raises(ConnectionTimedOut):
-            socket_manager.run()
+            test_socket_manager.run()

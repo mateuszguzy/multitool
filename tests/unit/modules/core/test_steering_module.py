@@ -1,54 +1,45 @@
-from utils.custom_dataclasses import DirectoryBruteforceInput, ReconInput, ScanInput, PortScanInput
-
-
 class TestSteeringModule:
     testing_targets = {"http://dvwa:80/"}
-    expected_recon_input = ReconInput(
-        directory_bruteforce=DirectoryBruteforceInput(list_size="small")
-    )
-    expected_empty_recon_input = ReconInput(
-        directory_bruteforce=DirectoryBruteforceInput(list_size=None)
-    )
-    expected_scan_input = ScanInput(
-        port_scan=PortScanInput(port_scan_type="custom", ports={80})
-    )
-    expected_empty_scan_input = ScanInput(
-        port_scan=PortScanInput(port_scan_type="custom", ports=set())
-    )
 
     def test_assign_class_attributes_for_single_module_directory_bruteforce(
         self,
         steering_module_for_single_module_directory_bruteforce,
+        test_recon_input,
+        test_scan_input_empty,
     ):
         sm = steering_module_for_single_module_directory_bruteforce
 
         assert sm.use_type == "single_module"
-        assert sm.phase is None
+        assert sm.phase == "recon"
         assert sm.module == "directory_bruteforce"
         assert sm.targets == self.testing_targets
-        assert sm.recon_input == self.expected_recon_input
-        assert sm.scan_input == self.expected_empty_scan_input
+        assert sm.recon_input == test_recon_input
+        assert sm.scan_input == test_scan_input_empty
         assert sm.output_after_every_phase is False
         assert sm.output_after_every_finding is True
 
     def test_assign_class_attributes_for_single_module_port_scan(
         self,
         steering_module_for_single_module_port_scan,
+        test_recon_input_empty,
+        test_scan_input,
     ):
         sm = steering_module_for_single_module_port_scan
 
         assert sm.use_type == "single_module"
-        assert sm.phase is None
+        assert sm.phase == "scan"
         assert sm.module == "port_scan"
         assert sm.targets == self.testing_targets
-        assert sm.recon_input == self.expected_empty_recon_input
-        assert sm.scan_input == self.expected_scan_input
+        assert sm.recon_input == test_recon_input_empty
+        assert sm.scan_input == test_scan_input
         assert sm.output_after_every_phase is False
         assert sm.output_after_every_finding is True
 
     def test_assign_class_attributes_for_single_phase_recon(
         self,
         steering_module_for_single_phase_recon,
+        test_recon_input,
+        test_scan_input_empty,
     ):
         sm = steering_module_for_single_phase_recon
 
@@ -56,14 +47,16 @@ class TestSteeringModule:
         assert sm.phase == "recon"
         assert sm.module is None
         assert sm.targets == self.testing_targets
-        assert sm.recon_input == self.expected_recon_input
-        assert sm.scan_input == self.expected_empty_scan_input
+        assert sm.recon_input == test_recon_input
+        assert sm.scan_input == test_scan_input_empty
         assert sm.output_after_every_phase is False
         assert sm.output_after_every_finding is True
 
     def test_assign_class_attributes_for_single_phase_scan(
         self,
         steering_module_for_single_phase_scan,
+        test_recon_input_empty,
+        test_scan_input,
     ):
         sm = steering_module_for_single_phase_scan
 
@@ -71,19 +64,21 @@ class TestSteeringModule:
         assert sm.phase == "scan"
         assert sm.module is None
         assert sm.targets == self.testing_targets
-        assert sm.recon_input == self.expected_empty_recon_input
-        assert sm.scan_input == self.expected_scan_input
+        assert sm.recon_input == test_recon_input_empty
+        assert sm.scan_input == test_scan_input
         assert sm.output_after_every_phase is False
         assert sm.output_after_every_finding is True
 
-    def test_assign_class_attributes_for_all(self, steering_module_for_all):
+    def test_assign_class_attributes_for_all(
+        self, steering_module_for_all, test_recon_input, test_scan_input
+    ):
         sm = steering_module_for_all
 
         assert sm.use_type == "all"
-        assert sm.phase is None
+        assert sm.phase == ""
         assert sm.module is None
         assert sm.targets == self.testing_targets
-        assert sm.recon_input == self.expected_recon_input
-        assert sm.scan_input == self.expected_scan_input
+        assert sm.recon_input == test_recon_input
+        assert sm.scan_input == test_scan_input
         assert sm.output_after_every_phase is False
         assert sm.output_after_every_finding is True

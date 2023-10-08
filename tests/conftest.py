@@ -176,31 +176,77 @@ def directory_bruteforce():
 
 
 @pytest.fixture(scope="function")
-def port_scan():
-    return PortScan(
-        target=TEST_TARGET,
-        port_scan_input=PortScanInput(port_scan_type="custom", ports=TEST_PORTS),
-    )
-
-
-@pytest.fixture(scope="function")
-def socket_manager():
+def test_socket_manager():
     return SocketManager(target=TEST_PORT_SCAN_TARGET, port=TEST_PORT)
 
 
 @pytest.fixture
-def recon_whole_phase(directory_bruteforce):
+def test_directory_bruteforce_input():
+    return DirectoryBruteforceInput(list_size="small")
+
+
+@pytest.fixture
+def test_directory_bruteforce_input_empty():
+    return DirectoryBruteforceInput(list_size=None)
+
+
+@pytest.fixture
+def test_recon_input(test_directory_bruteforce_input):
+    return ReconInput(test_directory_bruteforce_input)
+
+
+@pytest.fixture
+def test_recon_input_empty(test_directory_bruteforce_input_empty):
+    return ReconInput(test_directory_bruteforce_input_empty)
+
+
+@pytest.fixture
+def test_recon_whole_phase(test_recon_input):
     return Recon(
-        recon_input=ReconInput(DIRECTORY_BRUTEFORCE_INPUT),
+        recon_input=test_recon_input,
         target=TEST_TARGET,
         single_module=None,
     )
 
 
 @pytest.fixture
-def scan_whole_phase():
+def test_port_scan_input():
+    return PortScanInput(
+        port_scan_type="custom",
+        ports=TEST_PORTS,
+    )
+
+
+@pytest.fixture
+def test_port_scan_input_empty():
+    return PortScanInput(
+        port_scan_type="custom",
+        ports=set(),
+    )
+
+
+@pytest.fixture
+def test_scan_input(test_port_scan_input):
+    return ScanInput(test_port_scan_input)
+
+
+@pytest.fixture
+def test_scan_input_empty(test_port_scan_input_empty):
+    return ScanInput(test_port_scan_input_empty)
+
+
+@pytest.fixture(scope="function")
+def test_port_scan(test_port_scan_input):
+    return PortScan(
+        target=TEST_TARGET,
+        port_scan_input=test_port_scan_input,
+    )
+
+
+@pytest.fixture
+def test_scan_whole_phase(test_scan_input):
     return Scan(
-        scan_input=ScanInput(PortScanInput(port_scan_type="custom", ports=TEST_PORTS)),
+        scan_input=test_scan_input,
         target=TEST_TARGET,
         single_module=None,
     )
