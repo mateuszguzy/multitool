@@ -37,24 +37,25 @@ class TestDirectoryBruteforce:
         mocker.patch(f"{self.module_name}.convert_list_or_set_to_dict")
         mocker.patch(f"{self.module_name}.store_module_results_in_database")
 
-        directory_bruteforce.run()
+        directory_bruteforce._run_with_celery()
 
         assert mock_web_request_task.s.call_count == len(self.expected_wordlist)
-        assert mock_web_request_task.s.call_args_list == [
-            mock.call(
-                request_method="GET",
-                url=self.test_target,
-                word=word,
-                module=self.module_name,
-            )
-            for word in self.expected_wordlist
-        ]
+        for call_arg in mock_web_request_task.s.call_args_list:
+            assert call_arg in [
+                mock.call(
+                    request_method="GET",
+                    url=self.test_target,
+                    word=word,
+                    module=self.module_name,
+                )
+                for word in self.expected_wordlist
+            ]
 
     def test_handle_nonexistent_wordlist_file(
         self, directory_bruteforce, mock_open_with_file_not_found_error
     ):
         with pytest.raises(FileNotFoundError):
-            directory_bruteforce.run()
+            directory_bruteforce._run_with_celery()
 
     def test_read_wordlist_successfully_converts_to_set(
         self, mocker, directory_bruteforce, mock_open_with_data
