@@ -16,3 +16,11 @@ class UnhandledException(Exception):
 
 class AbortException(Exception):
     pass
+
+
+class InvalidHostname(Exception):
+    pass
+
+
+class ConnectionTimedOut(Exception):
+    pass

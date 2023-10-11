@@ -8,8 +8,19 @@ class DirectoryBruteforceInput:
 
 
 @dataclass
+class PortScanInput:
+    port_scan_type: Optional[str]
+    ports: Set[Optional[int]]
+
+
+@dataclass
 class ReconInput:
     directory_bruteforce: DirectoryBruteforceInput
+
+
+@dataclass
+class ScanInput:
+    port_scan: PortScanInput
 
 
 @dataclass
@@ -19,5 +30,6 @@ class UserInput:
     module: Optional[str]
     targets: Set[str]
     recon: ReconInput
+    scan: ScanInput
     output_after_every_phase: bool
     output_after_every_finding: bool

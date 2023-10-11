@@ -2,10 +2,16 @@
   "use_type": "single_phase",
   "phase": "scan",
   "module": null,
-  "targets": [],
+  "targets": ["http://dvwa:80/"],
   "recon": {
     "directory_bruteforce": {
-      "list_size": "small"
+      "list_size": null
+    }
+  },
+  "scan": {
+    "port_scan": {
+      "port_scan_type": "custom",
+      "ports": [80, 443]
     }
   },
   "output_after_every_phase": false,

@@ -1,62 +1,61 @@
+from unittest import mock
+
 import celery  # type: ignore
 import pytest
 
 from config.settings import WORDLISTS_DIR
-from modules.task_queue.tasks import web_request
+from tests.conftest import TEST_TARGET
 
 
 class TestDirectoryBruteforce:
-    target = "http://example.com"
+    test_target = TEST_TARGET
     expected_wordlist = {"word1", "word2", "word3"}
     module_name = "modules.recon.directory_bruteforce.directory_bruteforce"
 
-    def test_read_wordlist_and_run_tasks(
-        self, mocker, directory_bruteforce, mock_open_with_data, mock_celery_group
-    ):
-        mocker.patch(f"{self.module_name}.convert_list_or_set_to_dict")
-        mocker.patch(f"{self.module_name}.store_module_results_in_database")
-
-        directory_bruteforce.run()
+    def test_read_wordlist(self, mocker, directory_bruteforce, mock_open_with_data):
+        directory_bruteforce._read_wordlist()
 
         assert mock_open_with_data.call_count == 1
         assert mock_open_with_data.call_args == mocker.call(
             f"{WORDLISTS_DIR}/dir_bruteforce_small.txt", "r", encoding="utf-8"
         )
-        assert celery.group.call_count == 1
-        assert celery.group.call_args(
-            [
-                mocker.call(
-                    web_request.s(
-                        request_method="GET",
-                        url=self.target,
-                        word="word1",
-                        module=self.module_name,
-                    )
-                ),
-                mocker.call(
-                    web_request.s(
-                        request_method="GET",
-                        url=self.target,
-                        word="word2",
-                        module=self.module_name,
-                    )
-                ),
-                mocker.call(
-                    web_request.s(
-                        request_method="GET",
-                        url=self.target,
-                        word="word3",
-                        module=self.module_name,
-                    )
-                ),
+
+    def test_run_tasks_successfully(
+        self,
+        mocker,
+        directory_bruteforce,
+        mock_celery_group,
+        mock_open_with_data,
+            mock_web_request_task,
+    ):
+        """
+        Test all calls for all words are made
+        """
+        mocker.patch(f"{self.module_name}.web_request", mock_web_request_task)
+        mocker.patch.object(celery, "group", mock_celery_group)
+
+        mocker.patch(f"{self.module_name}.convert_list_or_set_to_dict")
+        mocker.patch(f"{self.module_name}.store_module_results_in_database")
+
+        directory_bruteforce._run_with_celery()
+
+        assert mock_web_request_task.s.call_count == len(self.expected_wordlist)
+        for call_arg in mock_web_request_task.s.call_args_list:
+            assert call_arg in [
+                mock.call(
+                    request_method="GET",
+                    url=self.test_target,
+                    word=word,
+                    module=self.module_name,
+                )
+                for word in self.expected_wordlist
             ]
-        )
 
     def test_handle_nonexistent_wordlist_file(
         self, directory_bruteforce, mock_open_with_file_not_found_error
     ):
         with pytest.raises(FileNotFoundError):
-            directory_bruteforce.run()
+            directory_bruteforce._run_with_celery()
 
     def test_read_wordlist_successfully_converts_to_set(
         self, mocker, directory_bruteforce, mock_open_with_data

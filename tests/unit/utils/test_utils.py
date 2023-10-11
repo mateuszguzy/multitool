@@ -1,7 +1,7 @@
 import pytest
 
 from utils.utils import (
-    convert_list_or_set_to_dict, url_formatter,
+    convert_list_or_set_to_dict, url_formatter, clean_and_validate_input_ports,
 )
 
 
@@ -35,6 +35,26 @@ class TestUrlFormatter:
     )
     def test_port_scan_url_formatting(self, url, expected_output):
         assert url_formatter(input_target=url, module=self.port_scan) == expected_output
+
+
+class TestCleanAndValidateInputPorts:
+    """
+    Test clean_and_validate_input_ports function.
+    """
+    @pytest.mark.parametrize(
+        "input_ports, expected_output",
+        [
+            ("8080", {8080}),
+            ("8080, 8081, 8082", {8080, 8081, 8082}),
+            ("1, 65535", {1, 65535}),
+            ("", set()),
+            ("   ", set()),
+            ("8080, abc, 123", {8080, 123}),
+        ],
+    )
+    def test_port_number_input_validation(self, input_ports, expected_output):
+        result = clean_and_validate_input_ports(input_ports)
+        assert result == expected_output
 
 
 class TestConvertListOrSetToDict:

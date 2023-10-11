@@ -1,17 +1,17 @@
 {
   "use_type": "single_module",
-  "phase": "recon",
-  "module": "directory_bruteforce",
+  "phase": "scan",
+  "module": "port_scan",
   "targets": ["http://dvwa:80/"],
   "recon": {
     "directory_bruteforce": {
-      "list_size": "small"
+      "list_size": null
     }
   },
   "scan": {
     "port_scan": {
       "port_scan_type": "custom",
-      "ports": []
+      "ports": [80, 443]
     }
   },
   "output_after_every_phase": false,

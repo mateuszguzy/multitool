@@ -3,7 +3,6 @@ import logging
 import logging.config as log_conf
 import multiprocessing
 import os
-import re
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -34,10 +33,38 @@ STEERING_MODULE = "steering_module"
 # TASK_QUEUE
 TASK_QUEUE = "task_queue"
 
-# REQUEST_MANAGER
+# -- MANAGERS
 REQUEST_MANAGER = "request_manager"
+SOCKET_MANAGER = "socket_manager"
 
-# RECON_PHASE
+# -- SCAN_PHASE
+SCAN_PHASE = "scan"
+# PORT_SCAN
+PORT_SCAN = "port_scan"
+IMPORTANT_PORTS = {
+    21,
+    22,
+    23,
+    25,
+    53,
+    80,
+    110,
+    111,
+    135,
+    139,
+    143,
+    443,
+    445,
+    993,
+    995,
+    1723,
+    3306,
+    3389,
+    5900,
+    8080,
+}
+
+# -- RECON_PHASE
 RECON_PHASE = "recon"
 # DIRECTORY_BRUTEFORCE
 DIRECTORY_BRUTEFORCE = "directory_bruteforce"
@@ -47,14 +74,18 @@ DIRECTORY_BRUTEFORCE_REQUEST_METHOD = "GET"
 AVAILABLE_FUNCTIONALITY: dict = {
     RECON_PHASE: {
         DIRECTORY_BRUTEFORCE,
-    }
+    },
+    SCAN_PHASE: {
+        PORT_SCAN,
+    },
 }
 RECON_PHASE_MODULES = list(AVAILABLE_FUNCTIONALITY["recon"])
+SCAN_PHASE_MODULES = list(AVAILABLE_FUNCTIONALITY["scan"])
 AVAILABLE_PHASES = list(AVAILABLE_FUNCTIONALITY.keys())
 ALL_MODULES = {module for phase in AVAILABLE_FUNCTIONALITY.values() for module in phase}
 
 # make sure user will not get tracebacks and similar data in terminal
-RESULTS_FOR_USER_FROM_MODULES = [STEERING_MODULE, DIRECTORY_BRUTEFORCE]
+RESULTS_FOR_USER_FROM_MODULES = [STEERING_MODULE, DIRECTORY_BRUTEFORCE, PORT_SCAN]
 
 # --- LOGGING
 # LOGGING_LEVEL_MODULES = "INFO"  # production
@@ -62,9 +93,6 @@ LOGGING_LEVEL_MODULES = "DEBUG"  # development
 LOGGING_FORMAT_FILE = "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
 LOGGING_FILE_FORMAT = "%s%s_%s.log"
 LOGGING_HANDLER_CLASS = "logging.FileHandler"
-LOGGING_DIVIDER_NUMER_OF_CHARACTERS = 10
-LOGGING_DIVIDER_CHARACTER = "-"
-LOGGING_DIVIDER = f"\n{LOGGING_DIVIDER_CHARACTER * LOGGING_DIVIDER_NUMER_OF_CHARACTERS}\n"
 
 LOGGING = {
     "version": 1,
@@ -87,6 +115,12 @@ LOGGING = {
             ),
             "formatter": "file",
         },
+        "port_scan": {
+            "level": LOGGING_LEVEL_MODULES,
+            "class": LOGGING_HANDLER_CLASS,
+            "filename": (LOGGING_FILE_FORMAT % (LOGGING_DIR, CURRENT_DATE, PORT_SCAN)),
+            "formatter": "file",
+        },
         "task_queue": {
             "level": LOGGING_LEVEL_MODULES,
             "class": LOGGING_HANDLER_CLASS,
@@ -98,6 +132,14 @@ LOGGING = {
             "class": LOGGING_HANDLER_CLASS,
             "filename": (
                 LOGGING_FILE_FORMAT % (LOGGING_DIR, CURRENT_DATE, REQUEST_MANAGER)
+            ),
+            "formatter": "file",
+        },
+        "socket_manager": {
+            "level": LOGGING_LEVEL_MODULES,
+            "class": LOGGING_HANDLER_CLASS,
+            "filename": (
+                LOGGING_FILE_FORMAT % (LOGGING_DIR, CURRENT_DATE, SOCKET_MANAGER)
             ),
             "formatter": "file",
         },
@@ -113,6 +155,11 @@ LOGGING = {
             "level": LOGGING_LEVEL_MODULES,
             "propagate": True,
         },
+        "port_scan": {
+            "handlers": ["port_scan"],
+            "level": LOGGING_LEVEL_MODULES,
+            "propagate": True,
+        },
         "task_queue": {
             "handlers": ["task_queue"],
             "level": LOGGING_LEVEL_MODULES,
@@ -123,6 +170,11 @@ LOGGING = {
             "level": LOGGING_LEVEL_MODULES,
             "propagate": True,
         },
+        "socket_manager": {
+            "handlers": ["socket_manager"],
+            "level": LOGGING_LEVEL_MODULES,
+            "propagate": True,
+        },
     },
 }
 
@@ -130,5 +182,7 @@ os.makedirs(LOGGING_DIR, exist_ok=True)
 log_conf.dictConfig(config=LOGGING)
 steering_module_logger = logging.getLogger("steering_module")
 directory_bruteforce_logger = logging.getLogger("directory_bruteforce")
+port_scan_logger = logging.getLogger("port_scan")
 task_queue_logger = logging.getLogger("task_queue")
 request_manager_logger = logging.getLogger("request_manager")
+socket_manager_logger = logging.getLogger("socket_manager")

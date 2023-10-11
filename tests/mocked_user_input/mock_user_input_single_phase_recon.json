@@ -8,6 +8,12 @@
       "list_size": "small"
     }
   },
+  "scan": {
+    "port_scan": {
+      "port_scan_type": "custom",
+      "ports": []
+    }
+  },
   "output_after_every_phase": false,
   "output_after_every_finding": true
 }
