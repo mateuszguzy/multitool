@@ -60,7 +60,9 @@ def prepare_final_results_dictionary() -> dict:
 
                 keys = rc.keys(f"{target}|{phase}|{module}|*")
 
-                results[target][phase] = {}
+                if not results[target].get(phase):
+                    results[target][phase] = {}
+
                 results[target][phase][module] = [
                     result.decode("utf-8") for result in rc.mget(keys)
                 ]
