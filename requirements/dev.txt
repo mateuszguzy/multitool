@@ -96,12 +96,15 @@ prompt-toolkit==3.0.36
     #   -r /home/mateusz/PycharmProjects/multitool/requirements/common.txt
     #   click-repl
     #   questionary
-pydantic==2.4.0
+pydantic==1.10.7
     # via -r /home/mateusz/PycharmProjects/multitool/requirements/dev.in
 pytest==7.3.1
     # via
     #   -r /home/mateusz/PycharmProjects/multitool/requirements/dev.in
+    #   pytest-lazy-fixture
     #   pytest-mock
+pytest-lazy-fixture==0.6.3
+    # via -r /home/mateusz/PycharmProjects/multitool/requirements/dev.in
 pytest-mock==3.11.1
     # via -r /home/mateusz/PycharmProjects/multitool/requirements/dev.in
 python-dotenv==1.0.0
@@ -127,7 +130,7 @@ tornado==6.3.2
     #   flower
 typing-extensions==4.7.1
     # via pydantic
-urllib3==1.26.6
+urllib3==1.26.17
     # via
     #   -r /home/mateusz/PycharmProjects/multitool/requirements/common.txt
     #   requests
@@ -148,4 +151,3 @@ web-pdb==1.6.0
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
-setuptools>=65.5.1 # not directly required, pinned by Snyk to avoid a vulnerability
