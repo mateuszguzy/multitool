@@ -8,6 +8,8 @@ amqp==5.1.1
     # via
     #   -r /home/mateusz/PycharmProjects/multitool/requirements/common.txt
     #   kombu
+annotated-types==0.6.0
+    # via pydantic
 async-timeout==4.0.2
     # via
     #   -r /home/mateusz/PycharmProjects/multitool/requirements/common.txt
@@ -96,8 +98,10 @@ prompt-toolkit==3.0.36
     #   -r /home/mateusz/PycharmProjects/multitool/requirements/common.txt
     #   click-repl
     #   questionary
-pydantic==1.10.7
+pydantic==2.4.0
     # via -r /home/mateusz/PycharmProjects/multitool/requirements/dev.in
+pydantic-core==2.10.0
+    # via pydantic
 pytest==7.3.1
     # via
     #   -r /home/mateusz/PycharmProjects/multitool/requirements/dev.in
@@ -129,7 +133,9 @@ tornado==6.3.2
     #   -r /home/mateusz/PycharmProjects/multitool/requirements/common.txt
     #   flower
 typing-extensions==4.7.1
-    # via pydantic
+    # via
+    #   pydantic
+    #   pydantic-core
 urllib3==1.26.17
     # via
     #   -r /home/mateusz/PycharmProjects/multitool/requirements/common.txt
@@ -151,3 +157,4 @@ web-pdb==1.6.0
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
+setuptools>=65.5.1 # not directly required, pinned by Snyk to avoid a vulnerability
