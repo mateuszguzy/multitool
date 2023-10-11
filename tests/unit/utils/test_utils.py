@@ -58,22 +58,14 @@ class TestCleanAndValidateInputPorts:
 
 
 class TestConvertListOrSetToDict:
-    def test_with_list_of_integers(self):
-        input_list = [1, 2, 3, 4, 5]
-        expected_output = {0: 1, 1: 2, 2: 3, 3: 4, 4: 5}
-        assert convert_list_or_set_to_dict(input_list) == expected_output
-
-    def test_with_empty_list(self):
-        input_list = []
-        expected_output = {}
-        assert convert_list_or_set_to_dict(input_list) == expected_output
-
-    def test_with_list_containing_duplicates(self):
-        input_list = [1, 2, 3, 2, 4, 5, 4]
-        expected_output = {0: 1, 1: 2, 2: 3, 3: 4, 4: 5}
-        assert convert_list_or_set_to_dict(input_list) == expected_output
-
-    def test_with_list_of_none_values(self):
-        input_list = [None, None, None]
-        expected_output = {}
+    @pytest.mark.parametrize(
+        "input_list, expected_output",
+        [
+            ([1, 2, 3, 4, 5], {0: 1, 1: 2, 2: 3, 3: 4, 4: 5}),
+            ([], {}),
+            ([1, 2, 3, 2, 4, 5, 4], {0: 1, 1: 2, 2: 3, 3: 4, 4: 5}),
+            ([None, None, None], {}),
+        ],
+    )
+    def test_with_list_of_integers(self, input_list, expected_output):
         assert convert_list_or_set_to_dict(input_list) == expected_output
