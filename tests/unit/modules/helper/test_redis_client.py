@@ -1,6 +1,3 @@
-import redis
-
-from config.settings import REDIS_HOST, REDIS_PORT, REDIS_DB
 from modules.helper.redis_client import RedisClient
 
 
