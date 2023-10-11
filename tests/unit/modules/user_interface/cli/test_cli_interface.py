@@ -4,7 +4,6 @@ from modules.user_interface.cli.cli_interface import CliInterface
 from tests.conftest import (
     MOCK_USER_INPUT_ALL,
     convert_json_input_to_dict,
-    test_scan_input,
     MOCK_USER_INPUT_SINGLE_PHASE_RECON,
     MOCK_USER_INPUT_SINGLE_PHASE_SCAN,
     MOCK_USER_INPUT_SINGLE_MODULE_DIRECTORY_BRUTEFORCE,
@@ -34,8 +33,78 @@ class TestCliInterface:
     scan_expected_modules = {port_scan_expected_module}
     run_all_expected_result = recon_phase_expected_modules | scan_expected_modules
 
+    @pytest.mark.parametrize(
+        "user_input, expected_output",
+        [
+            (
+                MOCK_USER_INPUT_ALL,
+                UserInput(
+                    use_type="all",
+                    phase="",
+                    module=None,
+                    targets={test_url},
+                    recon=pytest.lazy_fixture("test_recon_input"),  # type: ignore
+                    scan=pytest.lazy_fixture("test_scan_input"),  # type: ignore
+                    output_after_every_phase=False,
+                    output_after_every_finding=True,
+                ),
+            ),
+            (
+                MOCK_USER_INPUT_SINGLE_PHASE_RECON,
+                UserInput(
+                    use_type="single_phase",
+                    phase="recon",
+                    module=None,
+                    targets={test_url},
+                    recon=pytest.lazy_fixture("test_recon_input"),  # type: ignore
+                    scan=pytest.lazy_fixture("test_scan_input"),  # type: ignore
+                    output_after_every_phase=False,
+                    output_after_every_finding=True,
+                ),
+            ),
+            (
+                MOCK_USER_INPUT_SINGLE_PHASE_SCAN,
+                UserInput(
+                    use_type="single_phase",
+                    phase="scan",
+                    module=None,
+                    targets={test_url},
+                    recon=pytest.lazy_fixture("test_recon_input"),  # type: ignore
+                    scan=pytest.lazy_fixture("test_scan_input"),  # type: ignore
+                    output_after_every_phase=False,
+                    output_after_every_finding=True,
+                ),
+            ),
+            (
+                MOCK_USER_INPUT_SINGLE_MODULE_DIRECTORY_BRUTEFORCE,
+                UserInput(
+                    use_type="single_module",
+                    phase="recon",
+                    module="directory_bruteforce",
+                    targets={test_url},
+                    recon=pytest.lazy_fixture("test_recon_input"),  # type: ignore
+                    scan=pytest.lazy_fixture("test_scan_input"),  # type: ignore
+                    output_after_every_phase=False,
+                    output_after_every_finding=True,
+                ),
+            ),
+            (
+                MOCK_USER_INPUT_SINGLE_MODULE_PORT_SCAN,
+                UserInput(
+                    use_type="single_module",
+                    phase="scan",
+                    module="port_scan",
+                    targets={test_url},
+                    recon=pytest.lazy_fixture("test_recon_input"),  # type: ignore
+                    scan=pytest.lazy_fixture("test_scan_input"),  # type: ignore
+                    output_after_every_phase=False,
+                    output_after_every_finding=True,
+                ),
+            ),
+        ],
+    )
     def test_all_use_type_valid_urls(
-        self, mocker, cli_interface, test_recon_input, test_scan_input
+        self, mocker, cli_interface, user_input, expected_output
     ):
         """
         Test if CliInterface returns expected dictionary when user selects 'all' use type and enters valid URLs
@@ -43,11 +112,11 @@ class TestCliInterface:
         """
         mocker.patch(
             self.questionary_prompt_path,
-            return_value=convert_json_input_to_dict(MOCK_USER_INPUT_ALL),
+            return_value=convert_json_input_to_dict(user_input),
         )
         mocker.patch(
             self.aggregate_results_function_path,
-            return_value=(test_recon_input, test_scan_input),
+            return_value=(expected_output.recon, expected_output.scan),
         )
         mocker.patch(
             self.extract_used_phases_and_modules_data_from_user_input_path,
@@ -67,180 +136,7 @@ class TestCliInterface:
 
         result = cli_interface.run()
 
-        assert result == UserInput(
-            use_type="all",
-            phase="",
-            module=None,
-            targets={self.test_url},
-            recon=test_recon_input,
-            scan=test_scan_input,
-            output_after_every_phase=False,
-            output_after_every_finding=True,
-        )
-
-    def test_single_phase_recon_valid_urls(
-        self, mocker, cli_interface, test_recon_input, test_scan_input
-    ):
-        """
-        Test if CliInterface returns expected dictionary when user selects 'single_phase' use type,
-        'recon' phase and enters valid URLs as targets
-        """
-        mocker.patch(
-            self.questionary_prompt_path,
-            return_value=convert_json_input_to_dict(MOCK_USER_INPUT_SINGLE_PHASE_RECON),
-        )
-        mocker.patch(
-            self.aggregate_results_function_path,
-            return_value=(test_recon_input, test_scan_input),
-        )
-        mocker.patch(
-            self.extract_used_phases_and_modules_data_from_user_input_path,
-        )
-        mocker.patch(self.format_targets_as_urls_path)
-        mocker.patch(
-            self.save_reusable_data_in_db_function_path,
-        )
-        mocker.patch(
-            self.valid_targets_function_path,
-            {self.test_url},
-        )
-
-        result = cli_interface.run()
-
-        assert result == UserInput(
-            use_type="single_phase",
-            phase="recon",
-            module=None,
-            targets={self.test_url},
-            recon=test_recon_input,
-            scan=test_scan_input,
-            output_after_every_phase=False,
-            output_after_every_finding=True,
-        )
-
-    def test_single_phase_scan_valid_urls(
-        self, mocker, cli_interface, test_recon_input, test_scan_input
-    ):
-        """
-        Test if CliInterface returns expected dictionary when user selects 'single_phase' use type,
-        'scan' phase and enters valid URLs as targets
-        """
-        mocker.patch(
-            self.questionary_prompt_path,
-            return_value=convert_json_input_to_dict(MOCK_USER_INPUT_SINGLE_PHASE_SCAN),
-        )
-        mocker.patch(
-            self.aggregate_results_function_path,
-            return_value=(test_recon_input, test_scan_input),
-        )
-        mocker.patch(
-            self.extract_used_phases_and_modules_data_from_user_input_path,
-        )
-        mocker.patch(self.format_targets_as_urls_path)
-        mocker.patch(
-            self.save_reusable_data_in_db_function_path,
-        )
-        mocker.patch(
-            self.valid_targets_function_path,
-            {self.test_url},
-        )
-
-        result = cli_interface.run()
-
-        assert result == UserInput(
-            use_type="single_phase",
-            phase="scan",
-            module=None,
-            targets={self.test_url},
-            recon=test_recon_input,
-            scan=test_scan_input,
-            output_after_every_phase=False,
-            output_after_every_finding=True,
-        )
-
-    def test_single_module_directory_bruteforce_valid_urls(
-        self, mocker, cli_interface, test_recon_input, test_scan_input
-    ):
-        """
-        Test if CliInterface returns expected dictionary when user selects 'single_module' use type,
-        'directory_bruteforce' module and enters valid URLs as targets
-        """
-        mocker.patch(
-            self.questionary_prompt_path,
-            return_value=convert_json_input_to_dict(
-                MOCK_USER_INPUT_SINGLE_MODULE_DIRECTORY_BRUTEFORCE
-            ),
-        )
-        mocker.patch(
-            self.aggregate_results_function_path,
-            return_value=(test_recon_input, test_scan_input),
-        )
-        mocker.patch(
-            self.extract_used_phases_and_modules_data_from_user_input_path,
-        )
-        mocker.patch(self.format_targets_as_urls_path)
-        mocker.patch(
-            self.save_reusable_data_in_db_function_path,
-        )
-        mocker.patch(
-            self.valid_targets_function_path,
-            {self.test_url},
-        )
-
-        result = cli_interface.run()
-
-        assert result == UserInput(
-            use_type="single_module",
-            phase="recon",
-            module="directory_bruteforce",
-            targets={self.test_url},
-            recon=test_recon_input,
-            scan=test_scan_input,
-            output_after_every_phase=False,
-            output_after_every_finding=True,
-        )
-
-    def test_single_module_port_scan_valid_urls(
-        self, mocker, cli_interface, test_recon_input, test_scan_input
-    ):
-        """
-        Test if CliInterface returns expected dictionary when user selects 'single_module' use type,
-        'port_scan' module and enters valid URLs as targets
-        """
-        mocker.patch(
-            self.questionary_prompt_path,
-            return_value=convert_json_input_to_dict(
-                MOCK_USER_INPUT_SINGLE_MODULE_PORT_SCAN
-            ),
-        )
-        mocker.patch(
-            self.aggregate_results_function_path,
-            return_value=(test_recon_input, test_scan_input),
-        )
-        mocker.patch(
-            self.extract_used_phases_and_modules_data_from_user_input_path,
-        )
-        mocker.patch(self.format_targets_as_urls_path)
-        mocker.patch(
-            self.save_reusable_data_in_db_function_path,
-        )
-        mocker.patch(
-            self.valid_targets_function_path,
-            {self.test_url},
-        )
-
-        result = cli_interface.run()
-
-        assert result == UserInput(
-            use_type="single_module",
-            phase="scan",
-            module="port_scan",
-            targets={self.test_url},
-            recon=test_recon_input,
-            scan=test_scan_input,
-            output_after_every_phase=False,
-            output_after_every_finding=True,
-        )
+        assert result == expected_output
 
     def test_returns_set_of_modules_when_use_type_is_all(self):
         """

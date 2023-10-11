@@ -1,84 +1,113 @@
+import pytest
+
+from utils.custom_dataclasses import (
+    DirectoryBruteforceInput,
+    ReconInput,
+    ScanInput,
+    PortScanInput,
+)
+
+
 class TestSteeringModule:
     testing_targets = {"http://dvwa:80/"}
+    test_ports = {80, 443}
+    # couldn't use this as a fixture
+    test_recon_input = ReconInput(DirectoryBruteforceInput(list_size="small"))
+    test_recon_input_empty = ReconInput(DirectoryBruteforceInput(list_size=None))
+    test_scan_input = ScanInput(
+        PortScanInput(port_scan_type="custom", ports=test_ports)  # type: ignore
+    )
+    test_scan_input_empty = ScanInput(
+        PortScanInput(port_scan_type="custom", ports=set())
+    )
 
+    @pytest.mark.parametrize(
+        "steering_module_with_input, expected_output",
+        [
+            (
+                pytest.lazy_fixture("steering_module_for_single_module_directory_bruteforce"),  # type: ignore
+                {
+                    "use_type": "single_module",
+                    "phase": "recon",
+                    "module": "directory_bruteforce",
+                    "targets": testing_targets,
+                    "recon": test_recon_input,
+                    "scan": test_scan_input_empty,
+                    "output_after_every_phase": False,
+                    "output_after_every_finding": True,
+                },
+            ),
+            (
+                pytest.lazy_fixture("steering_module_for_single_module_port_scan"),  # type: ignore
+                {
+                    "use_type": "single_module",
+                    "phase": "scan",
+                    "module": "port_scan",
+                    "targets": testing_targets,
+                    "recon": test_recon_input_empty,
+                    "scan": test_scan_input,
+                    "output_after_every_phase": False,
+                    "output_after_every_finding": True,
+                },
+            ),
+            (
+                pytest.lazy_fixture("steering_module_for_single_phase_recon"),  # type: ignore
+                {
+                    "use_type": "single_phase",
+                    "phase": "recon",
+                    "module": None,
+                    "targets": testing_targets,
+                    "recon": test_recon_input,
+                    "scan": test_scan_input_empty,
+                    "output_after_every_phase": False,
+                    "output_after_every_finding": True,
+                },
+            ),
+            (
+                pytest.lazy_fixture("steering_module_for_single_phase_scan"),  # type: ignore
+                {
+                    "use_type": "single_phase",
+                    "phase": "scan",
+                    "module": None,
+                    "targets": testing_targets,
+                    "recon": test_recon_input_empty,
+                    "scan": test_scan_input,
+                    "output_after_every_phase": False,
+                    "output_after_every_finding": True,
+                },
+            ),
+            (
+                pytest.lazy_fixture("steering_module_for_all"),  # type: ignore
+                {
+                    "use_type": "all",
+                    "phase": "",
+                    "module": None,
+                    "targets": testing_targets,
+                    "recon": test_recon_input,
+                    "scan": test_scan_input,
+                    "output_after_every_phase": False,
+                    "output_after_every_finding": True,
+                },
+            ),
+        ],
+    )
     def test_assign_class_attributes_for_single_module_directory_bruteforce(
         self,
-        steering_module_for_single_module_directory_bruteforce,
-        test_recon_input,
-        test_scan_input_empty,
+        steering_module_with_input,
+        expected_output,
     ):
-        sm = steering_module_for_single_module_directory_bruteforce
-
-        assert sm.use_type == "single_module"
-        assert sm.phase == "recon"
-        assert sm.module == "directory_bruteforce"
-        assert sm.targets == self.testing_targets
-        assert sm.recon_input == test_recon_input
-        assert sm.scan_input == test_scan_input_empty
-        assert sm.output_after_every_phase is False
-        assert sm.output_after_every_finding is True
-
-    def test_assign_class_attributes_for_single_module_port_scan(
-        self,
-        steering_module_for_single_module_port_scan,
-        test_recon_input_empty,
-        test_scan_input,
-    ):
-        sm = steering_module_for_single_module_port_scan
-
-        assert sm.use_type == "single_module"
-        assert sm.phase == "scan"
-        assert sm.module == "port_scan"
-        assert sm.targets == self.testing_targets
-        assert sm.recon_input == test_recon_input_empty
-        assert sm.scan_input == test_scan_input
-        assert sm.output_after_every_phase is False
-        assert sm.output_after_every_finding is True
-
-    def test_assign_class_attributes_for_single_phase_recon(
-        self,
-        steering_module_for_single_phase_recon,
-        test_recon_input,
-        test_scan_input_empty,
-    ):
-        sm = steering_module_for_single_phase_recon
-
-        assert sm.use_type == "single_phase"
-        assert sm.phase == "recon"
-        assert sm.module is None
-        assert sm.targets == self.testing_targets
-        assert sm.recon_input == test_recon_input
-        assert sm.scan_input == test_scan_input_empty
-        assert sm.output_after_every_phase is False
-        assert sm.output_after_every_finding is True
-
-    def test_assign_class_attributes_for_single_phase_scan(
-        self,
-        steering_module_for_single_phase_scan,
-        test_recon_input_empty,
-        test_scan_input,
-    ):
-        sm = steering_module_for_single_phase_scan
-
-        assert sm.use_type == "single_phase"
-        assert sm.phase == "scan"
-        assert sm.module is None
-        assert sm.targets == self.testing_targets
-        assert sm.recon_input == test_recon_input_empty
-        assert sm.scan_input == test_scan_input
-        assert sm.output_after_every_phase is False
-        assert sm.output_after_every_finding is True
-
-    def test_assign_class_attributes_for_all(
-        self, steering_module_for_all, test_recon_input, test_scan_input
-    ):
-        sm = steering_module_for_all
-
-        assert sm.use_type == "all"
-        assert sm.phase == ""
-        assert sm.module is None
-        assert sm.targets == self.testing_targets
-        assert sm.recon_input == test_recon_input
-        assert sm.scan_input == test_scan_input
-        assert sm.output_after_every_phase is False
-        assert sm.output_after_every_finding is True
+        sm = steering_module_with_input
+        assert sm.use_type == expected_output["use_type"]
+        assert sm.phase == expected_output["phase"]
+        assert sm.module == expected_output["module"]
+        assert sm.targets == expected_output["targets"]
+        assert sm.recon_input == expected_output["recon"]
+        assert sm.scan_input == expected_output["scan"]
+        assert (
+            sm.output_after_every_phase
+            == expected_output["output_after_every_phase"]
+        )
+        assert (
+            sm.output_after_every_finding
+            == expected_output["output_after_every_finding"]
+        )

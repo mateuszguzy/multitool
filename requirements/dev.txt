@@ -8,6 +8,8 @@ amqp==5.1.1
     # via
     #   -r /home/mateusz/PycharmProjects/multitool/requirements/common.txt
     #   kombu
+annotated-types==0.6.0
+    # via pydantic
 async-timeout==4.0.2
     # via
     #   -r /home/mateusz/PycharmProjects/multitool/requirements/common.txt
@@ -98,10 +100,15 @@ prompt-toolkit==3.0.36
     #   questionary
 pydantic==2.4.0
     # via -r /home/mateusz/PycharmProjects/multitool/requirements/dev.in
+pydantic-core==2.10.0
+    # via pydantic
 pytest==7.3.1
     # via
     #   -r /home/mateusz/PycharmProjects/multitool/requirements/dev.in
+    #   pytest-lazy-fixture
     #   pytest-mock
+pytest-lazy-fixture==0.6.3
+    # via -r /home/mateusz/PycharmProjects/multitool/requirements/dev.in
 pytest-mock==3.11.1
     # via -r /home/mateusz/PycharmProjects/multitool/requirements/dev.in
 python-dotenv==1.0.0
@@ -126,8 +133,10 @@ tornado==6.3.2
     #   -r /home/mateusz/PycharmProjects/multitool/requirements/common.txt
     #   flower
 typing-extensions==4.7.1
-    # via pydantic
-urllib3==1.26.6
+    # via
+    #   pydantic
+    #   pydantic-core
+urllib3==1.26.17
     # via
     #   -r /home/mateusz/PycharmProjects/multitool/requirements/common.txt
     #   requests
