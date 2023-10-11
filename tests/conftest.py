@@ -2,8 +2,9 @@ import json
 import os
 
 import pytest
+from redis import Redis
 
-from config.settings import TESTS_MOCKED_INPUT_DIR, BASE_DIR
+from config.settings import TESTS_MOCKED_INPUT_DIR, BASE_DIR, REDIS_DB, REDIS_HOST, REDIS_PORT
 from modules.core.steering_module.steering_module import SteeringModule
 from modules.network.request_manager.request_manager import RequestManager
 from modules.recon.directory_bruteforce.directory_bruteforce import DirectoryBruteforce
@@ -62,6 +63,43 @@ def integration_steering_module_with_directory_bruteforce_test_input():
     return create_steering_module_instance_with_user_input(
         MOCK_USER_INPUT_SINGLE_MODULE_DIRECTORY_BRUTEFORCE
     )
+
+
+@pytest.fixture(scope="class")
+def test_redis_client():
+    return Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB)
+
+
+@pytest.fixture(scope="function")
+def test_redis_db_results_complete(test_redis_client):
+    rc = test_redis_client
+
+    rc.set("modules|0", "phase1|module1")
+    rc.set("modules|1", "phase1|module2")
+
+    rc.set("targets|0", "target1")
+    rc.set("targets|1", "target2")
+
+    rc.set("target1|phase1|module1|0", "result1")
+    rc.set("target1|phase1|module1|1", "result2")
+    rc.set("target1|phase1|module2|2", "result3")
+    rc.set("target2|phase1|module1|3", "result4")
+
+    yield
+
+    rc.flushall()
+
+
+@pytest.fixture(scope="function")
+def test_redis_db_results_only_targets(test_redis_client):
+    rc = test_redis_client
+
+    rc.set("targets|0", "target1")
+    rc.set("targets|1", "target2")
+
+    yield
+
+    rc.flushall()
 
 
 # --- UNIT
