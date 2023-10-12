@@ -8,3 +8,8 @@ app = Celery(
     backend=f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}",
     include=["modules.task_queue.tasks"],
 )
+
+# new queue for task 'log_results' to avoid being blocked by other tasks
+app.conf.task_routes = {
+    "modules.task_queue.tasks.log_results": {"queue": "log_results"},
+}
