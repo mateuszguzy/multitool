@@ -10,7 +10,8 @@ services:
     depends_on:
       - dvwa
       - redis
-      - worker
+      - worker_main
+      - worker_logging
     env_file:
       - .env
     command: python main.py
@@ -20,11 +21,23 @@ services:
   dvwa:
     image: vulnerables/web-dvwa:1.9
 
-  worker:
+  worker_main:
     restart: unless-stopped
     build: .
     entrypoint: celery
-    command: -A modules.task_queue.celery -b "redis://${REDIS_HOST}:${REDIS_PORT}/${REDIS_DB}" --result-backend "redis://${REDIS_HOST}:${REDIS_PORT}/${REDIS_DB}" worker
+    command: -A modules.task_queue.celery -b "redis://${REDIS_HOST}:${REDIS_PORT}/${REDIS_DB}" --result-backend "redis://${REDIS_HOST}:${REDIS_PORT}/${REDIS_DB}" worker -Q celery
+    depends_on:
+      - redis
+    volumes:
+      - type: bind
+        source: ./logs
+        target: /app/logs
+
+  worker_logging:
+    restart: unless-stopped
+    build: .
+    entrypoint: celery
+    command: -A modules.task_queue.celery -b "redis://${REDIS_HOST}:${REDIS_PORT}/${REDIS_DB}" --result-backend "redis://${REDIS_HOST}:${REDIS_PORT}/${REDIS_DB}" worker -Q log_results
     depends_on:
       - redis
     volumes:
@@ -39,7 +52,8 @@ services:
     ports:
       - "${CELERY_FLOWER_EXPOSED_PORT}:${CELERY_FLOWER_PORT}"
     depends_on:
-      - worker
+      - worker_main
+      - worker_logging
       - redis
 
   redis:
