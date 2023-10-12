@@ -40,7 +40,8 @@ build b:
 
 .PHONY: setup s
 setup s:
-	@docker compose up dvwa worker flower redis -d
+	@#docker compose up dvwa worker flower redis #-d
+	@docker compose up dvwa worker_main worker_logging flower redis -d
 	@./setup_logs.sh
 
 .PHONY: run r
@@ -53,8 +54,8 @@ stop:
 	@whoami | xargs killall multitail -u &>/dev/null
 	@tmux kill-session -t multitool_session
 
-.PHONY: stop-m
-stop-m:
+.PHONY: stop-m sm
+stop-m sm:
 	@tmux kill-session -t multitool_session
 
 .PHONY: clean c
@@ -64,7 +65,7 @@ clean c:
 
 .PHONY: tests t
 tests t:
-	@docker compose -f "docker-compose.tests.yaml" up dvwa worker redis -d &>/dev/null
+	@docker compose -f "docker-compose.tests.yaml" up dvwa worker_main worker_logging redis -d &>/dev/null
 	@sleep 5
 	@docker compose -f "docker-compose.tests.yaml" up multitool
 	@docker compose down --volumes &>/dev/null
