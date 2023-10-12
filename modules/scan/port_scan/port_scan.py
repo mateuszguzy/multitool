@@ -21,7 +21,7 @@ class PortScan(AbstractModule):
         self.target = target
         self.formatted_target = url_formatter(input_target=target, module="port_scan")
         self.port_scan_type = getattr(port_scan_input, "port_scan_type")
-        self.ports = getattr(port_scan_input, "ports")
+        self.ports = getattr(port_scan_input, "ports", set()) if self.port_scan_type == "custom" else set()
 
     def run(self):
         self._determine_use_type()
@@ -38,6 +38,9 @@ class PortScan(AbstractModule):
 
         elif self.port_scan_type == "top_1000":
             self.ports = set(range(1, 1001))
+
+        elif self.port_scan_type == "custom":
+            pass
 
         else:
             raise ValueError(f"Invalid port scan type: {self.port_scan_type}")
