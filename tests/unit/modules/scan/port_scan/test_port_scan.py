@@ -50,6 +50,7 @@ class TestPortScan:
             ("all", set(range(1, 65536))),
             ("important", IMPORTANT_PORTS),
             ("top_1000", set(range(1, 1001))),
+            ("custom", set()),
         ]
     )
     def test_port_scan_types(self, port_scan_type, expected_ports):
