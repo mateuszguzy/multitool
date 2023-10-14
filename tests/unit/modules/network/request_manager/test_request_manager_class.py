@@ -9,17 +9,23 @@ from utils.custom_exceptions import UnhandledRequestMethod, InvalidUrl
 class TestRequestManager:
     test_target = "example.com"
     expected_target = "http://example.com"
+    request_manager_path = "modules.network.request_manager.request_manager"
+    request_response_output = SessionRequestResponseObject(
+        status_code=200,
+        url="http://example.com",
+        ok=True,
+    )
 
     @pytest.mark.parametrize(
         "method, expected_output",
         [
-            ("get", SessionRequestResponseObject),
+            ("get", request_response_output),
         ],
     )
     def test_valid_methods(self, mocker, method, expected_output):
         mocker.patch.object(requests.Session, method)
         mocker.patch(
-            "modules.network.request_manager.request_manager.RequestManager._get_request",
+            f"{self.request_manager_path}.RequestManager._get_request",
             return_value=expected_output,
         )
         request_manager = RequestManager(
