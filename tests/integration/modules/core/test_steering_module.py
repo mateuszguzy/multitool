@@ -11,4 +11,4 @@ class TestSteeringModule:
             keys = rc.keys("http://dvwa:80/|recon|directory_bruteforce|*")
             result = rc.mget(keys)
 
-        assert result == [b"vulnerabilities"]
+        assert result == [b"/vulnerabilities"]

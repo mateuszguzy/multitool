@@ -26,12 +26,12 @@ class TestDirectoryBruteforce:
         directory_bruteforce,
         mock_celery_group,
         mock_open_with_data,
-            mock_web_request_task,
+        mock_web_request_task,
     ):
         """
         Test all calls for all words are made
         """
-        mocker.patch(f"{self.module_name}.web_request", mock_web_request_task)
+        mocker.patch(f"{self.module_name}.directory_bruteforce_web_request", mock_web_request_task)
         mocker.patch.object(celery, "group", mock_celery_group)
 
         mocker.patch(f"{self.module_name}.convert_list_or_set_to_dict")
@@ -44,9 +44,10 @@ class TestDirectoryBruteforce:
             assert call_arg in [
                 mock.call(
                     request_method="GET",
-                    url=self.test_target,
-                    word=word,
+                    target=self.test_target,
+                    path=word,
                     module=self.module_name,
+                    allow_redirects=False,
                 )
                 for word in self.expected_wordlist
             ]
