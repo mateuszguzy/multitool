@@ -1,10 +1,11 @@
-from typing import Set, List, Optional
+from typing import Set, Optional, Generator
 
 import celery  # type: ignore
 
 from config.settings import (
     WORDLISTS_DIR,
     DIRECTORY_BRUTEFORCE_REQUEST_METHOD,
+    MAX_RECURSION_DEPTH,
 )
 from modules.task_queue.tasks import directory_bruteforce_web_request
 from utils.abstracts_classes import AbstractModule
@@ -16,6 +17,7 @@ class DirectoryBruteforce(AbstractModule):
     request_method: str = DIRECTORY_BRUTEFORCE_REQUEST_METHOD
     file_path: str = str()
     allow_redirects: bool = False
+    max_recursion_depth: int = MAX_RECURSION_DEPTH
 
     def __init__(
         self, directory_bruteforce_input: DirectoryBruteforceInput, target: str
@@ -40,11 +42,11 @@ class DirectoryBruteforce(AbstractModule):
 
         self._save_results(self.final_results)
 
-    def _run_with_celery(self, path: Optional[str] = None) -> List[str]:
+    def _run_with_celery(self, path: Optional[str] = None) -> Generator[str, None, None]:
         """
         Runs celery tasks in parallel.
         """
-        tasks = [
+        tasks = (
             directory_bruteforce_web_request.s(
                 request_method=self.request_method,
                 target=self.target,
@@ -53,13 +55,13 @@ class DirectoryBruteforce(AbstractModule):
                 allow_redirects=self.allow_redirects,
             )
             for word in self.wordlist
-        ]
+        )
 
-        return [
+        return (
             result
             for result in celery.group(tasks).apply_async().join()
             if result is not None
-        ]
+        )
 
     def _run_recursively(self) -> None:
         """
@@ -67,10 +69,14 @@ class DirectoryBruteforce(AbstractModule):
         If there are any results, it will run the same module again with the same wordlist. But this time,
         it will use the results from previous run to create new path.
         """
-        while self.directories_to_check_recursively:
-            results = self._run_with_celery(path=self.directories_to_check_recursively.pop())
+        current_recursion_depth = 0
+        while self.directories_to_check_recursively and current_recursion_depth <= self.max_recursion_depth:
+            results = self._run_with_celery(
+                path=self.directories_to_check_recursively.pop()
+            )
             self.directories_to_check_recursively.update(set(results))
             self.final_results.update(results)
+            current_recursion_depth += 1
 
     def _read_wordlist(self) -> None:
         """
