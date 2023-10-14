@@ -100,7 +100,7 @@ class CliInterface(AbstractModule):
                 "message": "Choose Module to execute:",
                 "choices": RECON_PHASE_MODULES,
                 "default": "directory_bruteforce",
-                "when": lambda answers: answers["phase"] == "recon",
+                "when": lambda answers: "phase" in answers and answers["phase"] == "recon",
             },
             {
                 "type": "select",
@@ -108,7 +108,7 @@ class CliInterface(AbstractModule):
                 "message": "Choose Module to execute:",
                 "choices": SCAN_PHASE_MODULES,
                 "default": "port_scan",
-                "when": lambda answers: answers["phase"] == "scan",
+                "when": lambda answers: "phase" in answers and answers["phase"] == "scan",
             },
             {
                 "type": "select",
