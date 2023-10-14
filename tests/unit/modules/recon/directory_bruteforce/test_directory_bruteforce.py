@@ -67,7 +67,7 @@ class TestDirectoryBruteforce:
         self, mocker, directory_bruteforce_non_recursive, mock_open_with_data
     ):
         directory_bruteforce_non_recursive._read_wordlist()
-        print(self.expected_wordlist)
+
         assert directory_bruteforce_non_recursive.wordlist == self.expected_wordlist
         assert mock_open_with_data.call_count == 1
         assert mock_open_with_data.call_args == mocker.call(
