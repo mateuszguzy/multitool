@@ -75,6 +75,7 @@ class CliInterface(AbstractModule):
                 "type": "text",
                 "name": "targets",
                 "message": "Enter URLs as comma separated values:",
+                "validate": lambda val: val != "",
             },
             {
                 "type": "select",
