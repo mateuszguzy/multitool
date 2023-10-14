@@ -33,3 +33,10 @@ class UserInput:
     scan: ScanInput
     output_after_every_phase: bool
     output_after_every_finding: bool
+
+
+@dataclass
+class SessionRequestResponseObject:
+    ok: bool
+    status_code: int
+    url: str
