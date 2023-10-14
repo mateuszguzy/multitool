@@ -5,6 +5,7 @@ from typing import Set, Optional
 @dataclass
 class DirectoryBruteforceInput:
     list_size: Optional[str]
+    recursive: Optional[bool]
 
 
 @dataclass

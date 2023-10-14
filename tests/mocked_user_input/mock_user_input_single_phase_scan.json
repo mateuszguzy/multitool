@@ -5,7 +5,8 @@
   "targets": ["http://dvwa:80/"],
   "recon": {
     "directory_bruteforce": {
-      "list_size": null
+      "list_size": null,
+      "recursive": null
     }
   },
   "scan": {

@@ -1,10 +1,11 @@
-from typing import Set
+from typing import Set, Optional, Generator
 
 import celery  # type: ignore
 
 from config.settings import (
     WORDLISTS_DIR,
     DIRECTORY_BRUTEFORCE_REQUEST_METHOD,
+    MAX_RECURSION_DEPTH,
 )
 from modules.task_queue.tasks import directory_bruteforce_web_request
 from utils.abstracts_classes import AbstractModule
@@ -16,40 +17,66 @@ class DirectoryBruteforce(AbstractModule):
     request_method: str = DIRECTORY_BRUTEFORCE_REQUEST_METHOD
     file_path: str = str()
     allow_redirects: bool = False
+    max_recursion_depth: int = MAX_RECURSION_DEPTH
 
-    def __init__(self, directory_bruteforce_input: DirectoryBruteforceInput, target: str) -> None:
+    def __init__(
+        self, directory_bruteforce_input: DirectoryBruteforceInput, target: str
+    ) -> None:
         super().__init__()
         self.target: str = target
-        list_size = getattr(directory_bruteforce_input, "list_size")
+        list_size = getattr(directory_bruteforce_input, "list_size", "small")
+        self.recursive = getattr(directory_bruteforce_input, "recursive", False)
         self.file_path: str = f"{WORDLISTS_DIR}/dir_bruteforce_{list_size}.txt"
         self.wordlist: Set[str] = set()
+        self.directories_to_check_recursively: Set[str] = set()
+        self.final_results: Set[str] = set()
 
-    def run(self):
-        self._run_with_celery()
+    def run(self) -> None:
+        self._read_wordlist()
+        results = self._run_with_celery()
+        self.final_results.update(results)
 
-    def _run_with_celery(self):
+        if self.recursive:
+            self.directories_to_check_recursively = set(results)
+            self._run_recursively()
+
+        self._save_results(self.final_results)
+
+    def _run_with_celery(self, path: Optional[str] = None) -> Generator[str, None, None]:
         """
         Runs celery tasks in parallel.
         """
-        self._read_wordlist()
-
-        tasks = [
+        tasks = (
             directory_bruteforce_web_request.s(
                 request_method=self.request_method,
                 target=self.target,
-                path=word,
+                path=self._concatenate_path(path, word),
                 module=__name__,
                 allow_redirects=self.allow_redirects,
             )
             for word in self.wordlist
-        ]
+        )
 
-        results = convert_list_or_set_to_dict(
-            list_of_items=celery.group(tasks).apply_async().join()
+        return (
+            result
+            for result in celery.group(tasks).apply_async().join()
+            if result is not None
         )
-        store_module_results_in_database(
-            target=self.target, results=results, phase="recon", module="directory_bruteforce"
-        )
+
+    def _run_recursively(self) -> None:
+        """
+        This uses 'run_directory_bruteforce' method to run directory bruteforce module recursively.
+        If there are any results, it will run the same module again with the same wordlist. But this time,
+        it will use the results from previous run to create new path.
+        """
+        current_recursion_depth = 0
+        while self.directories_to_check_recursively and current_recursion_depth <= self.max_recursion_depth:
+            results = self._run_with_celery(
+                path=self.directories_to_check_recursively.pop()
+            )
+            self.directories_to_check_recursively.update(set(results))
+            self.final_results.update(results)
+            current_recursion_depth += 1
 
     def _read_wordlist(self) -> None:
         """
@@ -58,3 +85,22 @@ class DirectoryBruteforce(AbstractModule):
         with open(self.file_path, "r", encoding="utf-8") as wordlist:
             for line in wordlist:
                 self.wordlist.add(line.strip())
+
+    def _save_results(self, results) -> None:
+        results = convert_list_or_set_to_dict(list_of_items=results)
+        store_module_results_in_database(
+            target=self.target,
+            results=results,
+            phase="recon",
+            module="directory_bruteforce",
+        )
+
+    @staticmethod
+    def _concatenate_path(path: Optional[str], word: str) -> str:
+        """
+        Concatenates path with word. Helpful in case of recursive directory bruteforce.
+        """
+        if path and word:
+            return f"{path}/{word}"
+        else:
+            return word

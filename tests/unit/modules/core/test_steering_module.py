@@ -12,8 +12,12 @@ class TestSteeringModule:
     testing_targets = {"http://dvwa:80/"}
     test_ports = {80, 443}
     # couldn't use this as a fixture
-    test_recon_input = ReconInput(DirectoryBruteforceInput(list_size="small"))
-    test_recon_input_empty = ReconInput(DirectoryBruteforceInput(list_size=None))
+    test_recon_input = ReconInput(
+        DirectoryBruteforceInput(list_size="small", recursive=False)
+    )
+    test_recon_input_empty = ReconInput(
+        DirectoryBruteforceInput(list_size=None, recursive=None)
+    )
     test_scan_input = ScanInput(
         PortScanInput(port_scan_type="custom", ports=test_ports)  # type: ignore
     )
@@ -104,8 +108,7 @@ class TestSteeringModule:
         assert sm.recon_input == expected_output["recon"]
         assert sm.scan_input == expected_output["scan"]
         assert (
-            sm.output_after_every_phase
-            == expected_output["output_after_every_phase"]
+            sm.output_after_every_phase == expected_output["output_after_every_phase"]
         )
         assert (
             sm.output_after_every_finding

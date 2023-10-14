@@ -5,9 +5,14 @@ from unittest import mock
 import pytest
 from redis import Redis
 
-from config.settings import TESTS_MOCKED_INPUT_DIR, BASE_DIR, REDIS_DB, REDIS_HOST, REDIS_PORT
+from config.settings import (
+    TESTS_MOCKED_INPUT_DIR,
+    BASE_DIR,
+    REDIS_DB,
+    REDIS_HOST,
+    REDIS_PORT,
+)
 from modules.core.steering_module.steering_module import SteeringModule
-from modules.network.request_manager.request_manager import RequestManager
 from modules.network.socket_manager.socket_manager import SocketManager
 from modules.recon.directory_bruteforce.directory_bruteforce import DirectoryBruteforce
 from modules.recon.recon import Recon
@@ -39,7 +44,12 @@ TEST_TARGET = "https://www.example.com"
 TEST_PORT_SCAN_TARGET = "www.example.com"
 DIRECTORY_BRUTEFORCE_WORDLIST_MOCK_INPUT = "word1\nword2\nword3"
 BUILTINS_OPEN_PATH = "builtins.open"
-DIRECTORY_BRUTEFORCE_INPUT = DirectoryBruteforceInput(list_size="small")
+DIRECTORY_BRUTEFORCE_INPUT_NON_RECURSIVE = DirectoryBruteforceInput(
+    list_size="small", recursive=False
+)
+DIRECTORY_BRUTEFORCE_INPUT_RECURSIVE = DirectoryBruteforceInput(
+    list_size="small", recursive=True
+)
 TEST_PORTS = {80, 443}
 TEST_PORT = 80
 
@@ -54,7 +64,10 @@ def convert_user_input_to_dataclass(path: str) -> UserInput:
     directory_bruteforce_input = DirectoryBruteforceInput(
         list_size=user_input_dict.get("recon")
         .get("directory_bruteforce")
-        .get("list_size")
+        .get("list_size"),
+        recursive=user_input_dict.get("recon")
+        .get("directory_bruteforce")
+        .get("recursive"),
     )
     port_scan_input = PortScanInput(
         ports=set(user_input_dict.get("scan").get("port_scan").get("ports")),
@@ -164,51 +177,23 @@ def steering_module_for_all():
     return create_steering_module_instance_with_user_input(MOCK_USER_INPUT_ALL)
 
 
-@pytest.fixture(
-    scope="module",
-    params=[
-        "get",
-        "GET",
-    ],
-)
-def request_manager_get_request(request):
-    request_manager = RequestManager(method=request.param, url=TEST_TARGET)
-    return request_manager
-
-
-@pytest.fixture(
-    scope="module",
-    params=[
-        "post",
-        "POST",
-    ],
-)
-def request_manager_post_request(request):
-    request_manager = RequestManager(method=request.param, url=TEST_TARGET)
-    return request_manager
-
-
-@pytest.fixture(
-    scope="module",
-    params=[
-        "delete",
-        "DELETE",
-    ],
-)
-def request_manager_delete_request(request):
-    request_manager = RequestManager(method=request.param, url=TEST_TARGET)
-    return request_manager
-
-
 @pytest.fixture()
 def cli_interface():
     return CliInterface()
 
 
 @pytest.fixture(scope="function")
-def directory_bruteforce():
+def directory_bruteforce_non_recursive():
     return DirectoryBruteforce(
-        directory_bruteforce_input=DIRECTORY_BRUTEFORCE_INPUT,
+        directory_bruteforce_input=DIRECTORY_BRUTEFORCE_INPUT_NON_RECURSIVE,
+        target=TEST_TARGET,
+    )
+
+
+@pytest.fixture(scope="function")
+def directory_bruteforce_recursive():
+    return DirectoryBruteforce(
+        directory_bruteforce_input=DIRECTORY_BRUTEFORCE_INPUT_RECURSIVE,
         target=TEST_TARGET,
     )
 
@@ -220,12 +205,12 @@ def test_socket_manager():
 
 @pytest.fixture
 def test_directory_bruteforce_input():
-    return DirectoryBruteforceInput(list_size="small")
+    return DirectoryBruteforceInput(list_size="small", recursive=False)
 
 
 @pytest.fixture
 def test_directory_bruteforce_input_empty():
-    return DirectoryBruteforceInput(list_size=None)
+    return DirectoryBruteforceInput(list_size=None, recursive=None)
 
 
 @pytest.fixture

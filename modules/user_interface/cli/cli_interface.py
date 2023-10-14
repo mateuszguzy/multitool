@@ -241,7 +241,8 @@ class CliInterface(AbstractModule):
         Aggregate directory bruteforce data from user input and return it in form of dictionary.
         """
         return DirectoryBruteforceInput(
-            list_size=answers.get("directory_bruteforce_list_size", None)
+            list_size=answers.get("directory_bruteforce_list_size", None),
+            recursive=False,
         )
 
     def aggregate_port_scan_data(self, answers: dict) -> PortScanInput:
