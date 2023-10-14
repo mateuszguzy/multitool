@@ -6,15 +6,16 @@ from config.settings import (
     WORDLISTS_DIR,
     DIRECTORY_BRUTEFORCE_REQUEST_METHOD,
 )
-from modules.task_queue.tasks import web_request
-from utils.custom_dataclasses import DirectoryBruteforceInput
+from modules.task_queue.tasks import directory_bruteforce_web_request
 from utils.abstracts_classes import AbstractModule
+from utils.custom_dataclasses import DirectoryBruteforceInput
 from utils.utils import store_module_results_in_database, convert_list_or_set_to_dict
 
 
 class DirectoryBruteforce(AbstractModule):
     request_method: str = DIRECTORY_BRUTEFORCE_REQUEST_METHOD
     file_path: str = str()
+    allow_redirects: bool = False
 
     def __init__(self, directory_bruteforce_input: DirectoryBruteforceInput, target: str) -> None:
         super().__init__()
@@ -33,11 +34,12 @@ class DirectoryBruteforce(AbstractModule):
         self._read_wordlist()
 
         tasks = [
-            web_request.s(
+            directory_bruteforce_web_request.s(
                 request_method=self.request_method,
-                url=self.target,
-                word=word,
+                target=self.target,
+                path=word,
                 module=__name__,
+                allow_redirects=self.allow_redirects,
             )
             for word in self.wordlist
         ]

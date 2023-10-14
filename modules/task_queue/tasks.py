@@ -1,5 +1,5 @@
 from typing import Optional
-from urllib.parse import urljoin
+from urllib.parse import urlparse
 
 from config.settings import directory_bruteforce_logger, steering_module_logger, port_scan_logger
 from modules.network.request_manager.request_manager import RequestManager
@@ -35,13 +35,26 @@ def log_results(result: str, module: str, target: str = "") -> None:
 
 
 @app.task
-def web_request(request_method: str, url: str, word: str, module: str) -> Optional[str]:
-    with RequestManager(method=request_method, url=urljoin(url, word)) as rm:
+def directory_bruteforce_web_request(
+    request_method: str, target: str, path: str, module: str, allow_redirects: bool
+) -> Optional[str]:
+
+    url = urlparse(target)
+    with RequestManager(
+        method=request_method,
+        scheme=url.scheme,
+        netloc=url.netloc,
+        path=path,
+        allow_redirects=allow_redirects,
+    ) as rm:
         response = rm.run()
 
         if response.ok:
-            log_results.delay(result=word, module=module, target=url)
-            return word
+            url = urlparse(response.url)
+            log_results.delay(
+                result=url.path, module=module, target=target
+            )
+            return url.path
         else:
             return None
 

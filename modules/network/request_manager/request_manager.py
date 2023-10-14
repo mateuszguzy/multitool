@@ -1,9 +1,11 @@
 from typing import Union
+from urllib.parse import urlunparse, ParseResult
 
 import requests
 from requests.exceptions import ConnectionError, MissingSchema
 
 from utils.abstracts_classes import AbstractContextManager
+from utils.custom_dataclasses import SessionRequestResponseObject
 from utils.custom_exceptions import (
     CustomConnectionError,
     InvalidUrl,
@@ -13,11 +15,31 @@ from utils.custom_exceptions import (
 
 
 class RequestManager(AbstractContextManager):
-    def __init__(self, method: str, url: str) -> None:
+    def __init__(
+        self,
+        method: str,
+        scheme: str = "",
+        netloc: str = "",
+        path: str = "",
+        params: str = "",
+        query: str = "",
+        fragment: str = "",
+        allow_redirects: bool = True,
+    ) -> None:
         super().__init__()
         self.method = method
-        self.url = url
+        self.url = urlunparse(
+            ParseResult(
+                scheme=scheme,
+                netloc=netloc,
+                path=path,
+                params=params,
+                query=query,
+                fragment=fragment,
+            )
+        )
         self.session = requests.Session()
+        self.allow_redirects = allow_redirects
 
     def __enter__(self):
         return self
@@ -26,26 +48,37 @@ class RequestManager(AbstractContextManager):
         if self.session is not None:
             self.session.close()
 
-    def run(self):
-        return self._make_request()
-
-    def _make_request(self) -> Union[requests.Response, Exception]:
-        """
-        Make request to the given URL.
-        """
-        if self.method.lower() == "get":
+    def run(self) -> Union[SessionRequestResponseObject, Exception]:
+        request_mapping = {
+            "get": self._get_request,
+        }
+        if self.method.lower() in request_mapping:
             try:
-                return self.session.get(url=self.url, allow_redirects=False)
+                return request_mapping[self.method.lower()]()
 
             except ConnectionError:
-                raise CustomConnectionError("Connection error")
+                raise CustomConnectionError(f"Connection error on URL: {self.url}")
 
             except MissingSchema:
                 raise InvalidUrl("Invalid URL")
 
-            except Exception:
-                raise UnhandledException("Unhandled request manager error")
+            except Exception as e:
+                raise UnhandledException(f"Unhandled request manager error: {e}")
         else:
             raise UnhandledRequestMethod(
                 f"Unhandled request method used: {self.method}"
             )
+
+    def _get_request(self) -> SessionRequestResponseObject:
+        """
+        Make request to the given URL.
+        """
+        response = self.session.get(url=self.url, allow_redirects=False)
+
+        return SessionRequestResponseObject(
+            url=response.url,
+            status_code=response.status_code,
+            ok=response.ok,
+        )
+
+
