@@ -38,7 +38,7 @@ class DirectoryBruteforce(AbstractModule):
             self.directories_to_check_recursively = set(results)
             self._run_recursively()
 
-        self.save_results(self.final_results)
+        self._save_results(self.final_results)
 
     def _run_with_celery(self, path: Optional[str] = None) -> List[str]:
         """
@@ -48,7 +48,7 @@ class DirectoryBruteforce(AbstractModule):
             directory_bruteforce_web_request.s(
                 request_method=self.request_method,
                 target=self.target,
-                path=self.concatenate_path(path, word),
+                path=self._concatenate_path(path, word),
                 module=__name__,
                 allow_redirects=self.allow_redirects,
             )
@@ -80,7 +80,7 @@ class DirectoryBruteforce(AbstractModule):
             for line in wordlist:
                 self.wordlist.add(line.strip())
 
-    def save_results(self, results) -> None:
+    def _save_results(self, results) -> None:
         results = convert_list_or_set_to_dict(list_of_items=results)
         store_module_results_in_database(
             target=self.target,
@@ -90,11 +90,11 @@ class DirectoryBruteforce(AbstractModule):
         )
 
     @staticmethod
-    def concatenate_path(path: Optional[str], word: str) -> str:
+    def _concatenate_path(path: Optional[str], word: str) -> str:
         """
         Concatenates path with word. Helpful in case of recursive directory bruteforce.
         """
-        if path:
+        if path and word:
             return f"{path}/{word}"
         else:
             return word
