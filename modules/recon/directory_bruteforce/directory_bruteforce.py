@@ -1,4 +1,4 @@
-from typing import Set, Optional, Generator
+from typing import Set, Optional
 
 import celery  # type: ignore
 
@@ -33,8 +33,7 @@ class DirectoryBruteforce(AbstractModule):
 
     def run(self) -> None:
         self._read_wordlist()
-        # yield values from generator for reuse
-        results = {result for result in self._run_with_celery()}
+        results = self._run_with_celery()
         self.final_results.update(results)
 
         if self.recursive:
@@ -43,9 +42,7 @@ class DirectoryBruteforce(AbstractModule):
 
         self._save_results(self.final_results)
 
-    def _run_with_celery(
-        self, path: Optional[str] = None
-    ) -> Generator[str, None, None]:
+    def _run_with_celery(self, path: Optional[str] = None) -> Set[str]:
         """
         Runs celery tasks in parallel.
         """
@@ -60,10 +57,12 @@ class DirectoryBruteforce(AbstractModule):
             for word in self.wordlist
         )
 
-        return (
-            result
-            for result in celery.group(tasks).apply_async().join()
-            if result is not None
+        return set(
+            (
+                result
+                for result in celery.group(tasks).apply_async().join()
+                if result is not None
+            )
         )
 
     def _run_recursively(self) -> None:
@@ -77,14 +76,10 @@ class DirectoryBruteforce(AbstractModule):
             self.directories_to_check_recursively
             and current_recursion_depth <= self.max_recursion_depth
         ):
-            # yield values from generator for reuse
-            results = {
-                result
-                for result in self._run_with_celery(
-                    path=self.directories_to_check_recursively.pop()
-                )
-            }
-            self.directories_to_check_recursively.update(set(results))
+            results = self._run_with_celery(
+                path=self.directories_to_check_recursively.pop()
+            )
+            self.directories_to_check_recursively.update(results)
             self.final_results.update(results)
             current_recursion_depth += 1
 
