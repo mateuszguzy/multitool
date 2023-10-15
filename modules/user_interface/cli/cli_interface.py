@@ -122,6 +122,15 @@ class CliInterface(AbstractModule):
                 ),
             },
             {
+                "type": "confirm",
+                "name": "directory_bruteforce_recursive",
+                "message": "Should bruteforce run recursively:",
+                "default": False,
+                "when": lambda answers: self.directory_bruteforce_is_executed(
+                    answers=answers
+                ),
+            },
+            {
                 "type": "select",
                 "name": "port_scan_type",
                 "message": "Choose ports to scan:",
@@ -242,7 +251,7 @@ class CliInterface(AbstractModule):
         """
         return DirectoryBruteforceInput(
             list_size=answers.get("directory_bruteforce_list_size", None),
-            recursive=False,
+            recursive=answers.get("directory_bruteforce_recursive", None),
         )
 
     def aggregate_port_scan_data(self, answers: dict) -> PortScanInput:

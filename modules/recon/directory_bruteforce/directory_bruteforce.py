@@ -1,4 +1,4 @@
-from typing import Set, Optional, Generator
+from typing import Set, Optional
 
 import celery  # type: ignore
 
@@ -37,12 +37,12 @@ class DirectoryBruteforce(AbstractModule):
         self.final_results.update(results)
 
         if self.recursive:
-            self.directories_to_check_recursively = set(results)
+            self.directories_to_check_recursively = results
             self._run_recursively()
 
         self._save_results(self.final_results)
 
-    def _run_with_celery(self, path: Optional[str] = None) -> Generator[str, None, None]:
+    def _run_with_celery(self, path: Optional[str] = None) -> Set[str]:
         """
         Runs celery tasks in parallel.
         """
@@ -57,10 +57,12 @@ class DirectoryBruteforce(AbstractModule):
             for word in self.wordlist
         )
 
-        return (
-            result
-            for result in celery.group(tasks).apply_async().join()
-            if result is not None
+        return set(
+            (
+                result
+                for result in celery.group(tasks).apply_async().join()
+                if result is not None
+            )
         )
 
     def _run_recursively(self) -> None:
@@ -70,11 +72,14 @@ class DirectoryBruteforce(AbstractModule):
         it will use the results from previous run to create new path.
         """
         current_recursion_depth = 0
-        while self.directories_to_check_recursively and current_recursion_depth <= self.max_recursion_depth:
+        while (
+            self.directories_to_check_recursively
+            and current_recursion_depth <= self.max_recursion_depth
+        ):
             results = self._run_with_celery(
                 path=self.directories_to_check_recursively.pop()
             )
-            self.directories_to_check_recursively.update(set(results))
+            self.directories_to_check_recursively.update(results)
             self.final_results.update(results)
             current_recursion_depth += 1
 
