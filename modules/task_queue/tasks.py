@@ -14,6 +14,7 @@ from config.settings import (
 from modules.network.request_manager.request_manager import RequestManager
 from modules.network.socket_manager.socket_manager import SocketManager
 from modules.task_queue.celery import app
+from utils.custom_exceptions import UnhandledException
 
 # Constants for module names
 STEERING_MODULE = "__main__"
@@ -98,7 +99,7 @@ def results_listener_task():
                 log_results.delay(result=r[0], module=r[1], target=r[2])
 
     except Exception as e:
-        print(f"Exception in results_listener_task: {e}")
+        raise UnhandledException(f"Exception in results_listener_task: {e}")
 
 
 def stop_listener_tasks():
