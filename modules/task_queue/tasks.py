@@ -90,11 +90,15 @@ def pass_result_event(result: str, module: str, target: str) -> None:
 
 @app.task()
 def results_listener_task():
-    pubsub.subscribe("results")
-    for result in pubsub.listen():
-        if result["type"] == "message":
-            r = result["data"].decode().split("::")
-            log_results.delay(result=r[0], module=r[1], target=r[2])
+    try:
+        pubsub.subscribe("results")
+        for result in pubsub.listen():
+            if result["type"] == "message":
+                r = result["data"].decode().split("::")
+                log_results.delay(result=r[0], module=r[1], target=r[2])
+
+    except Exception as e:
+        print(f"Exception in results_listener_task: {e}")
 
 
 def stop_listener_tasks():

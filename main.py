@@ -32,16 +32,18 @@ def main():
     except Exception:
         raise UnhandledException("Unhandled exception")
 
-    if user_input.output_after_every_finding:
-        results_listener_task.delay()
+    try:
+        if user_input.output_after_every_finding:
+            results_listener_task.delay()
 
-    steering_module = SteeringModule(user_input=user_input)
-    steering_module.run()
+        steering_module = SteeringModule(user_input=user_input)
+        steering_module.run()
 
-    results = prepare_final_results_dictionary()
-    log_results.delay(result=results, module=__name__)
+        results = prepare_final_results_dictionary()
+        log_results.delay(result=results, module=__name__)
 
-    stop_listener_tasks()
+    finally:
+        stop_listener_tasks()
 
 
 if __name__ == "__main__":
