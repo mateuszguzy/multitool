@@ -136,7 +136,7 @@ typing-extensions==4.7.1
     # via
     #   pydantic
     #   pydantic-core
-urllib3==1.26.17
+urllib3==1.26.18
     # via
     #   -r /home/mateusz/PycharmProjects/multitool/requirements/common.txt
     #   requests
