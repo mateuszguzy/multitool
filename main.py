@@ -3,7 +3,11 @@ import sys
 from click import Abort
 
 from modules.core.steering_module.steering_module import SteeringModule
-from modules.task_queue.tasks import log_results
+from modules.task_queue.tasks import (
+    log_results,
+    results_listener_task,
+    stop_listener_tasks,
+)
 from modules.user_interface.user_interface import UserInterface
 from utils.custom_exceptions import (
     AbortException,
@@ -28,11 +32,18 @@ def main():
     except Exception:
         raise UnhandledException("Unhandled exception")
 
-    steering_module = SteeringModule(user_input=user_input)
-    steering_module.run()
+    try:
+        if user_input.output_after_every_finding:
+            results_listener_task.delay()
 
-    results = prepare_final_results_dictionary()
-    log_results.delay(result=results, module=__name__)
+        steering_module = SteeringModule(user_input=user_input)
+        steering_module.run()
+
+        results = prepare_final_results_dictionary()
+        log_results.delay(result=results, module=__name__)
+
+    finally:
+        stop_listener_tasks()
 
 
 if __name__ == "__main__":
