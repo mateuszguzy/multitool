@@ -46,6 +46,7 @@ services:
         target: /app/logs
 
   flower:
+    restart: unless-stopped
     build: .
     image: mher/flower:2.0
     command: celery -A modules.task_queue.celery flower
