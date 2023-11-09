@@ -1,14 +1,19 @@
+import pdb
 import sys
+import uuid
 
 from click import Abort
 
+from config.settings import steering_module_logger
 from modules.core.steering_module.steering_module import SteeringModule
 from modules.task_queue.tasks import (
-    log_results,
-    results_listener_task,
     stop_listener_tasks,
+    running_tasks_left,
+    start_event_listeners,
+    pass_result_event,
 )
 from modules.user_interface.user_interface import UserInterface
+from utils.custom_dataclasses import ResultEvent
 from utils.custom_exceptions import (
     AbortException,
     UnhandledException,
@@ -17,6 +22,8 @@ from utils.utils import (
     prepare_final_results_dictionary,
     log_exception,
 )
+
+logger = steering_module_logger
 
 
 def main():
@@ -33,14 +40,26 @@ def main():
         raise UnhandledException("Unhandled exception")
 
     try:
-        if user_input.output_after_every_finding:
-            results_listener_task.delay()
+        start_event_listeners(
+            output_after_every_finding=user_input.output_after_every_finding
+        )
 
         steering_module = SteeringModule(user_input=user_input)
         steering_module.run()
 
-        results = prepare_final_results_dictionary()
-        log_results.delay(result=results, module=__name__)
+        # wait for all tasks to finish before logging results
+        tasks_running = True
+        while tasks_running:
+            tasks_running = running_tasks_left()
+
+        pass_result_event.delay(
+            event=ResultEvent(
+                id=uuid.uuid4(),
+                source_module=__name__,
+                target="ALL",
+                result=str(prepare_final_results_dictionary()),
+            )
+        )
 
     finally:
         stop_listener_tasks()

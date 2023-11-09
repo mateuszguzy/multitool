@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Set, Optional
+from uuid import UUID
 
 
 @dataclass
@@ -41,3 +42,21 @@ class SessionRequestResponseObject:
     ok: bool
     status_code: int
     url: str
+
+
+@dataclass
+class Event:
+    id: UUID
+    source_module: Optional[str]
+    target: str
+
+
+@dataclass
+class StartModuleEvent(Event):
+    destination_module: Optional[str]
+    result: Optional[str]
+
+
+@dataclass
+class ResultEvent(Event):
+    result: str
