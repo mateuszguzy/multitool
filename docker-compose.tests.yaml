@@ -1,12 +1,12 @@
 version: "3.9"
 
 services:
-  multitool:
+  test-multitool:
     build: .
     depends_on:
       - dvwa
       - redis
-      - worker
+      - test-worker
     command: pytest
     env_file:
       - .env
@@ -18,7 +18,7 @@ services:
   dvwa:
     image: vulnerables/web-dvwa:1.9
 
-  worker:
+  test-worker:
     build: .
     entrypoint: celery
     command: -A modules.task_queue.celery -b "redis://${REDIS_HOST}:${REDIS_PORT}/${REDIS_DB}" --result-backend "redis://${REDIS_HOST}:${REDIS_PORT}/${REDIS_DB}" worker
