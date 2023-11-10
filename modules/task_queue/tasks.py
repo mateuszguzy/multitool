@@ -113,7 +113,7 @@ def pass_result_event(event: ResultEvent) -> None:
         logger.debug(f"PUBLISHED::{event.id}")
 
     except Exception as e:
-        logger.exception(f"EXCEPTION::{event.id}::{e.__traceback__}")
+        logger.error(f"EXCEPTION::{event.id}::{e}", exc_info=True)
         raise UnhandledException(f"Exception in {task_name}: {e}")
 
 
@@ -130,7 +130,7 @@ def start_module_event(event: StartModuleEvent) -> None:
         logger.debug(f"PUBLISHED::{event.id}")
 
     except Exception as e:
-        logger.exception(f"EXCEPTION::{event.id}::{e.__traceback__}")
+        logger.error(f"EXCEPTION::{event.id}::{e}", exc_info=True)
         raise UnhandledException(f"Exception in {task_name}: {e}")
 
 
@@ -149,7 +149,7 @@ def live_results_listener_task():
                 log_results.delay(event=event)
 
     except Exception as e:
-        logger.exception(f"EXCEPTION::{task_id}::{e.__traceback__}")
+        logger.error(f"EXCEPTION::{task_id}::{e}", exc_info=True)
         raise UnhandledException(f"Exception in {task_name}: {e}")
 
 
@@ -169,7 +169,7 @@ def event_listener_task(module: str) -> None:
                 dispatcher.run()
 
     except Exception as e:
-        logger.exception(f"EXCEPTION::{task_id}::{e.__traceback__}")
+        logger.error(f"EXCEPTION::{task_id}::{e}", exc_info=True)
         raise UnhandledException(f"Exception in {task_name}: {e}")
 
 
