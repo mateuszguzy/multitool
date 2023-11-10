@@ -7,9 +7,6 @@ import celery  # type: ignore
 import redis
 
 from config.settings import (
-    directory_bruteforce_logger,
-    steering_module_logger,
-    port_scan_logger,
     REDIS_HOST,
     REDIS_PORT,
     REDIS_DB,
@@ -31,22 +28,10 @@ from utils.custom_serializers.start_module_event_serializer import (
     start_module_event_encoder,
     start_module_event_data_load,
 )
-
-# Constants for module names
-STEERING_MODULE_NAME = "__main__"
-DIRECTORY_BRUTEFORCE_MODULE_NAME = (
-    "modules.recon.directory_bruteforce.directory_bruteforce"
-)
-PORT_SCAN_MODULE_NAME = "modules.scan.port_scan.port_scan"
+from utils.utils import get_logger
 
 logger = task_queue_logger
 
-# Dictionary mapping module names to loggers
-loggers = {
-    STEERING_MODULE_NAME: steering_module_logger,
-    DIRECTORY_BRUTEFORCE_MODULE_NAME: directory_bruteforce_logger,
-    PORT_SCAN_MODULE_NAME: port_scan_logger,
-}
 rc = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB)
 pubsub = rc.pubsub()
 
@@ -59,16 +44,11 @@ def log_results(event: ResultEvent) -> None:
     """
     try:
         result = f"<{event.target}>: {event.result}"
-        if event.source_module in loggers:
-            loggers[event.source_module].info(result)
-        else:
-            loggers[STEERING_MODULE_NAME].error(
-                f"No logger for module: {event.source_module}"
-            )
+        module_logger = get_logger(event.source_module)
+        module_logger.info(result)
 
     except Exception as e:
         logger.exception(f"EXCEPTION {e.__traceback__}")
-        raise UnhandledException(f"Exception in log_results: {e}")
 
 
 @app.task
