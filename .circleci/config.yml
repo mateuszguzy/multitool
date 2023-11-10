@@ -26,7 +26,7 @@ jobs:
       - run:
           name: Run DVWA & Celery worker
           command: |
-            sudo docker compose -f "docker-compose.tests.yaml" up worker dvwa -d
+            sudo docker compose -f "docker-compose.tests.yaml" up test-worker dvwa -d
       - run:
           name: Wait for DVWA to set up
           command: |
@@ -35,7 +35,7 @@ jobs:
           name: Run tests
 #         'if loop' is needed to pass exit code from bash to CircleCI to fail a build
           command: | 
-            sudo docker compose -f "docker-compose.tests.yaml"  up --force-recreate multitool | tee test_results.log
+            sudo docker compose -f "docker-compose.tests.yaml"  up --force-recreate test-multitool | tee test_results.log
             if
               grep -o -i failed test_results.log | wc -l > 0
             then
