@@ -318,3 +318,18 @@ def mock_web_request_task():
     web_request_mock.s.return_value = web_request_mock
 
     return web_request_mock
+
+
+@pytest.fixture(scope="function")
+def mock_get_logger_function(mocker):
+    return mocker.patch("modules.task_queue.tasks.get_logger", return_value=mocker.Mock())
+
+
+@pytest.fixture(scope="function")
+def mock_get_logger_function_with_exception(mocker):
+    return mocker.patch("modules.task_queue.tasks.get_logger", side_effect=Exception)
+
+
+@pytest.fixture(scope="function")
+def mock_task_queue_logger_in_tasks(mocker):
+    return mocker.patch("modules.task_queue.tasks.logger", return_value=mocker.Mock())
