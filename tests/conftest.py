@@ -342,8 +342,8 @@ def mock_redis_in_tasks(mocker):
 
 
 @pytest.fixture(scope="function")
-def mock_redis_pubsub_in_tasks(mocker):
-    return mocker.patch(f"{TASK_QUEUE_MODULE_PATH}.pubsub", return_value=mocker.Mock())
+def mock_redis_pubsub_subscribe_in_tasks(mocker):
+    return mocker.patch(f"{TASK_QUEUE_MODULE_PATH}.pubsub.subscribe", return_value=mocker.Mock())
 
 
 @pytest.fixture(scope="function")

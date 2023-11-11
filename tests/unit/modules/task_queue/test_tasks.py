@@ -182,7 +182,7 @@ class TestLiveResultsListenerTask:
         self,
         mocker,
         mock_task_queue_logger_in_tasks,
-        mock_redis_pubsub_in_tasks,
+            mock_redis_pubsub_subscribe_in_tasks,
         mock_redis_pubsub_listen_in_tasks,
         mock_log_results_task,
     ):
@@ -196,7 +196,7 @@ class TestLiveResultsListenerTask:
 
         # assertions
         # pubsub
-        mock_redis_pubsub_in_tasks.subscribe.called_once_with(
+        mock_redis_pubsub_subscribe_in_tasks.called_once_with(
             PUBSUB_RESULTS_CHANNEL_NAME
         )
         mock_redis_pubsub_listen_in_tasks.assert_called_once()
@@ -206,7 +206,10 @@ class TestLiveResultsListenerTask:
         assert mock_task_queue_logger_in_tasks.debug.call_count == 2
 
     def test_live_results_listener_task_fail(
-        self, mock_redis_pubsub_listen_with_exception_in_tasks
+        self,
+        mock_redis_pubsub_listen_with_exception_in_tasks,
+        mock_redis_pubsub_subscribe_in_tasks,
+        mock_task_queue_logger_in_tasks,
     ):
         with pytest.raises(Exception):
             live_results_listener_task()
