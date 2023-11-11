@@ -338,4 +338,25 @@ def mock_task_queue_logger_in_tasks(mocker):
 
 @pytest.fixture(scope="function")
 def mock_redis_in_tasks(mocker):
-    return mocker.patch("modules.task_queue.tasks.rc", return_value=mocker.Mock())
+    return mocker.patch(f"{TASK_QUEUE_MODULE_PATH}.rc", return_value=mocker.Mock())
+
+
+@pytest.fixture(scope="function")
+def mock_redis_pubsub_in_tasks(mocker):
+    return mocker.patch(f"{TASK_QUEUE_MODULE_PATH}.pubsub", return_value=mocker.Mock())
+
+
+@pytest.fixture(scope="function")
+def mock_redis_pubsub_listen_in_tasks(mocker):
+    event = {"type": "message", "data": b"test_data_1"}
+    return mocker.patch(f"{TASK_QUEUE_MODULE_PATH}.pubsub.listen", return_value=[event])
+
+
+@pytest.fixture(scope="function")
+def mock_redis_pubsub_listen_with_exception_in_tasks(mocker):
+    return mocker.patch(f"{TASK_QUEUE_MODULE_PATH}.pubsub.listen", side_effect=Exception)
+
+
+@pytest.fixture(scope="function")
+def mock_log_results_task(mocker):
+    return mocker.patch(f"{TASK_QUEUE_MODULE_PATH}.log_results", return_value=mocker.Mock())
