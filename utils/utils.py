@@ -4,7 +4,12 @@ from typing import Set, List, Optional
 from urllib.parse import urlparse
 
 from config.settings import (
-    steering_module_logger, directory_bruteforce_logger, port_scan_logger,
+    steering_module_logger,
+    directory_bruteforce_logger,
+    port_scan_logger,
+    REDIS_TARGETS_KEY,
+    REDIS_MODULES_KEY,
+    REDIS_USER_INPUT_KEY,
 )
 from modules.helper.redis_client import RedisClient
 
@@ -78,10 +83,10 @@ def prepare_final_results_dictionary() -> dict:
     results: dict = dict()
 
     with RedisClient() as rc:
-        keys = rc.keys("modules|*")
+        keys = rc.keys(f"{REDIS_USER_INPUT_KEY}{REDIS_MODULES_KEY}*")
         used_modules = rc.mget(keys)
 
-        keys = rc.keys("targets|*")
+        keys = rc.keys(f"{REDIS_USER_INPUT_KEY}{REDIS_TARGETS_KEY}*")
         targets = rc.mget(keys)
 
         for target in targets:

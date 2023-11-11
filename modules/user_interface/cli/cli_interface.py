@@ -1,4 +1,3 @@
-import pdb
 from typing import List, Set, Tuple
 
 from questionary import prompt
@@ -8,6 +7,9 @@ from config.settings import (
     AVAILABLE_PHASES,
     RECON_PHASE_MODULES,
     SCAN_PHASE_MODULES,
+    REDIS_TARGETS_KEY,
+    REDIS_USER_INPUT_KEY,
+    REDIS_MODULES_KEY,
 )
 from modules.helper.redis_client import RedisClient
 from utils.abstracts_classes import AbstractModule
@@ -340,5 +342,15 @@ class CliInterface(AbstractModule):
         modules_dictionary = convert_list_or_set_to_dict(list_of_items=used_modules)
 
         with RedisClient() as rc:
-            rc.mset({"targets|" + str(k): v for k, v in targets_dictionary.items()})
-            rc.mset({"modules|" + str(k): v for k, v in modules_dictionary.items()})
+            rc.mset(
+                {
+                    f"{REDIS_USER_INPUT_KEY}{REDIS_TARGETS_KEY}" + str(k): v
+                    for k, v in targets_dictionary.items()
+                }
+            )
+            rc.mset(
+                {
+                    f"{REDIS_USER_INPUT_KEY}{REDIS_MODULES_KEY}" + str(k): v
+                    for k, v in modules_dictionary.items()
+                }
+            )

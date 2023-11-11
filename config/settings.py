@@ -22,6 +22,9 @@ REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
 CELERY_BROKER_BACKEND = os.getenv("CELERY_BROKER_BACKEND")
 PUBSUB_RESULTS_CHANNEL_NAME = "results"
+REDIS_USER_INPUT_KEY = "user_input|"
+REDIS_TARGETS_KEY = "targets|"
+REDIS_MODULES_KEY = "modules|"
 
 # --- DIRECTORIES
 BASE_DIR = Path(__file__).resolve().parent.parent

@@ -11,6 +11,9 @@ from config.settings import (
     REDIS_DB,
     REDIS_HOST,
     REDIS_PORT,
+    REDIS_MODULES_KEY,
+    REDIS_TARGETS_KEY,
+    REDIS_USER_INPUT_KEY,
 )
 from modules.core.steering_module.steering_module import SteeringModule
 from modules.network.socket_manager.socket_manager import SocketManager
@@ -120,11 +123,11 @@ def test_redis_client():
 def test_redis_db_results_complete(test_redis_client):
     rc = test_redis_client
 
-    rc.set("modules|0", "phase1|module1")
-    rc.set("modules|1", "phase1|module2")
+    rc.set(f"{REDIS_USER_INPUT_KEY}{REDIS_MODULES_KEY}|0", "phase1|module1")
+    rc.set(f"{REDIS_USER_INPUT_KEY}{REDIS_MODULES_KEY}|1", "phase1|module2")
 
-    rc.set("targets|0", "target1")
-    rc.set("targets|1", "target2")
+    rc.set(f"{REDIS_USER_INPUT_KEY}{REDIS_TARGETS_KEY}0", "target1")
+    rc.set(f"{REDIS_USER_INPUT_KEY}{REDIS_TARGETS_KEY}1", "target2")
 
     rc.set("target1|phase1|module1|0", "result1")
     rc.set("target1|phase1|module1|1", "result2")
@@ -323,7 +326,9 @@ def mock_web_request_task():
 
 @pytest.fixture(scope="function")
 def mock_get_logger_function(mocker):
-    return mocker.patch(f"{TASK_QUEUE_MODULE_PATH}.get_logger", return_value=mocker.Mock())
+    return mocker.patch(
+        f"{TASK_QUEUE_MODULE_PATH}.get_logger", return_value=mocker.Mock()
+    )
 
 
 @pytest.fixture(scope="function")
@@ -343,7 +348,9 @@ def mock_redis_in_tasks(mocker):
 
 @pytest.fixture(scope="function")
 def mock_redis_pubsub_subscribe_in_tasks(mocker):
-    return mocker.patch(f"{TASK_QUEUE_MODULE_PATH}.pubsub.subscribe", return_value=mocker.Mock())
+    return mocker.patch(
+        f"{TASK_QUEUE_MODULE_PATH}.pubsub.subscribe", return_value=mocker.Mock()
+    )
 
 
 @pytest.fixture(scope="function")
@@ -354,12 +361,16 @@ def mock_redis_pubsub_listen_in_tasks(mocker):
 
 @pytest.fixture(scope="function")
 def mock_redis_pubsub_listen_with_exception_in_tasks(mocker):
-    return mocker.patch(f"{TASK_QUEUE_MODULE_PATH}.pubsub.listen", side_effect=Exception)
+    return mocker.patch(
+        f"{TASK_QUEUE_MODULE_PATH}.pubsub.listen", side_effect=Exception
+    )
 
 
 @pytest.fixture(scope="function")
 def mock_log_results_task(mocker):
-    return mocker.patch(f"{TASK_QUEUE_MODULE_PATH}.log_results", return_value=mocker.Mock())
+    return mocker.patch(
+        f"{TASK_QUEUE_MODULE_PATH}.log_results", return_value=mocker.Mock()
+    )
 
 
 @pytest.fixture(scope="function")
