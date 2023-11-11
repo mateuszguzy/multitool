@@ -360,3 +360,10 @@ def mock_redis_pubsub_listen_with_exception_in_tasks(mocker):
 @pytest.fixture(scope="function")
 def mock_log_results_task(mocker):
     return mocker.patch(f"{TASK_QUEUE_MODULE_PATH}.log_results", return_value=mocker.Mock())
+
+
+@pytest.fixture(scope="function")
+def mock_dispatcher_in_tasks(mocker):
+    return mocker.patch(
+        f"{TASK_QUEUE_MODULE_PATH}.Dispatcher", return_value=mocker.Mock()
+    )

@@ -9,6 +9,7 @@ from modules.task_queue.tasks import (
     pass_result_event,
     start_module_event,
     live_results_listener_task,
+    event_listener_task,
 )
 from utils.custom_dataclasses import ResultEvent
 
@@ -213,3 +214,43 @@ class TestLiveResultsListenerTask:
     ):
         with pytest.raises(Exception):
             live_results_listener_task()
+        mock_task_queue_logger_in_tasks.error.assert_called_once()
+
+
+class TestEventListenerTask:
+    def test_event_listener_task_success(
+        self,
+        mocker,
+        mock_task_queue_logger_in_tasks,
+        mock_redis_pubsub_subscribe_in_tasks,
+        mock_redis_pubsub_listen_in_tasks,
+        mock_dispatcher_in_tasks,
+    ):
+        mocked_event = mocker.Mock()
+        mocker.patch(
+            f"{TASK_QUEUE_MODULE_PATH}.start_module_event_data_load",
+            return_value=mocked_event,
+        )
+
+        event_listener_task(module="test_module")
+
+        # assertions
+        mock_dispatcher_in_tasks.assert_called_once()
+        # pubsub
+        mock_redis_pubsub_subscribe_in_tasks.called_once_with(
+            PUBSUB_RESULTS_CHANNEL_NAME
+        )
+        mock_redis_pubsub_listen_in_tasks.assert_called_once()
+
+        # logger
+        assert mock_task_queue_logger_in_tasks.debug.call_count == 2
+
+    def test_event_listener_task_fail(
+        self,
+        mock_redis_pubsub_listen_with_exception_in_tasks,
+        mock_redis_pubsub_subscribe_in_tasks,
+        mock_task_queue_logger_in_tasks,
+    ):
+        with pytest.raises(Exception):
+            event_listener_task(module="test_module")
+        mock_task_queue_logger_in_tasks.error.assert_called_once()
