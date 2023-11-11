@@ -3,9 +3,11 @@ from unittest import mock
 
 import pytest
 
-from config.settings import PUBSUB_RESULTS_CHANNEL_NAME
-from modules.task_queue.tasks import log_results, pass_result_event
+from config.settings import PUBSUB_RESULTS_CHANNEL_NAME, STEERING_MODULE
+from modules.task_queue.tasks import log_results, pass_result_event, start_module_event
 from utils.custom_dataclasses import ResultEvent
+
+TASK_QUEUE_MODULE_PATH = "modules.task_queue.tasks"
 
 
 class TestLogResults:
@@ -74,7 +76,7 @@ class TestPassResultEvent:
     ):
         mock_encoded_event = mocker.Mock(return_value=encoded_event)
         mocker.patch(
-            "modules.task_queue.tasks.result_event_encoder", mock_encoded_event
+            f"{TASK_QUEUE_MODULE_PATH}.result_event_encoder", mock_encoded_event
         )
 
         pass_result_event(mock_encoded_event)
@@ -106,7 +108,61 @@ class TestPassResultEvent:
     ):
         mock_encoded_event = mocker.Mock(side_effect=Exception)
         mocker.patch(
-            "modules.task_queue.tasks.result_event_encoder", mock_encoded_event
+            f"{TASK_QUEUE_MODULE_PATH}.result_event_encoder", mock_encoded_event
+        )
+
+        # assertions
+        with pytest.raises(Exception):
+            pass_result_event(mock_encoded_event)
+
+        assert mock_task_queue_logger_in_tasks.error.call_count == 1
+
+
+class TestStartModuleEvent:
+    task_name = "start_module_event"
+
+    @pytest.mark.parametrize(
+        "encoded_event",
+        ["encoded_event_1", "encoded_event_2"],
+    )
+    def test_start_module_event_success(
+        self,
+        encoded_event,
+        mocker,
+        mock_task_queue_logger_in_tasks,
+        mock_redis_in_tasks,
+    ):
+        mock_encoded_event = mocker.Mock(return_value=encoded_event)
+        mocker.patch(
+            f"{TASK_QUEUE_MODULE_PATH}.start_module_event_encoder", mock_encoded_event
+        )
+        start_module_event(mock_encoded_event)
+
+        # assertions
+        mock_redis_in_tasks.publish.assert_called_once_with(
+            channel=STEERING_MODULE, message=encoded_event
+        )
+        assert mock_task_queue_logger_in_tasks.debug.call_count == 2
+        assert (
+            mock.call(f"START::{mock_encoded_event.id}::{self.task_name}::{mock_encoded_event.destination_module}")
+            in mock_task_queue_logger_in_tasks.debug.call_args_list
+        )
+        assert (
+            mock.call(f"PUBLISHED::{mock_encoded_event.id}")
+            in mock_task_queue_logger_in_tasks.debug.call_args_list
+        )
+
+    @pytest.mark.parametrize("encoded_event", ["encoded_event_1", "encoded_event_2"])
+    def test_start_module_event_fail(
+        self,
+        encoded_event,
+        mocker,
+        mock_task_queue_logger_in_tasks,
+        mock_redis_in_tasks,
+    ):
+        mock_encoded_event = mocker.Mock(side_effect=Exception)
+        mocker.patch(
+            f"{TASK_QUEUE_MODULE_PATH}.start_module_event_encoder", mock_encoded_event
         )
 
         # assertions
