@@ -12,6 +12,7 @@ from modules.task_queue.tasks import (
     event_listener_task,
     start_event_listeners,
     directory_bruteforce_web_request,
+    socket_request,
 )
 from utils.custom_dataclasses import ResultEvent, SessionRequestResponseObject
 
@@ -344,5 +345,32 @@ class TestDirectoryBruteforceWebRequest:
             module=self.module,
             allow_redirects=self.allow_redirects,
         )
+
+        assert result is None
+
+
+class TestSocketRequest:
+    request_method = "get"
+    target = "test_target"
+    port = 80
+    module = "port_scan"
+
+    def test_socket_request(self, mocker, mock_pass_result_event):
+        mocker.patch(
+            "modules.task_queue.tasks.SocketManager.run",
+            return_value=0,  # response indicating successful connection
+        )
+
+        result = socket_request(target=self.target, port=self.port, module=self.module)
+
+        assert result == self.port
+
+    def test_socket_fail(self, mocker, mock_pass_result_event):
+        mocker.patch(
+            "modules.task_queue.tasks.SocketManager.run",
+            return_value=1,  # response indicating failed connection
+        )
+
+        result = socket_request(target=self.target, port=self.port, module=self.module)
 
         assert result is None
