@@ -367,3 +367,13 @@ def mock_dispatcher_in_tasks(mocker):
     return mocker.patch(
         f"{TASK_QUEUE_MODULE_PATH}.Dispatcher", return_value=mocker.Mock()
     )
+
+
+@pytest.fixture(scope="function")
+def mock_event_listener_task(mocker):
+    return mocker.patch(f"{TASK_QUEUE_MODULE_PATH}.event_listener_task")
+
+
+@pytest.fixture(scope="function")
+def mock_live_results_listener_task(mocker):
+    return mocker.patch(f"{TASK_QUEUE_MODULE_PATH}.live_results_listener_task")

@@ -10,6 +10,7 @@ from modules.task_queue.tasks import (
     start_module_event,
     live_results_listener_task,
     event_listener_task,
+    start_event_listeners,
 )
 from utils.custom_dataclasses import ResultEvent
 
@@ -254,3 +255,29 @@ class TestEventListenerTask:
         with pytest.raises(Exception):
             event_listener_task(module="test_module")
         mock_task_queue_logger_in_tasks.error.assert_called_once()
+
+
+class TestStartEventListeners:
+    @pytest.mark.parametrize(
+        "output_after_every_finding",
+        [True, False],
+    )
+    def test_start_event_listener_success(
+        self,
+        mocker,
+        output_after_every_finding,
+        mock_event_listener_task,
+        mock_live_results_listener_task,
+    ):
+        mocker_celery_event = mock.Mock()
+        mocker.patch(
+            f"{TASK_QUEUE_MODULE_PATH}.celery.group",
+            return_value=mocker_celery_event,
+        )
+        start_event_listeners(output_after_every_finding=output_after_every_finding)
+
+        # assertions
+        mocker_celery_event.apply_async.assert_called_once()
+
+        if output_after_every_finding:
+            mock_live_results_listener_task.delay.assert_called_once()
