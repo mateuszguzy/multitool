@@ -151,7 +151,9 @@ class TestStartModuleEvent:
         )
         assert mock_task_queue_logger_in_tasks.debug.call_count == 2
         assert (
-            mock.call(f"START::{mock_encoded_event.id}::{self.task_name}::{mock_encoded_event.destination_module}")
+            mock.call(
+                f"START::{mock_encoded_event.id}::{self.task_name}::{mock_encoded_event.destination_module}"
+            )
             in mock_task_queue_logger_in_tasks.debug.call_args_list
         )
         assert (
@@ -184,7 +186,7 @@ class TestLiveResultsListenerTask:
         self,
         mocker,
         mock_task_queue_logger_in_tasks,
-            mock_redis_pubsub_subscribe_in_tasks,
+        mock_redis_pubsub_subscribe_in_tasks,
         mock_redis_pubsub_listen_in_tasks,
         mock_log_results_task,
     ):
