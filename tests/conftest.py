@@ -51,6 +51,7 @@ DIRECTORY_BRUTEFORCE_INPUT_RECURSIVE = DirectoryBruteforceInput(
 )
 TEST_PORTS = {80, 443}
 TEST_PORT = 80
+TASK_QUEUE_MODULE_PATH = "modules.task_queue.tasks"
 
 
 ###################################################
@@ -322,14 +323,19 @@ def mock_web_request_task():
 
 @pytest.fixture(scope="function")
 def mock_get_logger_function(mocker):
-    return mocker.patch("modules.task_queue.tasks.get_logger", return_value=mocker.Mock())
+    return mocker.patch(f"{TASK_QUEUE_MODULE_PATH}.get_logger", return_value=mocker.Mock())
 
 
 @pytest.fixture(scope="function")
 def mock_get_logger_function_with_exception(mocker):
-    return mocker.patch("modules.task_queue.tasks.get_logger", side_effect=Exception)
+    return mocker.patch(f"{TASK_QUEUE_MODULE_PATH}.get_logger", side_effect=Exception)
 
 
 @pytest.fixture(scope="function")
 def mock_task_queue_logger_in_tasks(mocker):
-    return mocker.patch("modules.task_queue.tasks.logger", return_value=mocker.Mock())
+    return mocker.patch(f"{TASK_QUEUE_MODULE_PATH}.logger", return_value=mocker.Mock())
+
+
+@pytest.fixture(scope="function")
+def mock_redis_in_tasks(mocker):
+    return mocker.patch("modules.task_queue.tasks.rc", return_value=mocker.Mock())
