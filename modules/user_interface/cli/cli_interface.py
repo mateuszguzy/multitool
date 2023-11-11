@@ -1,3 +1,4 @@
+import pdb
 from typing import List, Set, Tuple
 
 from questionary import prompt
@@ -101,7 +102,9 @@ class CliInterface(AbstractModule):
                 "message": "Choose Module to execute:",
                 "choices": RECON_PHASE_MODULES,
                 "default": "directory_bruteforce",
-                "when": lambda answers: "phase" in answers and answers["phase"] == "recon",
+                "when": lambda answers: self.single_module_from_recon_phase_is_executed(
+                    answers=answers
+                ),
             },
             {
                 "type": "select",
@@ -109,7 +112,9 @@ class CliInterface(AbstractModule):
                 "message": "Choose Module to execute:",
                 "choices": SCAN_PHASE_MODULES,
                 "default": "port_scan",
-                "when": lambda answers: "phase" in answers and answers["phase"] == "scan",
+                "when": lambda answers: self.single_module_from_scan_phase_is_executed(
+                    answers=answers
+                ),
             },
             {
                 "type": "select",
@@ -160,6 +165,36 @@ class CliInterface(AbstractModule):
                 "default": True,
             },
         ]
+
+    @staticmethod
+    def single_module_from_recon_phase_is_executed(answers: dict) -> bool:
+        """
+        Check if single module from recon phase is executed in current run by checking which modules are used.
+        """
+        if (
+            "use_type" in answers
+            and answers["use_type"] == "single_module"
+            and "phase" in answers
+            and answers["phase"] == "recon"
+        ):
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def single_module_from_scan_phase_is_executed(answers: dict) -> bool:
+        """
+        Check if single module from recon phase is executed in current run by checking which modules are used.
+        """
+        if (
+            "use_type" in answers
+            and answers["use_type"] == "single_module"
+            and "phase" in answers
+            and answers["phase"] == "scan"
+        ):
+            return True
+        else:
+            return False
 
     @staticmethod
     def directory_bruteforce_is_executed(answers: dict) -> bool:
@@ -259,8 +294,10 @@ class CliInterface(AbstractModule):
         Aggregate port scan data from user input and return it in form of dictionary.
         """
         return PortScanInput(
-            port_scan_type=answers["port_scan_type"] if "port_scan_type" in answers else None,
-            ports=self.valid_ports
+            port_scan_type=answers["port_scan_type"]
+            if "port_scan_type" in answers
+            else None,
+            ports=self.valid_ports,
         )
 
     @staticmethod
