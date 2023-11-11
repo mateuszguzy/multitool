@@ -11,8 +11,9 @@ from modules.task_queue.tasks import (
     live_results_listener_task,
     event_listener_task,
     start_event_listeners,
+    directory_bruteforce_web_request,
 )
-from utils.custom_dataclasses import ResultEvent
+from utils.custom_dataclasses import ResultEvent, SessionRequestResponseObject
 
 TASK_QUEUE_MODULE_PATH = "modules.task_queue.tasks"
 
@@ -283,3 +284,65 @@ class TestStartEventListeners:
 
         if output_after_every_finding:
             mock_live_results_listener_task.delay.assert_called_once()
+
+
+class TestDirectoryBruteforceWebRequest:
+    request_method = "get"
+    target = "test_target"
+    path = "test_path"
+    module = "directory_bruteforce"
+    allow_redirects = False
+    response_status_code = 200
+    response_url = "test_url"
+
+    def test_directory_bruteforce_web_request(self, mocker, mock_pass_result_event):
+        mocked_response = SessionRequestResponseObject(
+            ok=True,
+            status_code=self.response_status_code,
+            url=self.response_url,
+        )
+        mocked_url = mocker.Mock()
+        mocker.patch("modules.task_queue.tasks.urlparse", return_value=mocked_url)
+        mocker.patch(
+            "modules.network.request_manager.request_manager.urlunparse",
+            return_value=mocked_url,
+        )
+        mocker.patch(
+            "modules.task_queue.tasks.RequestManager.run", return_value=mocked_response
+        )
+
+        result = directory_bruteforce_web_request(
+            request_method=self.request_method,
+            target=self.target,
+            path=self.path,
+            module=self.module,
+            allow_redirects=self.allow_redirects,
+        )
+
+        assert result == mocked_url.path
+
+    def test_directory_bruteforce_web_fail(self, mocker, mock_pass_result_event):
+        mocked_response = SessionRequestResponseObject(
+            ok=False,
+            status_code=self.response_status_code,
+            url=self.response_url,
+        )
+        mocked_url = mocker.Mock()
+        mocker.patch("modules.task_queue.tasks.urlparse", return_value=mocked_url)
+        mocker.patch(
+            "modules.network.request_manager.request_manager.urlunparse",
+            return_value=mocked_url,
+        )
+        mocker.patch(
+            "modules.task_queue.tasks.RequestManager.run", return_value=mocked_response
+        )
+
+        result = directory_bruteforce_web_request(
+            request_method=self.request_method,
+            target=self.target,
+            path=self.path,
+            module=self.module,
+            allow_redirects=self.allow_redirects,
+        )
+
+        assert result is None

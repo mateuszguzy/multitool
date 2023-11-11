@@ -377,3 +377,8 @@ def mock_event_listener_task(mocker):
 @pytest.fixture(scope="function")
 def mock_live_results_listener_task(mocker):
     return mocker.patch(f"{TASK_QUEUE_MODULE_PATH}.live_results_listener_task")
+
+
+@pytest.fixture(scope="function")
+def mock_pass_result_event(mocker):
+    return mocker.patch(f"{TASK_QUEUE_MODULE_PATH}.pass_result_event")
