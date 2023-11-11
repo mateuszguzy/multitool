@@ -15,9 +15,8 @@ from config.settings import (
 from modules.core.steering_module.steering_module import SteeringModule
 from modules.network.socket_manager.socket_manager import SocketManager
 from modules.recon.directory_bruteforce.directory_bruteforce import DirectoryBruteforce
-from modules.recon.recon import Recon
 from modules.scan.port_scan.port_scan import PortScan
-from modules.scan.scan import Scan
+from modules.task_queue.tasks import start_event_listeners
 from modules.user_interface.cli.cli_interface import CliInterface
 from utils.custom_dataclasses import (
     DirectoryBruteforceInput,
@@ -52,8 +51,12 @@ DIRECTORY_BRUTEFORCE_INPUT_RECURSIVE = DirectoryBruteforceInput(
 )
 TEST_PORTS = {80, 443}
 TEST_PORT = 80
+TASK_QUEUE_MODULE_PATH = "modules.task_queue.tasks"
 
 
+###################################################
+#                    UTILS                        #
+###################################################
 def convert_json_input_to_dict(path: str):
     user_input = open(path)
     return json.load(user_input)
@@ -91,7 +94,9 @@ def create_steering_module_instance_with_user_input(user_input):
     return SteeringModule(convert_user_input_to_dataclass(user_input))
 
 
-# --- INTEGRATION
+###################################################
+#             INTEGRATION FIXTURES                #
+###################################################
 @pytest.fixture(scope="module")
 def docker_compose_file(pytestconfig):
     return os.path.join(
@@ -143,7 +148,14 @@ def test_redis_db_results_only_targets(test_redis_client):
     rc.flushall()
 
 
-# --- UNIT
+@pytest.fixture(scope="module")
+def setup_event_listeners():
+    start_event_listeners(output_after_every_finding=True)
+
+
+###################################################
+#                 UNIT FIXTURES                   #
+###################################################
 @pytest.fixture(scope="module")
 def steering_module_for_single_module_directory_bruteforce():
     return create_steering_module_instance_with_user_input(
@@ -224,15 +236,6 @@ def test_recon_input_empty(test_directory_bruteforce_input_empty):
 
 
 @pytest.fixture
-def test_recon_whole_phase(test_recon_input):
-    return Recon(
-        recon_input=test_recon_input,
-        target=TEST_TARGET,
-        single_module=None,
-    )
-
-
-@pytest.fixture
 def test_port_scan_input():
     return PortScanInput(
         port_scan_type="custom",
@@ -266,16 +269,9 @@ def test_port_scan(test_port_scan_input):
     )
 
 
-@pytest.fixture
-def test_scan_whole_phase(test_scan_input):
-    return Scan(
-        scan_input=test_scan_input,
-        target=TEST_TARGET,
-        single_module=None,
-    )
-
-
-# MOCKS
+###################################################
+#                    MOCKS                        #
+###################################################
 @pytest.fixture
 def mock_check_for_protocol_prefix_in_multiple_targets(mocker, expect):
     mocker.patch(
@@ -323,3 +319,66 @@ def mock_web_request_task():
     web_request_mock.s.return_value = web_request_mock
 
     return web_request_mock
+
+
+@pytest.fixture(scope="function")
+def mock_get_logger_function(mocker):
+    return mocker.patch(f"{TASK_QUEUE_MODULE_PATH}.get_logger", return_value=mocker.Mock())
+
+
+@pytest.fixture(scope="function")
+def mock_get_logger_function_with_exception(mocker):
+    return mocker.patch(f"{TASK_QUEUE_MODULE_PATH}.get_logger", side_effect=Exception)
+
+
+@pytest.fixture(scope="function")
+def mock_task_queue_logger_in_tasks(mocker):
+    return mocker.patch(f"{TASK_QUEUE_MODULE_PATH}.logger", return_value=mocker.Mock())
+
+
+@pytest.fixture(scope="function")
+def mock_redis_in_tasks(mocker):
+    return mocker.patch(f"{TASK_QUEUE_MODULE_PATH}.rc", return_value=mocker.Mock())
+
+
+@pytest.fixture(scope="function")
+def mock_redis_pubsub_subscribe_in_tasks(mocker):
+    return mocker.patch(f"{TASK_QUEUE_MODULE_PATH}.pubsub.subscribe", return_value=mocker.Mock())
+
+
+@pytest.fixture(scope="function")
+def mock_redis_pubsub_listen_in_tasks(mocker):
+    event = {"type": "message", "data": b"test_data_1"}
+    return mocker.patch(f"{TASK_QUEUE_MODULE_PATH}.pubsub.listen", return_value=[event])
+
+
+@pytest.fixture(scope="function")
+def mock_redis_pubsub_listen_with_exception_in_tasks(mocker):
+    return mocker.patch(f"{TASK_QUEUE_MODULE_PATH}.pubsub.listen", side_effect=Exception)
+
+
+@pytest.fixture(scope="function")
+def mock_log_results_task(mocker):
+    return mocker.patch(f"{TASK_QUEUE_MODULE_PATH}.log_results", return_value=mocker.Mock())
+
+
+@pytest.fixture(scope="function")
+def mock_dispatcher_in_tasks(mocker):
+    return mocker.patch(
+        f"{TASK_QUEUE_MODULE_PATH}.Dispatcher", return_value=mocker.Mock()
+    )
+
+
+@pytest.fixture(scope="function")
+def mock_event_listener_task(mocker):
+    return mocker.patch(f"{TASK_QUEUE_MODULE_PATH}.event_listener_task")
+
+
+@pytest.fixture(scope="function")
+def mock_live_results_listener_task(mocker):
+    return mocker.patch(f"{TASK_QUEUE_MODULE_PATH}.live_results_listener_task")
+
+
+@pytest.fixture(scope="function")
+def mock_pass_result_event(mocker):
+    return mocker.patch(f"{TASK_QUEUE_MODULE_PATH}.pass_result_event")

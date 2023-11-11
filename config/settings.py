@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 
 from dotenv import load_dotenv
+from kombu.serialization import register  # type: ignore
 
 load_dotenv()
 
@@ -20,6 +21,7 @@ REDIS_DB = int(os.getenv("REDIS_DB", 0))
 REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
 CELERY_BROKER_BACKEND = os.getenv("CELERY_BROKER_BACKEND")
+PUBSUB_RESULTS_CHANNEL_NAME = "results"
 
 # --- DIRECTORIES
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -125,14 +127,14 @@ LOGGING = {
         "task_queue": {
             "level": LOGGING_LEVEL_MODULES,
             "class": LOGGING_HANDLER_CLASS,
-            "filename": (LOGGING_FILE_FORMAT % (LOGGING_DIR, CURRENT_DATE, TASK_QUEUE)),
+            "filename": (LOGGING_FILE_FORMAT % (LOGGING_DIR, CURRENT_DATE, STEERING_MODULE)),
             "formatter": "file",
         },
         "request_manager": {
             "level": LOGGING_LEVEL_MODULES,
             "class": LOGGING_HANDLER_CLASS,
             "filename": (
-                LOGGING_FILE_FORMAT % (LOGGING_DIR, CURRENT_DATE, REQUEST_MANAGER)
+                LOGGING_FILE_FORMAT % (LOGGING_DIR, CURRENT_DATE, STEERING_MODULE)
             ),
             "formatter": "file",
         },
@@ -140,7 +142,15 @@ LOGGING = {
             "level": LOGGING_LEVEL_MODULES,
             "class": LOGGING_HANDLER_CLASS,
             "filename": (
-                LOGGING_FILE_FORMAT % (LOGGING_DIR, CURRENT_DATE, SOCKET_MANAGER)
+                LOGGING_FILE_FORMAT % (LOGGING_DIR, CURRENT_DATE, STEERING_MODULE)
+            ),
+            "formatter": "file",
+        },
+        "dispatcher": {
+            "level": LOGGING_LEVEL_MODULES,
+            "class": LOGGING_HANDLER_CLASS,
+            "filename": (
+                    LOGGING_FILE_FORMAT % (LOGGING_DIR, CURRENT_DATE, STEERING_MODULE)
             ),
             "formatter": "file",
         },
@@ -176,6 +186,11 @@ LOGGING = {
             "level": LOGGING_LEVEL_MODULES,
             "propagate": True,
         },
+        "dispatcher": {
+            "handlers": ["dispatcher"],
+            "level": LOGGING_LEVEL_MODULES,
+            "propagate": True,
+        },
     },
 }
 
@@ -187,3 +202,4 @@ port_scan_logger = logging.getLogger("port_scan")
 task_queue_logger = logging.getLogger("task_queue")
 request_manager_logger = logging.getLogger("request_manager")
 socket_manager_logger = logging.getLogger("socket_manager")
+dispatcher_logger = logging.getLogger("dispatcher")
