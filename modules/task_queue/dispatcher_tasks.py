@@ -44,7 +44,7 @@ def run_port_scan_task(target: str) -> None:
     input_dict = withdraw_input_from_db(module=PORT_SCAN)
     port_scan_input = PortScanInput(
         port_scan_type=input_dict.get("port_scan_type", "important")[0].decode("utf-8"),
-        ports={int(port.decode("utf-8")) for port in input_dict.get("ports", set())},
+        ports={int(port.decode("utf-8")) for port in input_dict.get("ports", set()) if port.decode("utf-8").isdigit()}
     )
     port_scan = PortScan(
         port_scan_input=port_scan_input,
