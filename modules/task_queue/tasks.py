@@ -19,7 +19,7 @@ from modules.network.request_manager.request_manager import RequestManager
 from modules.network.socket_manager.socket_manager import SocketManager
 from modules.task_queue.celery import app
 from utils.custom_dataclasses import StartModuleEvent, ResultEvent
-from utils.custom_exceptions import UnhandledException
+from utils.custom_exceptions import CeleryTaskException
 from utils.custom_serializers.result_event_serializer import (
     result_event_encoder,
     result_event_data_load,
@@ -36,22 +36,24 @@ rc = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB)
 pubsub = rc.pubsub()
 
 
-@app.task
+class BaseCeleryTaskClass(celery.Task):
+    def on_failure(self, exc, task_id, args, kwargs, einfo):
+        logger.error(f"EXCEPTION::{task_id}::{exc}", exc_info=True)
+        raise CeleryTaskException(f"Exception in {self.name}: {exc}")
+
+
+@app.task(base=BaseCeleryTaskClass)
 def log_results(event: ResultEvent) -> None:
     """
     Logs the result using the appropriate logger based on the module name.
     If a target is provided, it is included in the log message.
     """
-    try:
-        result = f"<{event.target}>: {event.result}"
-        module_logger = get_logger(event.source_module)
-        module_logger.info(result)
-
-    except Exception as e:
-        logger.exception(f"EXCEPTION {e.__traceback__}")
+    result = f"<{event.target}>: {event.result}"
+    module_logger = get_logger(event.source_module)
+    module_logger.info(result)
 
 
-@app.task
+@app.task(base=BaseCeleryTaskClass)
 def directory_bruteforce_web_request(
     request_method: str, target: str, path: str, module: str, allow_redirects: bool
 ) -> Optional[str]:
@@ -81,7 +83,7 @@ def directory_bruteforce_web_request(
             return None
 
 
-@app.task
+@app.task(base=BaseCeleryTaskClass)
 def socket_request(target: str, port: int, module: str) -> Optional[int]:
     with SocketManager(target=target, port=port) as sm:
         response = sm.run()
@@ -100,77 +102,57 @@ def socket_request(target: str, port: int, module: str) -> Optional[int]:
             return None
 
 
-@app.task
+@app.task(base=BaseCeleryTaskClass)
 def pass_result_event(event: ResultEvent) -> None:
     task_name = pass_result_event.__name__
-    try:
-        logger.debug(f"START::{event.id}::{task_name}")
-        event_dict = result_event_encoder(event)
-        rc.publish(
-            channel=PUBSUB_RESULTS_CHANNEL_NAME,
-            message=event_dict,
-        )
-        logger.debug(f"PUBLISHED::{event.id}")
-
-    except Exception as e:
-        logger.error(f"EXCEPTION::{event.id}::{e}", exc_info=True)
-        raise UnhandledException(f"Exception in {task_name}: {e}")
+    logger.debug(f"START::{event.id}::{task_name}")
+    event_dict = result_event_encoder(event)
+    rc.publish(
+        channel=PUBSUB_RESULTS_CHANNEL_NAME,
+        message=event_dict,
+    )
+    logger.debug(f"PUBLISHED::{event.id}")
 
 
-@app.task
+@app.task(base=BaseCeleryTaskClass)
 def start_module_event(event: StartModuleEvent) -> None:
     task_name = start_module_event.__name__
-    try:
-        logger.debug(f"START::{event.id}::{task_name}::{event.destination_module}")
-        event_dict = start_module_event_encoder(event)
-        rc.publish(
-            channel=STEERING_MODULE,
-            message=event_dict,
-        )
-        logger.debug(f"PUBLISHED::{event.id}")
-
-    except Exception as e:
-        logger.error(f"EXCEPTION::{event.id}::{e}", exc_info=True)
-        raise UnhandledException(f"Exception in {task_name}: {e}")
+    logger.debug(f"START::{event.id}::{task_name}::{event.destination_module}")
+    event_dict = start_module_event_encoder(event)
+    rc.publish(
+        channel=STEERING_MODULE,
+        message=event_dict,
+    )
+    logger.debug(f"PUBLISHED::{event.id}")
 
 
-@app.task
+@app.task(base=BaseCeleryTaskClass)
 def live_results_listener_task():
     task_name = live_results_listener_task.__name__
     task_id = uuid.uuid4()
-    try:
-        logger.debug(f"START::{task_id}::{task_name}")
-        pubsub.subscribe(PUBSUB_RESULTS_CHANNEL_NAME)
+    logger.debug(f"START::{task_id}::{task_name}")
+    pubsub.subscribe(PUBSUB_RESULTS_CHANNEL_NAME)
 
-        for result in pubsub.listen():
-            if result["type"] == "message":
-                event = result_event_data_load(result["data"].decode())
-                logger.debug(f"RECEIVED::{task_id}::{event.id}")
-                log_results.delay(event=event)
-
-    except Exception as e:
-        logger.error(f"EXCEPTION::{task_id}::{e}", exc_info=True)
-        raise UnhandledException(f"Exception in {task_name}: {e}")
+    for result in pubsub.listen():
+        if result["type"] == "message":
+            event = result_event_data_load(result["data"].decode())
+            logger.debug(f"RECEIVED::{task_id}::{event.id}")
+            log_results.delay(event=event)
 
 
-@app.task
+@app.task(base=BaseCeleryTaskClass)
 def event_listener_task(module: str) -> None:
     task_name = event_listener_task.__name__
     task_id = uuid.uuid4()
-    try:
-        logger.debug(f"START::{task_id}::{task_name}::{module}")
-        pubsub.subscribe(module)
+    logger.debug(f"START::{task_id}::{task_name}::{module}")
+    pubsub.subscribe(module)
 
-        for result in pubsub.listen():
-            if result["type"] == "message":
-                event = start_module_event_data_load(result["data"].decode())
-                logger.debug(f"RECEIVED::{task_id}::{event.id}")
-                dispatcher = Dispatcher(event=event)
-                dispatcher.run()
-
-    except Exception as e:
-        logger.error(f"EXCEPTION::{task_id}::{e}", exc_info=True)
-        raise UnhandledException(f"Exception in {task_name}: {e}")
+    for result in pubsub.listen():
+        if result["type"] == "message":
+            event = start_module_event_data_load(result["data"].decode())
+            logger.debug(f"RECEIVED::{task_id}::{event.id}")
+            dispatcher = Dispatcher(event=event)
+            dispatcher.run()
 
 
 def running_tasks_left() -> bool:

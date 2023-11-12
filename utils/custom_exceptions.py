@@ -24,3 +24,7 @@ class InvalidHostname(Exception):
 
 class ConnectionTimedOut(Exception):
     pass
+
+
+class CeleryTaskException(Exception):
+    pass
