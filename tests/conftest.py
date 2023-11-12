@@ -143,8 +143,8 @@ def test_redis_db_results_complete(test_redis_client):
 def test_redis_db_results_only_targets(test_redis_client):
     rc = test_redis_client
 
-    rc.set("targets|0", "target1")
-    rc.set("targets|1", "target2")
+    rc.set(f"{REDIS_USER_INPUT_KEY}{REDIS_TARGETS_KEY}0", "target1")
+    rc.set(f"{REDIS_USER_INPUT_KEY}{REDIS_TARGETS_KEY}1", "target2")
 
     yield
 
