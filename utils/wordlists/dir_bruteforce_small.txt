@@ -2,3 +2,4 @@ admin
 index
 ftp
 vulnerabilities
+fi

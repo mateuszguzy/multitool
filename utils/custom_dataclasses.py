@@ -33,7 +33,6 @@ class UserInput:
     targets: Set[str]
     recon: ReconInput
     scan: ScanInput
-    output_after_every_phase: bool
     output_after_every_finding: bool
 
 

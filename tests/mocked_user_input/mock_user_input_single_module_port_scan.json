@@ -15,6 +15,5 @@
       "ports": [80, 443]
     }
   },
-  "output_after_every_phase": false,
   "output_after_every_finding": true
 }

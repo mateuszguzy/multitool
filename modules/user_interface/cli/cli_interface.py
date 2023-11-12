@@ -73,7 +73,6 @@ class CliInterface(AbstractModule):
             targets=self.valid_targets,
             recon=recon_phase_input,
             scan=scan_phase_input,
-            output_after_every_phase=answers.get("output_after_every_phase", 0),
             output_after_every_finding=self.output_after_every_finding,
         )
 
@@ -169,12 +168,6 @@ class CliInterface(AbstractModule):
                     answers=answers
                 ),
                 "validate": lambda val: self.validate_ports_to_scan(ports_to_scan=val),
-            },
-            {
-                "type": "confirm",
-                "name": "output_after_every_phase",
-                "message": "Show output after every phase?",
-                "default": True,
             },
             {
                 "type": "confirm",

@@ -88,7 +88,6 @@ def convert_user_input_to_dataclass(path: str) -> UserInput:
         targets=set(user_input_dict.get("targets")),
         recon=ReconInput(directory_bruteforce_input),
         scan=ScanInput(port_scan_input),
-        output_after_every_phase=False,
         output_after_every_finding=True,
     )
 

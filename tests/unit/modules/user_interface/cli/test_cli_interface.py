@@ -45,7 +45,6 @@ class TestCliInterface:
                     targets={test_url},
                     recon=pytest.lazy_fixture("test_recon_input"),  # type: ignore
                     scan=pytest.lazy_fixture("test_scan_input"),  # type: ignore
-                    output_after_every_phase=False,
                     output_after_every_finding=True,
                 ),
             ),
@@ -58,7 +57,6 @@ class TestCliInterface:
                     targets={test_url},
                     recon=pytest.lazy_fixture("test_recon_input"),  # type: ignore
                     scan=pytest.lazy_fixture("test_scan_input"),  # type: ignore
-                    output_after_every_phase=False,
                     output_after_every_finding=True,
                 ),
             ),
@@ -71,7 +69,6 @@ class TestCliInterface:
                     targets={test_url},
                     recon=pytest.lazy_fixture("test_recon_input"),  # type: ignore
                     scan=pytest.lazy_fixture("test_scan_input"),  # type: ignore
-                    output_after_every_phase=False,
                     output_after_every_finding=True,
                 ),
             ),
@@ -84,7 +81,6 @@ class TestCliInterface:
                     targets={test_url},
                     recon=pytest.lazy_fixture("test_recon_input"),  # type: ignore
                     scan=pytest.lazy_fixture("test_scan_input"),  # type: ignore
-                    output_after_every_phase=False,
                     output_after_every_finding=True,
                 ),
             ),
@@ -97,7 +93,6 @@ class TestCliInterface:
                     targets={test_url},
                     recon=pytest.lazy_fixture("test_recon_input"),  # type: ignore
                     scan=pytest.lazy_fixture("test_scan_input"),  # type: ignore
-                    output_after_every_phase=False,
                     output_after_every_finding=True,
                 ),
             ),
