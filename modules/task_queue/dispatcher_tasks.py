@@ -6,13 +6,14 @@ from config.settings import (
     PORT_SCAN,
 )
 from modules.task_queue.celery import app
+from modules.task_queue.tasks import BaseCeleryTaskClass
 from utils.custom_dataclasses import DirectoryBruteforceInput, PortScanInput
 from utils.utils import withdraw_input_from_db, expression_is_true
 
 logger = task_queue_logger
 
 
-@app.task
+@app.task(base=BaseCeleryTaskClass)
 def run_directory_bruteforce_task(target: str):
     from modules.recon.directory_bruteforce.directory_bruteforce import (
         DirectoryBruteforce,
@@ -37,7 +38,7 @@ def run_directory_bruteforce_task(target: str):
         directory_bruteforce.run()
 
 
-@app.task
+@app.task(base=BaseCeleryTaskClass)
 def run_port_scan_task(target: str) -> None:
     from modules.scan.port_scan.port_scan import PortScan
 
