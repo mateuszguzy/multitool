@@ -4,7 +4,13 @@ from typing import Set, List, Optional
 from urllib.parse import urlparse
 
 from config.settings import (
-    steering_module_logger, directory_bruteforce_logger, port_scan_logger,
+    steering_module_logger,
+    directory_bruteforce_logger,
+    port_scan_logger,
+    REDIS_TARGETS_KEY,
+    REDIS_MODULES_KEY,
+    REDIS_USER_INPUT_KEY,
+    DB_INPUT_MODULE_MAPPER,
 )
 from modules.helper.redis_client import RedisClient
 
@@ -78,10 +84,10 @@ def prepare_final_results_dictionary() -> dict:
     results: dict = dict()
 
     with RedisClient() as rc:
-        keys = rc.keys("modules|*")
+        keys = rc.keys(f"{REDIS_USER_INPUT_KEY}{REDIS_MODULES_KEY}*")
         used_modules = rc.mget(keys)
 
-        keys = rc.keys("targets|*")
+        keys = rc.keys(f"{REDIS_USER_INPUT_KEY}{REDIS_TARGETS_KEY}*")
         targets = rc.mget(keys)
 
         for target in targets:
@@ -153,3 +159,33 @@ def get_logger(module: Optional[str]) -> Logger:
         return loggers[module]
     else:
         return loggers[STEERING_MODULE_NAME]
+
+
+def expression_is_true(expression) -> bool:
+    """
+    Check if expression is True.
+    """
+    if expression in [
+        "True",
+        "true",
+        True,
+    ]:
+        return True
+    else:
+        return False
+
+
+def withdraw_input_from_db(module: str) -> dict:
+    input_dict: dict = dict()
+
+    if module in DB_INPUT_MODULE_MAPPER:
+        with RedisClient() as rc:
+            # cannot decode results from Redis directly here because some results are
+            # single values and some are lists e.g. port_scan::ports, so it's done while
+            # creating input class
+            input_dict = {
+                k: rc.mget(rc.keys(f"{DB_INPUT_MODULE_MAPPER[module]['path']}{v}*"))
+                for k, v in DB_INPUT_MODULE_MAPPER[module]["keys"].items()
+            }
+
+    return input_dict
