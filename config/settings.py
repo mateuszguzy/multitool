@@ -124,8 +124,7 @@ DB_INPUT_MODULE_MAPPER: dict = {
 
 
 # --- LOGGING
-# LOGGING_LEVEL_MODULES = "INFO"  # production
-LOGGING_LEVEL_MODULES = "DEBUG"  # development
+LOGGING_LEVEL_MODULES = "DEBUG"  # development "INFO" for production
 LOGGING_FORMAT_FILE = "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
 LOGGING_FILE_FORMAT = "%s%s_%s.log"
 LOGGING_HANDLER_CLASS = "logging.FileHandler"
