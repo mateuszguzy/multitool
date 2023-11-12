@@ -22,7 +22,6 @@ class SteeringModule(AbstractModule):
     targets: Set[str] = set()
     recon_input: ReconInput
     scan_input: ScanInput
-    output_after_every_phase: bool = bool()
     output_after_every_finding: bool = bool()
 
     def __init__(self, user_input: UserInput) -> None:
@@ -112,14 +111,12 @@ class SteeringModule(AbstractModule):
         Function responsible for assigning user input in form of dictionary to class specific attributes.
         :param user_input:
         """
-        # TODO: put this also to Redis to use it in other modules
         self.use_type = getattr(user_input, "use_type")
         self.phase = getattr(user_input, "phase")
         self.module = getattr(user_input, "module")
         self.targets = getattr(user_input, "targets")
         self.recon_input = getattr(user_input, "recon")
         self.scan_input = getattr(user_input, "scan")
-        self.output_after_every_phase = getattr(user_input, "output_after_every_phase")
         self.output_after_every_finding = getattr(
             user_input, "output_after_every_finding"
         )

@@ -37,7 +37,6 @@ class TestSteeringModule:
                     "targets": testing_targets,
                     "recon": test_recon_input,
                     "scan": test_scan_input_empty,
-                    "output_after_every_phase": False,
                     "output_after_every_finding": True,
                 },
             ),
@@ -50,7 +49,6 @@ class TestSteeringModule:
                     "targets": testing_targets,
                     "recon": test_recon_input_empty,
                     "scan": test_scan_input,
-                    "output_after_every_phase": False,
                     "output_after_every_finding": True,
                 },
             ),
@@ -63,7 +61,6 @@ class TestSteeringModule:
                     "targets": testing_targets,
                     "recon": test_recon_input,
                     "scan": test_scan_input_empty,
-                    "output_after_every_phase": False,
                     "output_after_every_finding": True,
                 },
             ),
@@ -76,7 +73,6 @@ class TestSteeringModule:
                     "targets": testing_targets,
                     "recon": test_recon_input_empty,
                     "scan": test_scan_input,
-                    "output_after_every_phase": False,
                     "output_after_every_finding": True,
                 },
             ),
@@ -89,7 +85,6 @@ class TestSteeringModule:
                     "targets": testing_targets,
                     "recon": test_recon_input,
                     "scan": test_scan_input,
-                    "output_after_every_phase": False,
                     "output_after_every_finding": True,
                 },
             ),
@@ -107,9 +102,6 @@ class TestSteeringModule:
         assert sm.targets == expected_output["targets"]
         assert sm.recon_input == expected_output["recon"]
         assert sm.scan_input == expected_output["scan"]
-        assert (
-            sm.output_after_every_phase == expected_output["output_after_every_phase"]
-        )
         assert (
             sm.output_after_every_finding
             == expected_output["output_after_every_finding"]
