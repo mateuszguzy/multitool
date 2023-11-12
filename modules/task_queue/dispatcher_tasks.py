@@ -5,8 +5,7 @@ from config.settings import (
     DIRECTORY_BRUTEFORCE,
     PORT_SCAN,
 )
-from modules.task_queue.celery import app
-from modules.task_queue.tasks import BaseCeleryTaskClass
+from modules.task_queue.celery import app, BaseCeleryTaskClass
 from utils.custom_dataclasses import DirectoryBruteforceInput, PortScanInput
 from utils.utils import withdraw_input_from_db, expression_is_true
 

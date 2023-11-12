@@ -17,9 +17,8 @@ from config.settings import (
 from modules.core.dispatcher.dispatcher import Dispatcher
 from modules.network.request_manager.request_manager import RequestManager
 from modules.network.socket_manager.socket_manager import SocketManager
-from modules.task_queue.celery import app
+from modules.task_queue.celery import app, BaseCeleryTaskClass
 from utils.custom_dataclasses import StartModuleEvent, ResultEvent
-from utils.custom_exceptions import CeleryTaskException
 from utils.custom_serializers.result_event_serializer import (
     result_event_encoder,
     result_event_data_load,
@@ -34,12 +33,6 @@ logger = task_queue_logger
 
 rc = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB)
 pubsub = rc.pubsub()
-
-
-class BaseCeleryTaskClass(celery.Task):
-    def on_failure(self, exc, task_id, args, kwargs, einfo):
-        logger.error(f"EXCEPTION::{task_id}::{exc}", exc_info=True)
-        raise CeleryTaskException(f"Exception in {self.name}: {exc}")
 
 
 @app.task(base=BaseCeleryTaskClass)

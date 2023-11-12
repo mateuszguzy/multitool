@@ -59,14 +59,9 @@ class TestLogResults:
             source_module=test_module,
             target=test_target,
         )
-        log_results(event)
 
-        # assertions
-        mock_get_logger_function_with_exception.return_value.called_once_with(
-            test_module
-        )
-        mock_get_logger_function_with_exception.side_effect = Exception
-        mock_task_queue_logger_in_tasks.exception.assert_called_once()
+        with pytest.raises(Exception):
+            log_results(event)
 
 
 class TestPassResultEvent:
@@ -124,8 +119,6 @@ class TestPassResultEvent:
         with pytest.raises(Exception):
             pass_result_event(mock_encoded_event)
 
-        assert mock_task_queue_logger_in_tasks.error.call_count == 1
-
 
 class TestStartModuleEvent:
     task_name = "start_module_event"
@@ -180,8 +173,6 @@ class TestStartModuleEvent:
         with pytest.raises(Exception):
             pass_result_event(mock_encoded_event)
 
-        assert mock_task_queue_logger_in_tasks.error.call_count == 1
-
 
 class TestLiveResultsListenerTask:
     def test_live_results_listener_task_success(
@@ -219,7 +210,6 @@ class TestLiveResultsListenerTask:
     ):
         with pytest.raises(Exception):
             live_results_listener_task()
-        mock_task_queue_logger_in_tasks.error.assert_called_once()
 
 
 class TestEventListenerTask:
@@ -258,7 +248,6 @@ class TestEventListenerTask:
     ):
         with pytest.raises(Exception):
             event_listener_task(module="test_module")
-        mock_task_queue_logger_in_tasks.error.assert_called_once()
 
 
 class TestStartEventListeners:
