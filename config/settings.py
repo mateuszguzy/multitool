@@ -80,7 +80,8 @@ AVAILABLE_PHASES = list(AVAILABLE_FUNCTIONALITY.keys())
 ALL_MODULES = {module for phase in AVAILABLE_FUNCTIONALITY.values() for module in phase}
 
 # make sure user will not get tracebacks and similar data in terminal
-RESULTS_FOR_USER_FROM_MODULES = [STEERING_MODULE, DIRECTORY_BRUTEFORCE, PORT_SCAN]
+# !! bash script will not treat those as vars only as a plain text
+RESULTS_FOR_USER_FROM_MODULES = ["steering_module", "recon", "scan"]
 
 # DB / REDIS
 REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
@@ -124,8 +125,9 @@ DB_INPUT_MODULE_MAPPER: dict = {
 
 
 # --- LOGGING
-# LOGGING_LEVEL_MODULES = "INFO"  # production
-LOGGING_LEVEL_MODULES = "DEBUG"  # development
+# create loggers for every module separately but aggregate the outputs in files
+# divided by core features and each module separately
+LOGGING_LEVEL_MODULES = "DEBUG"  # development "INFO" for production
 LOGGING_FORMAT_FILE = "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
 LOGGING_FILE_FORMAT = "%s%s_%s.log"
 LOGGING_HANDLER_CLASS = "logging.FileHandler"
@@ -147,14 +149,14 @@ LOGGING = {
             "level": LOGGING_LEVEL_MODULES,
             "class": LOGGING_HANDLER_CLASS,
             "filename": (
-                LOGGING_FILE_FORMAT % (LOGGING_DIR, CURRENT_DATE, DIRECTORY_BRUTEFORCE)
+                LOGGING_FILE_FORMAT % (LOGGING_DIR, CURRENT_DATE, RECON_PHASE)
             ),
             "formatter": "file",
         },
         "port_scan": {
             "level": LOGGING_LEVEL_MODULES,
             "class": LOGGING_HANDLER_CLASS,
-            "filename": (LOGGING_FILE_FORMAT % (LOGGING_DIR, CURRENT_DATE, PORT_SCAN)),
+            "filename": (LOGGING_FILE_FORMAT % (LOGGING_DIR, CURRENT_DATE, SCAN_PHASE)),
             "formatter": "file",
         },
         "task_queue": {
