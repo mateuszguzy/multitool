@@ -1,4 +1,3 @@
-import pdb
 from typing import List, Set, Tuple
 
 from questionary import prompt
@@ -8,6 +7,17 @@ from config.settings import (
     AVAILABLE_PHASES,
     RECON_PHASE_MODULES,
     SCAN_PHASE_MODULES,
+    REDIS_TARGETS_KEY,
+    REDIS_USER_INPUT_KEY,
+    REDIS_MODULES_KEY,
+    REDIS_USER_TYPE_KEY,
+    REDIS_OUTPUT_AFTER_EVERY_FINDING_KEY,
+    REDIS_DIRECTORY_BRUTEFORCE_LIST_SIZE_KEY,
+    REDIS_DIRECTORY_BRUTEFORCE_RECURSIVE_KEY,
+    REDIS_DIRECTORY_BRUTEFORCE_INPUT_KEY,
+    REDIS_PORT_SCAN_INPUT_KEY,
+    REDIS_PORT_SCAN_TYPE_KEY,
+    REDIS_PORT_SCAN_PORTS,
 )
 from modules.helper.redis_client import RedisClient
 from utils.abstracts_classes import AbstractModule
@@ -31,6 +41,8 @@ PORT_SCAN_TYPES = ["important", "top_1000", "all", "custom"]
 class CliInterface(AbstractModule):
     valid_targets: set = set()
     valid_ports: set = set()
+    use_type: str
+    output_after_every_finding: bool
     questions: List[dict] = list()
 
     def __init__(self):
@@ -46,17 +58,23 @@ class CliInterface(AbstractModule):
             answers=answers
         )
         self.format_targets_as_urls(answers["targets"])
-        self.save_reusable_data_in_db(used_modules=used_modules)
+        self.output_after_every_finding = answers.get("output_after_every_finding", 0)
+        self.use_type = answers.get("use_type", "")
+        self.save_reusable_data_in_db(
+            used_modules=used_modules,
+            recon_phase_input=recon_phase_input,
+            scan_phase_input=scan_phase_input,
+        )
 
         return UserInput(
-            use_type=answers.get("use_type", ""),
+            use_type=self.use_type,
             phase=answers.get("phase", ""),
             module=answers.get("module", None),
             targets=self.valid_targets,
             recon=recon_phase_input,
             scan=scan_phase_input,
             output_after_every_phase=answers.get("output_after_every_phase", 0),
-            output_after_every_finding=answers.get("output_after_every_finding", 0),
+            output_after_every_finding=self.output_after_every_finding,
         )
 
     def prepare_questions(self) -> List[dict]:
@@ -294,9 +312,7 @@ class CliInterface(AbstractModule):
         Aggregate port scan data from user input and return it in form of dictionary.
         """
         return PortScanInput(
-            port_scan_type=answers["port_scan_type"]
-            if "port_scan_type" in answers
-            else None,
+            port_scan_type=answers.get("port_scan_type", None),
             ports=self.valid_ports,
         )
 
@@ -322,9 +338,14 @@ class CliInterface(AbstractModule):
 
         return used_modules
 
-    def save_reusable_data_in_db(self, used_modules: Set[str]) -> None:
+    def save_reusable_data_in_db(
+        self,
+        used_modules: Set[str],
+        recon_phase_input: ReconInput,
+        scan_phase_input: ScanInput,
+    ) -> None:
         """
-        Save targets and modules data in Redis in form of dictionary for future use - pulling results.
+        Save targets and modules data in Redis in form of dictionary for future use e.g. pulling results.
 
         targets: {
             id: target
@@ -338,7 +359,67 @@ class CliInterface(AbstractModule):
             list_of_items=self.valid_targets
         )
         modules_dictionary = convert_list_or_set_to_dict(list_of_items=used_modules)
+        ports_dictionary = (
+            convert_list_or_set_to_dict(list_of_items=scan_phase_input.port_scan.ports)
+            if len(scan_phase_input.port_scan.ports) > 0
+            else {1: None}
+        )
 
         with RedisClient() as rc:
-            rc.mset({"targets|" + str(k): v for k, v in targets_dictionary.items()})
-            rc.mset({"modules|" + str(k): v for k, v in modules_dictionary.items()})
+            ####################################
+            #              GENERAL             #
+            ####################################
+            rc.mset(
+                {
+                    f"{REDIS_USER_INPUT_KEY}{REDIS_TARGETS_KEY}" + str(k): v
+                    for k, v in targets_dictionary.items()
+                }
+            )
+            rc.mset(
+                {
+                    f"{REDIS_USER_INPUT_KEY}{REDIS_MODULES_KEY}" + str(k): v
+                    for k, v in modules_dictionary.items()
+                }
+            )
+            rc.mset(
+                {f"{REDIS_USER_INPUT_KEY}{REDIS_USER_TYPE_KEY}" + "1": self.use_type}
+            )
+            rc.mset(
+                {
+                    f"{REDIS_USER_INPUT_KEY}{REDIS_OUTPUT_AFTER_EVERY_FINDING_KEY}"
+                    + "1": str(self.output_after_every_finding)
+                }
+            )
+            ####################################
+            #               RECON              #
+            ####################################
+            rc.mset(
+                {
+                    f"{REDIS_DIRECTORY_BRUTEFORCE_INPUT_KEY}"
+                    f"{REDIS_DIRECTORY_BRUTEFORCE_LIST_SIZE_KEY}"
+                    + "1": str(recon_phase_input.directory_bruteforce.list_size)
+                }
+            )
+            rc.mset(
+                {
+                    f"{REDIS_DIRECTORY_BRUTEFORCE_INPUT_KEY}"
+                    f"{REDIS_DIRECTORY_BRUTEFORCE_RECURSIVE_KEY}"
+                    + "1": str(recon_phase_input.directory_bruteforce.recursive)
+                }
+            )
+            ####################################
+            #               SCAN               #
+            ####################################
+            rc.mset(
+                {
+                    f"{REDIS_PORT_SCAN_INPUT_KEY}{REDIS_PORT_SCAN_TYPE_KEY}"
+                    + "1": str(scan_phase_input.port_scan.port_scan_type)
+                }
+            )
+            rc.mset(
+                {
+                    f"{REDIS_PORT_SCAN_INPUT_KEY}{REDIS_PORT_SCAN_PORTS}"
+                    + str(k): str(v)
+                    for k, v in ports_dictionary.items()
+                }
+            )

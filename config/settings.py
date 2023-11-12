@@ -15,14 +15,6 @@ NUMBER_OF_AVAILABLE_CPU_CORES = multiprocessing.cpu_count() + 2
 CURRENT_DATE = datetime.datetime.utcnow().strftime("%Y%m%d")
 MAX_RECURSION_DEPTH = 6
 
-# DB / REDIS
-REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
-REDIS_DB = int(os.getenv("REDIS_DB", 0))
-REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
-CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
-CELERY_BROKER_BACKEND = os.getenv("CELERY_BROKER_BACKEND")
-PUBSUB_RESULTS_CHANNEL_NAME = "results"
-
 # --- DIRECTORIES
 BASE_DIR = Path(__file__).resolve().parent.parent
 WORDLISTS_DIR = f"{BASE_DIR}/utils/wordlists"
@@ -89,6 +81,47 @@ ALL_MODULES = {module for phase in AVAILABLE_FUNCTIONALITY.values() for module i
 
 # make sure user will not get tracebacks and similar data in terminal
 RESULTS_FOR_USER_FROM_MODULES = [STEERING_MODULE, DIRECTORY_BRUTEFORCE, PORT_SCAN]
+
+# DB / REDIS
+REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
+REDIS_DB = int(os.getenv("REDIS_DB", 0))
+REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
+CELERY_BROKER_BACKEND = os.getenv("CELERY_BROKER_BACKEND")
+PUBSUB_RESULTS_CHANNEL_NAME = "results"
+REDIS_USER_INPUT_KEY = "user_input|"
+REDIS_TARGETS_KEY = "targets|"
+REDIS_MODULES_KEY = "modules|"
+REDIS_USER_TYPE_KEY = "use_type|"
+REDIS_OUTPUT_AFTER_EVERY_FINDING_KEY = "output_after_every_finding|"
+REDIS_RECON_INPUT_KEY = "recon|"
+REDIS_DIRECTORY_BRUTEFORCE_KEY = "directory_bruteforce|"
+REDIS_DIRECTORY_BRUTEFORCE_LIST_SIZE_KEY = "list_size|"
+REDIS_DIRECTORY_BRUTEFORCE_RECURSIVE_KEY = "recursive|"
+REDIS_DIRECTORY_BRUTEFORCE_INPUT_KEY = f"{REDIS_USER_INPUT_KEY}{REDIS_RECON_INPUT_KEY}{REDIS_DIRECTORY_BRUTEFORCE_KEY}"
+REDIS_SCAN_INPUT_KEY = "scan|"
+REDIS_PORT_SCAN_KEY = "port_scan|"
+REDIS_PORT_SCAN_TYPE_KEY = "type|"
+REDIS_PORT_SCAN_PORTS = "ports|"
+REDIS_PORT_SCAN_INPUT_KEY = f"{REDIS_USER_INPUT_KEY}{REDIS_SCAN_INPUT_KEY}{REDIS_PORT_SCAN_KEY}"
+
+DB_INPUT_MODULE_MAPPER: dict = {
+    DIRECTORY_BRUTEFORCE: {
+        "path": REDIS_DIRECTORY_BRUTEFORCE_INPUT_KEY,
+        "keys": {
+            "list_size": REDIS_DIRECTORY_BRUTEFORCE_LIST_SIZE_KEY,
+            "recursive": REDIS_DIRECTORY_BRUTEFORCE_RECURSIVE_KEY,
+        },
+    },
+    PORT_SCAN: {
+        "path": REDIS_PORT_SCAN_INPUT_KEY,
+        "keys": {
+            "port_scan_type": REDIS_PORT_SCAN_TYPE_KEY,
+            "ports": REDIS_PORT_SCAN_PORTS,
+        },
+    }
+}
+
 
 # --- LOGGING
 # LOGGING_LEVEL_MODULES = "INFO"  # production
