@@ -10,6 +10,7 @@ from config.settings import (
     REDIS_TARGETS_KEY,
     REDIS_MODULES_KEY,
     REDIS_USER_INPUT_KEY,
+    DB_INPUT_MODULE_MAPPER,
 )
 from modules.helper.redis_client import RedisClient
 
@@ -158,3 +159,33 @@ def get_logger(module: Optional[str]) -> Logger:
         return loggers[module]
     else:
         return loggers[STEERING_MODULE_NAME]
+
+
+def expression_is_true(expression) -> bool:
+    """
+    Check if expression is True.
+    """
+    if expression in [
+        "True",
+        "true",
+        True,
+    ]:
+        return True
+    else:
+        return False
+
+
+def withdraw_input_from_db(module: str) -> dict:
+    input_dict: dict = dict()
+
+    if module in DB_INPUT_MODULE_MAPPER:
+        with RedisClient() as rc:
+            # cannot decode results from Redis directly here because some results are
+            # single values and some are lists e.g. port_scan::ports, so it's done while
+            # creating input class
+            input_dict = {
+                k: rc.mget(rc.keys(f"{DB_INPUT_MODULE_MAPPER[module]['path']}{v}*"))
+                for k, v in DB_INPUT_MODULE_MAPPER[module]["keys"].items()
+            }
+
+    return input_dict
