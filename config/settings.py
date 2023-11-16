@@ -238,3 +238,10 @@ task_queue_logger = logging.getLogger("task_queue")
 request_manager_logger = logging.getLogger("request_manager")
 socket_manager_logger = logging.getLogger("socket_manager")
 dispatcher_logger = logging.getLogger("dispatcher")
+
+# Dictionary mapping module names to loggers
+LOGGERS_MAPPER = {
+    "__main__": steering_module_logger,
+    DIRECTORY_BRUTEFORCE: directory_bruteforce_logger,
+    PORT_SCAN: port_scan_logger,
+}
