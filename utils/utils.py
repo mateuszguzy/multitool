@@ -5,28 +5,13 @@ from urllib.parse import urlparse
 
 from config.settings import (
     steering_module_logger,
-    directory_bruteforce_logger,
-    port_scan_logger,
     REDIS_TARGETS_KEY,
     REDIS_MODULES_KEY,
     REDIS_USER_INPUT_KEY,
     DB_INPUT_MODULE_MAPPER,
+    LOGGERS_MAPPER,
 )
 from modules.helper.redis_client import RedisClient
-
-# Constants for module names
-STEERING_MODULE_NAME = "__main__"
-DIRECTORY_BRUTEFORCE_MODULE_NAME = (
-    "modules.recon.directory_bruteforce.directory_bruteforce"
-)
-PORT_SCAN_MODULE_NAME = "modules.scan.port_scan.port_scan"
-
-# Dictionary mapping module names to loggers
-loggers = {
-    STEERING_MODULE_NAME: steering_module_logger,
-    DIRECTORY_BRUTEFORCE_MODULE_NAME: directory_bruteforce_logger,
-    PORT_SCAN_MODULE_NAME: port_scan_logger,
-}
 
 
 def url_formatter(input_target: str, module: Optional[str] = None) -> str:
@@ -151,14 +136,16 @@ def log_exception(exc_type, value, tb) -> None:
     steering_module_logger.error(exception_info)
 
 
-def get_logger(module: Optional[str]) -> Logger:
+def get_logger(module: str) -> Logger:
     """
     Returns the logger for the given module name.
     """
-    if module in loggers:
-        return loggers[module]
-    else:
-        return loggers[STEERING_MODULE_NAME]
+    for key in LOGGERS_MAPPER.keys():
+        if key in module:
+            return LOGGERS_MAPPER[key]
+
+    # if no logger is found, return the default logger
+    return LOGGERS_MAPPER["__main__"]
 
 
 def expression_is_true(expression) -> bool:
