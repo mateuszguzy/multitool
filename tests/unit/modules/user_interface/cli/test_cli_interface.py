@@ -28,8 +28,12 @@ class TestCliInterface:
     )
     questionary_prompt_path = "modules.user_interface.cli.cli_interface.prompt"
     directory_bruteforce_expected_module = "recon|directory_bruteforce"
+    email_scraper_expected_module = "recon|email_scraper"
     port_scan_expected_module = "scan|port_scan"
-    recon_phase_expected_modules = {directory_bruteforce_expected_module}
+    recon_phase_expected_modules = {
+        directory_bruteforce_expected_module,
+        email_scraper_expected_module,
+    }
     scan_expected_modules = {port_scan_expected_module}
     run_all_expected_result = recon_phase_expected_modules | scan_expected_modules
 
