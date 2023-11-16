@@ -5,6 +5,7 @@ from urllib.parse import urlparse
 
 import celery  # type: ignore
 import redis
+import requests
 
 from config.settings import (
     REDIS_HOST,
@@ -74,6 +75,19 @@ def directory_bruteforce_web_request(
             return url.path
         else:
             return None
+
+
+@app.task(base=BaseCeleryTaskClass)
+def email_scraper_web_request(
+    target: str
+) -> Optional[str]:
+
+    response = requests.get(url=target)
+
+    if response.ok:
+        return response.text
+
+    return None
 
 
 @app.task(base=BaseCeleryTaskClass)

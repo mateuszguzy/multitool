@@ -38,6 +38,23 @@ def run_directory_bruteforce_task(target: str):
 
 
 @app.task(base=BaseCeleryTaskClass)
+def run_email_scraper_task(target: str, path: str):
+    from modules.recon.email_scraper.email_scraper import (
+        EmailScraper,
+    )
+
+    email_scraper = EmailScraper(
+        target=target,
+        path=path,
+    )
+
+    # this is required because of 'join()' method aggregating results from all tasks
+    # used inside '_run_with_celery()' method, without it 'join()' would block the task
+    with allow_join_result():
+        email_scraper.run()
+
+
+@app.task(base=BaseCeleryTaskClass)
 def run_port_scan_task(target: str) -> None:
     from modules.scan.port_scan.port_scan import PortScan
 

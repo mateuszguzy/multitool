@@ -46,7 +46,7 @@ class SessionRequestResponseObject:
 @dataclass
 class Event:
     id: UUID
-    source_module: Optional[str]
+    source_module: str
     target: str
 
 
