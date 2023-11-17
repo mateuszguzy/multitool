@@ -14,6 +14,7 @@ load_dotenv()
 NUMBER_OF_AVAILABLE_CPU_CORES = multiprocessing.cpu_count() + 2
 CURRENT_DATE = datetime.datetime.utcnow().strftime("%Y%m%d")
 MAX_RECURSION_DEPTH = 6
+GET_REQUEST_TIMEOUT = 5
 
 # --- DIRECTORIES
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -68,7 +69,6 @@ DIRECTORY_BRUTEFORCE_REQUEST_METHOD = "GET"
 # EMAIL_SCRAPER
 EMAIL_SCRAPER = "email_scraper"
 EMAIL_SCRAPER_REGEX_PATTERN = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
-EMAIL_SCRAPER_REQUEST_METHOD = "GET"
 
 # All currently available modules
 AVAILABLE_FUNCTIONALITY: dict = {
