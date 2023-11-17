@@ -4,7 +4,7 @@ from utils.utils import prepare_final_results_dictionary, store_module_results_i
 
 
 class TestPrepareFinalResultsDictionary:
-    def test_prepare_final_results_dictionary_complete(self, test_redis_db_results_complete):
+    def test_prepare_final_results_dictionary_complete(self, redis_db_results_complete_fixture):
         expected_results = {
             "target1": {
                 "phase1": {"module1": ["result1", "result2"], "module2": ["result3"]}
@@ -17,7 +17,7 @@ class TestPrepareFinalResultsDictionary:
         # assertion
         TestCase().assertDictEqual(result, expected_results)
 
-    def test_prepare_final_results_dictionary_only_targets(self, test_redis_db_results_only_targets):
+    def test_prepare_final_results_dictionary_only_targets(self, redis_db_results_only_targets_fixture):
         expected_results = {
             "target1": {},
             "target2": {},
@@ -29,7 +29,7 @@ class TestPrepareFinalResultsDictionary:
 
 
 class TestStoreModuleResultsInDatabase:
-    def test_store_module_results_in_database(self, test_redis_client):
+    def test_store_module_results_in_database(self, redis_client_fixture):
         expected_result_1 = [b"result1"]
         expected_result_2 = {b"result1", b"result2"}
         expected_result_3 = {b"result1", b"result2", b"result3"}
@@ -41,13 +41,13 @@ class TestStoreModuleResultsInDatabase:
         store_module_results_in_database("target2", {1: "result2"}, "phase1", "module1")
         store_module_results_in_database("target2", {2: "result3"}, "phase1", "module1")
 
-        keys_1 = test_redis_client.keys("target1|phase1|module1|*")
-        keys_2 = test_redis_client.keys("target1|phase1|module2|*")
-        keys_3 = test_redis_client.keys("target2|phase1|module1|*")
+        keys_1 = redis_client_fixture.keys("target1|phase1|module1|*")
+        keys_2 = redis_client_fixture.keys("target1|phase1|module2|*")
+        keys_3 = redis_client_fixture.keys("target2|phase1|module1|*")
 
-        result_1 = test_redis_client.mget(keys_1)
-        result_2 = set(test_redis_client.mget(keys_2))
-        result_3 = set(test_redis_client.mget(keys_3))
+        result_1 = redis_client_fixture.mget(keys_1)
+        result_2 = set(redis_client_fixture.mget(keys_2))
+        result_3 = set(redis_client_fixture.mget(keys_3))
 
         assert result_1 == expected_result_1
         # list of byte-type values cannot be sorted that's why we use set

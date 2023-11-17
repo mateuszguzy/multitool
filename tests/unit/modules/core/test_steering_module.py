@@ -1,5 +1,6 @@
 import pytest
 
+from tests.conftest import TEST_PORTS, TEST_TARGETS_SET
 from utils.custom_dataclasses import (
     DirectoryBruteforceInput,
     ReconInput,
@@ -9,9 +10,9 @@ from utils.custom_dataclasses import (
 
 
 class TestSteeringModule:
-    testing_targets = {"http://dvwa:80/"}
-    test_ports = {80, 443}
-    # couldn't use this as a fixture
+    testing_targets = TEST_TARGETS_SET
+    test_ports = TEST_PORTS
+    # couldn't use this as a fixture ¯\_(ツ)_/¯
     test_recon_input = ReconInput(
         DirectoryBruteforceInput(list_size="small", recursive=False)
     )
@@ -29,7 +30,7 @@ class TestSteeringModule:
         "steering_module_with_input, expected_output",
         [
             (
-                pytest.lazy_fixture("steering_module_for_single_module_directory_bruteforce"),  # type: ignore
+                pytest.lazy_fixture("steering_module_for_single_module_directory_bruteforce_fixture"),  # type: ignore
                 {
                     "use_type": "single_module",
                     "phase": "recon",
@@ -41,7 +42,7 @@ class TestSteeringModule:
                 },
             ),
             (
-                pytest.lazy_fixture("steering_module_for_single_module_port_scan"),  # type: ignore
+                pytest.lazy_fixture("steering_module_for_single_module_port_scan_fixture"),  # type: ignore
                 {
                     "use_type": "single_module",
                     "phase": "scan",
@@ -53,7 +54,7 @@ class TestSteeringModule:
                 },
             ),
             (
-                pytest.lazy_fixture("steering_module_for_single_phase_recon"),  # type: ignore
+                pytest.lazy_fixture("steering_module_for_single_phase_recon_fixture"),  # type: ignore
                 {
                     "use_type": "single_phase",
                     "phase": "recon",
@@ -65,7 +66,7 @@ class TestSteeringModule:
                 },
             ),
             (
-                pytest.lazy_fixture("steering_module_for_single_phase_scan"),  # type: ignore
+                pytest.lazy_fixture("steering_module_for_single_phase_scan_fixture"),  # type: ignore
                 {
                     "use_type": "single_phase",
                     "phase": "scan",
@@ -77,7 +78,7 @@ class TestSteeringModule:
                 },
             ),
             (
-                pytest.lazy_fixture("steering_module_for_all"),  # type: ignore
+                pytest.lazy_fixture("steering_module_for_all_fixture"),  # type: ignore
                 {
                     "use_type": "all",
                     "phase": "",

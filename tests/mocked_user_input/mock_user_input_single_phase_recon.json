@@ -2,7 +2,7 @@
   "use_type": "single_phase",
   "phase": "recon",
   "module": null,
-  "targets": ["http://dvwa:80/"],
+  "targets": ["http://dvwa/", "https://www.example.com"],
   "recon": {
     "directory_bruteforce": {
       "list_size": "small",

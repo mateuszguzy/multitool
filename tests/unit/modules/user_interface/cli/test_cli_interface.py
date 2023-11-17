@@ -47,8 +47,8 @@ class TestCliInterface:
                     phase="",
                     module=None,
                     targets={test_url},
-                    recon=pytest.lazy_fixture("test_recon_input"),  # type: ignore
-                    scan=pytest.lazy_fixture("test_scan_input"),  # type: ignore
+                    recon=pytest.lazy_fixture("scan_recon_fixture"),  # type: ignore
+                    scan=pytest.lazy_fixture("scan_input_fixture"),  # type: ignore
                     output_after_every_finding=True,
                 ),
             ),
@@ -59,8 +59,8 @@ class TestCliInterface:
                     phase="recon",
                     module=None,
                     targets={test_url},
-                    recon=pytest.lazy_fixture("test_recon_input"),  # type: ignore
-                    scan=pytest.lazy_fixture("test_scan_input"),  # type: ignore
+                    recon=pytest.lazy_fixture("scan_recon_fixture"),  # type: ignore
+                    scan=pytest.lazy_fixture("scan_input_fixture"),  # type: ignore
                     output_after_every_finding=True,
                 ),
             ),
@@ -71,8 +71,8 @@ class TestCliInterface:
                     phase="scan",
                     module=None,
                     targets={test_url},
-                    recon=pytest.lazy_fixture("test_recon_input"),  # type: ignore
-                    scan=pytest.lazy_fixture("test_scan_input"),  # type: ignore
+                    recon=pytest.lazy_fixture("scan_recon_fixture"),  # type: ignore
+                    scan=pytest.lazy_fixture("scan_input_fixture"),  # type: ignore
                     output_after_every_finding=True,
                 ),
             ),
@@ -83,8 +83,8 @@ class TestCliInterface:
                     phase="recon",
                     module="directory_bruteforce",
                     targets={test_url},
-                    recon=pytest.lazy_fixture("test_recon_input"),  # type: ignore
-                    scan=pytest.lazy_fixture("test_scan_input"),  # type: ignore
+                    recon=pytest.lazy_fixture("scan_recon_fixture"),  # type: ignore
+                    scan=pytest.lazy_fixture("scan_input_fixture"),  # type: ignore
                     output_after_every_finding=True,
                 ),
             ),
@@ -95,15 +95,15 @@ class TestCliInterface:
                     phase="scan",
                     module="port_scan",
                     targets={test_url},
-                    recon=pytest.lazy_fixture("test_recon_input"),  # type: ignore
-                    scan=pytest.lazy_fixture("test_scan_input"),  # type: ignore
+                    recon=pytest.lazy_fixture("scan_recon_fixture"),  # type: ignore
+                    scan=pytest.lazy_fixture("scan_input_fixture"),  # type: ignore
                     output_after_every_finding=True,
                 ),
             ),
         ],
     )
     def test_all_use_type_valid_urls(
-        self, mocker, cli_interface, user_input, expected_output
+        self, mocker, cli_interface_fixture, user_input, expected_output
     ):
         """
         Test if CliInterface returns expected dictionary when user selects 'all' use type and enters valid URLs
@@ -133,7 +133,7 @@ class TestCliInterface:
             self.test_ports,
         )
 
-        result = cli_interface.run()
+        result = cli_interface_fixture.run()
 
         assert result == expected_output
 
