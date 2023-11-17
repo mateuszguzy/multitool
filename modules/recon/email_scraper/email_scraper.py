@@ -5,11 +5,11 @@ It's because it's supposed to receive input from directory bruteforce module.
 import re
 import uuid
 from typing import Set, Optional
+from urllib.parse import urlunparse, ParseResult
 
 from config.settings import (
     email_scraper_logger,
     EMAIL_SCRAPER_REGEX_PATTERN,
-    EMAIL_SCRAPER_REQUEST_METHOD,
 )
 from modules.task_queue.tasks import log_results, email_scraper_web_request
 from utils.abstracts_classes import AbstractModule
@@ -21,14 +21,22 @@ logger = email_scraper_logger
 
 
 class EmailScraper(AbstractModule):
-    request_method = EMAIL_SCRAPER_REQUEST_METHOD
     email_regex_pattern = EMAIL_SCRAPER_REGEX_PATTERN
-    allow_redirects: bool = True
+    url: str = str()
 
     def __init__(self, target: str, path: str) -> None:
         self.target = target
-        self.path = path if path is not None else ""
-        self.emails: Set[str] = set()
+        self.url = urlunparse(
+            ParseResult(
+                scheme="",
+                netloc=target,
+                path=path if path is not None else "",
+                params="",
+                query="",
+                fragment="",
+            )
+        )[2:]
+        # ^^[2:] is to remove "//" from the beginning of the url added from concatenation of schema to the rest of url
 
     def run(self) -> None:
         """
@@ -37,7 +45,7 @@ class EmailScraper(AbstractModule):
         html = self._get_html()
 
         if html:
-            results = self._get_emails(html)
+            results = self._get_emails(html=html)
 
             if len(results) > 0:
                 self._save_results(results=results)
@@ -47,7 +55,7 @@ class EmailScraper(AbstractModule):
         Function to get HTML from a website.
         """
         try:
-            task_result = email_scraper_web_request.delay(target=self.target)
+            task_result = email_scraper_web_request.delay(target=self.url)
             result = task_result.get()
 
         except Exception as e:
