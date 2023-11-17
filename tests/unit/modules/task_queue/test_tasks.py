@@ -13,6 +13,7 @@ from modules.task_queue.tasks import (
     start_event_listeners,
     directory_bruteforce_web_request,
     socket_request,
+    email_scraper_web_request,
 )
 from utils.custom_dataclasses import ResultEvent, SessionRequestResponseObject
 
@@ -363,3 +364,36 @@ class TestSocketRequest:
         result = socket_request(target=self.target, port=self.port, module=self.module)
 
         assert result is None
+
+
+class TestEmailScraperWebRequest:
+    test_target = "http://example.com"
+    test_response_text = "Response Text"
+
+    @pytest.mark.parametrize(
+        "test_response_status, test_response_text",
+        [(True, test_response_text), (False, None)],
+    )
+    def test_email_scraper_web_success(
+        self, mocker, test_response_status, test_response_text
+    ):
+        mocked_response = mocker.Mock(
+            ok=test_response_status, text=self.test_response_text
+        )
+        mocker.patch(
+            f"{TASK_QUEUE_MODULE_PATH}.requests.get",
+            return_value=mocked_response,
+        )
+
+        result = email_scraper_web_request(target=self.test_target)
+
+        assert result == test_response_text
+
+    def test_email_scraper_web_fail(self, mocker):
+        mocker.patch(
+            f"{TASK_QUEUE_MODULE_PATH}.requests.get",
+            side_effect=Exception,
+        )
+
+        with pytest.raises(Exception):
+            email_scraper_web_request(target=self.test_target)

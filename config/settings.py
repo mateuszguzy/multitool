@@ -14,6 +14,7 @@ load_dotenv()
 NUMBER_OF_AVAILABLE_CPU_CORES = multiprocessing.cpu_count() + 2
 CURRENT_DATE = datetime.datetime.utcnow().strftime("%Y%m%d")
 MAX_RECURSION_DEPTH = 6
+GET_REQUEST_TIMEOUT = 5
 
 # --- DIRECTORIES
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -65,10 +66,15 @@ RECON_PHASE = "recon"
 DIRECTORY_BRUTEFORCE = "directory_bruteforce"
 DIRECTORY_BRUTEFORCE_REQUEST_METHOD = "GET"
 
+# EMAIL_SCRAPER
+EMAIL_SCRAPER = "email_scraper"
+EMAIL_SCRAPER_REGEX_PATTERN = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+
 # All currently available modules
 AVAILABLE_FUNCTIONALITY: dict = {
     RECON_PHASE: {
         DIRECTORY_BRUTEFORCE,
+        EMAIL_SCRAPER,
     },
     SCAN_PHASE: {
         PORT_SCAN,
@@ -153,6 +159,14 @@ LOGGING = {
             ),
             "formatter": "file",
         },
+        "email_scraper": {
+            "level": LOGGING_LEVEL_MODULES,
+            "class": LOGGING_HANDLER_CLASS,
+            "filename": (
+                    LOGGING_FILE_FORMAT % (LOGGING_DIR, CURRENT_DATE, RECON_PHASE)
+            ),
+            "formatter": "file",
+        },
         "port_scan": {
             "level": LOGGING_LEVEL_MODULES,
             "class": LOGGING_HANDLER_CLASS,
@@ -201,6 +215,11 @@ LOGGING = {
             "level": LOGGING_LEVEL_MODULES,
             "propagate": True,
         },
+        "email_scraper": {
+            "handlers": ["email_scraper"],
+            "level": LOGGING_LEVEL_MODULES,
+            "propagate": True,
+        },
         "port_scan": {
             "handlers": ["port_scan"],
             "level": LOGGING_LEVEL_MODULES,
@@ -233,6 +252,7 @@ os.makedirs(LOGGING_DIR, exist_ok=True)
 log_conf.dictConfig(config=LOGGING)
 steering_module_logger = logging.getLogger("steering_module")
 directory_bruteforce_logger = logging.getLogger("directory_bruteforce")
+email_scraper_logger = logging.getLogger("email_scraper")
 port_scan_logger = logging.getLogger("port_scan")
 task_queue_logger = logging.getLogger("task_queue")
 request_manager_logger = logging.getLogger("request_manager")
@@ -243,5 +263,6 @@ dispatcher_logger = logging.getLogger("dispatcher")
 LOGGERS_MAPPER = {
     "__main__": steering_module_logger,
     DIRECTORY_BRUTEFORCE: directory_bruteforce_logger,
+    EMAIL_SCRAPER: email_scraper_logger,
     PORT_SCAN: port_scan_logger,
 }
