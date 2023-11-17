@@ -3,6 +3,7 @@ import os
 from unittest import mock
 
 import pytest
+import inspect
 from redis import Redis
 
 from config.settings import (
@@ -18,6 +19,7 @@ from config.settings import (
 from modules.core.steering_module.steering_module import SteeringModule
 from modules.network.socket_manager.socket_manager import SocketManager
 from modules.recon.directory_bruteforce.directory_bruteforce import DirectoryBruteforce
+from modules.recon.email_scraper.email_scraper import EmailScraper
 from modules.scan.port_scan.port_scan import PortScan
 from modules.task_queue.tasks import start_event_listeners
 from modules.user_interface.cli.cli_interface import CliInterface
@@ -43,6 +45,7 @@ MOCK_USER_INPUT_SINGLE_PHASE_SCAN = (
 )
 MOCK_USER_INPUT_ALL = f"{TESTS_MOCKED_INPUT_DIR}/mock_user_input_all.json"
 TEST_TARGET = "https://www.example.com"
+TEST_PATH = "/path"
 TEST_PORT_SCAN_TARGET = "www.example.com"
 DIRECTORY_BRUTEFORCE_WORDLIST_MOCK_INPUT = "word1\nword2\nword3"
 BUILTINS_OPEN_PATH = "builtins.open"
@@ -55,6 +58,7 @@ DIRECTORY_BRUTEFORCE_INPUT_RECURSIVE = DirectoryBruteforceInput(
 TEST_PORTS = {80, 443}
 TEST_PORT = 80
 TASK_QUEUE_MODULE_PATH = "modules.task_queue.tasks"
+EMAIL_SCRAPER_MODULE_PATH = inspect.getmodule(EmailScraper).__name__  # type: ignore
 
 
 ###################################################
@@ -392,3 +396,33 @@ def mock_live_results_listener_task(mocker):
 @pytest.fixture(scope="function")
 def mock_pass_result_event(mocker):
     return mocker.patch(f"{TASK_QUEUE_MODULE_PATH}.pass_result_event")
+
+
+@pytest.fixture(scope="function")
+def mock_email_scraper_module(mocker):
+    mocker.patch(
+        f"{EMAIL_SCRAPER_MODULE_PATH}.urlunparse",
+        return_value=mocker.MagicMock(),
+    )
+    return EmailScraper(target=TEST_TARGET, path=TEST_PATH)
+
+
+@pytest.fixture(scope="function")
+def mock_email_scraper_web_request_task(mocker):
+    return mocker.patch(
+        f"{EMAIL_SCRAPER_MODULE_PATH}.email_scraper_web_request",
+        return_value=mocker.Mock(),
+    )
+
+
+@pytest.fixture(scope="function")
+def mock_email_scraper_web_request_task_with_exception(mocker):
+    return mocker.patch(
+        f"{EMAIL_SCRAPER_MODULE_PATH}.email_scraper_web_request.delay",
+        side_effect=Exception,
+    )
+
+
+@pytest.fixture(scope="function")
+def mock_email_scraper_save_results_method(mocker):
+    return mocker.patch(f"{EMAIL_SCRAPER_MODULE_PATH}.EmailScraper._save_results")
