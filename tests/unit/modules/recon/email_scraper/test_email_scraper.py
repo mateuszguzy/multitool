@@ -5,16 +5,6 @@ import pytest
 from tests.conftest import TEST_PATH, TEST_TARGET, EMAIL_SCRAPER_MODULE_PATH
 
 
-@pytest.fixture(scope="function")
-def mock_store_module_results_in_database(mocker):
-    return mocker.patch(f"{EMAIL_SCRAPER_MODULE_PATH}.store_module_results_in_database")
-
-
-@pytest.fixture(scope="function")
-def mock_log_results(mocker):
-    return mocker.patch(f"{EMAIL_SCRAPER_MODULE_PATH}.log_results.delay")
-
-
 class TestEmailScraper:
     test_target = TEST_TARGET
     test_path = TEST_PATH
@@ -48,7 +38,8 @@ class TestEmailScraper:
         self, mocker, mock_email_scraper_module, mock_email_scraper_save_results_method
     ):
         mocker.patch(
-            f"{self.email_scraper_module_path}.EmailScraper._get_html", return_value=None
+            f"{self.email_scraper_module_path}.EmailScraper._get_html",
+            return_value=None,
         )
         mocker.patch(f"{self.email_scraper_module_path}.EmailScraper._get_emails")
 
@@ -69,7 +60,8 @@ class TestEmailScraper:
             return_value=mocked_html,
         )
         mocker.patch(
-            f"{self.email_scraper_module_path}.EmailScraper._get_emails", return_value=[]
+            f"{self.email_scraper_module_path}.EmailScraper._get_emails",
+            return_value=[],
         )
 
         mock_email_scraper_module.run()
