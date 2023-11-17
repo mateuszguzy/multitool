@@ -13,7 +13,7 @@ from config.settings import (
     REDIS_DB,
     task_queue_logger,
     PUBSUB_RESULTS_CHANNEL_NAME,
-    STEERING_MODULE,
+    STEERING_MODULE, GET_REQUEST_TIMEOUT,
 )
 from modules.core.dispatcher.dispatcher import Dispatcher
 from modules.network.request_manager.request_manager import RequestManager
@@ -82,7 +82,7 @@ def email_scraper_web_request(
     target: str
 ) -> Optional[str]:
 
-    response = requests.get(url=target)
+    response = requests.get(url=target, timeout=GET_REQUEST_TIMEOUT)
 
     if response.ok:
         return response.text
