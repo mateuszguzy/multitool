@@ -214,6 +214,15 @@ class CliInterface(AbstractModule):
         """
         if "use_type" in answers and answers["use_type"] == "all":
             return True
+
+        elif (
+            "use_type" in answers
+            and answers["use_type"] == "single_phase"
+            and "phase" in answers
+            and answers["phase"] == "recon"
+        ):
+            return True
+
         elif (
             "phase" in answers
             and answers["phase"] == "recon"
@@ -221,6 +230,7 @@ class CliInterface(AbstractModule):
             and answers["module"] == "directory_bruteforce"
         ):
             return True
+
         else:
             return False
 
@@ -231,6 +241,15 @@ class CliInterface(AbstractModule):
         """
         if "use_type" in answers and answers["use_type"] == "all":
             return True
+
+        elif (
+            "use_type" in answers
+            and answers["use_type"] == "single_phase"
+            and "phase" in answers
+            and answers["phase"] == "scan"
+        ):
+            return True
+
         elif (
             "phase" in answers
             and answers["phase"] == "scan"
@@ -238,6 +257,7 @@ class CliInterface(AbstractModule):
             and answers["module"] == "port_scan"
         ):
             return True
+
         else:
             return False
 
