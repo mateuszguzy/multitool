@@ -109,7 +109,7 @@ def socket_request(target: str, port: int, module: str) -> Optional[int]:
 @app.task(base=BaseCeleryTaskClass)
 def pass_result_event(event: ResultEvent) -> None:
     task_name = pass_result_event.__name__
-    logger.debug(f"START::{event.id}::{task_name}")
+    logger.debug(f"START::{task_name}::{event}")
     event_dict = result_event_encoder(event)
     rc.publish(
         channel=PUBSUB_RESULTS_CHANNEL_NAME,
@@ -121,7 +121,7 @@ def pass_result_event(event: ResultEvent) -> None:
 @app.task(base=BaseCeleryTaskClass)
 def start_module_event(event: StartModuleEvent) -> None:
     task_name = start_module_event.__name__
-    logger.debug(f"START::{event.id}::{task_name}::{event.destination_module}")
+    logger.debug(f"START::{task_name}::{event}")
     event_dict = start_module_event_encoder(event)
     rc.publish(
         channel=STEERING_MODULE,

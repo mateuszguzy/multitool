@@ -1,5 +1,4 @@
 import json
-import uuid
 
 from utils.custom_dataclasses import ResultEvent
 
@@ -19,7 +18,7 @@ class ResultEventSerializer(json.JSONEncoder):
 
 def result_event_decoder(data: dict) -> ResultEvent:
     return ResultEvent(
-        id=uuid.uuid4(),
+        id=data["id"],
         source_module=data["source_module"],
         target=data["target"],
         result=data["result"],

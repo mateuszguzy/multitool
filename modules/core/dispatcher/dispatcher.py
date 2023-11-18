@@ -65,7 +65,7 @@ class Dispatcher(AbstractModule):
             ):
                 for destination_module in module["pass_results_to"]:
                     try:
-                        logger.debug(f"START::{event.id}")
+                        logger.debug(f"START::{event.id}::{destination_module}")
                         module_mapper[destination_module].delay(event=event)
 
                     except Exception as e:
