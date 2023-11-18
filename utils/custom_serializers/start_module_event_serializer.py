@@ -1,5 +1,4 @@
 import json
-import uuid
 
 from utils.custom_dataclasses import StartModuleEvent
 
@@ -20,7 +19,7 @@ class StartModuleEventSerializer(json.JSONEncoder):
 
 def start_module_event_decoder(data: dict) -> StartModuleEvent:
     return StartModuleEvent(
-        id=uuid.uuid4(),
+        id=data["id"],
         source_module=data["source_module"],
         destination_module=data["destination_module"],
         target=data["target"],
