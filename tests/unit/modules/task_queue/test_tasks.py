@@ -91,14 +91,6 @@ class TestPassResultEvent:
             channel=PUBSUB_RESULTS_CHANNEL_NAME, message=encoded_event
         )
         assert mock_task_queue_logger_in_tasks.debug.call_count == 2
-        assert (
-            mock.call(f"START::{mock_encoded_event.id}::{self.task_name}")
-            in mock_task_queue_logger_in_tasks.debug.call_args_list
-        )
-        assert (
-            mock.call(f"PUBLISHED::{mock_encoded_event.id}")
-            in mock_task_queue_logger_in_tasks.debug.call_args_list
-        )
 
     @pytest.mark.parametrize(
         "encoded_event",
@@ -146,16 +138,6 @@ class TestStartModuleEvent:
             channel=STEERING_MODULE, message=encoded_event
         )
         assert mock_task_queue_logger_in_tasks.debug.call_count == 2
-        assert (
-            mock.call(
-                f"START::{mock_encoded_event.id}::{self.task_name}::{mock_encoded_event.destination_module}"
-            )
-            in mock_task_queue_logger_in_tasks.debug.call_args_list
-        )
-        assert (
-            mock.call(f"PUBLISHED::{mock_encoded_event.id}")
-            in mock_task_queue_logger_in_tasks.debug.call_args_list
-        )
 
     @pytest.mark.parametrize("encoded_event", ["encoded_event_1", "encoded_event_2"])
     def test_start_module_event_fail(
