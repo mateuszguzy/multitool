@@ -85,6 +85,9 @@ RECON_PHASE_MODULES = list(AVAILABLE_FUNCTIONALITY["recon"])
 SCAN_PHASE_MODULES = list(AVAILABLE_FUNCTIONALITY["scan"])
 AVAILABLE_PHASES = list(AVAILABLE_FUNCTIONALITY.keys())
 ALL_MODULES = {module for phase in AVAILABLE_FUNCTIONALITY.values() for module in phase}
+RECON_PHASE_MODULES.sort()
+SCAN_PHASE_MODULES.sort()
+AVAILABLE_PHASES.sort()
 
 # make sure user will not get tracebacks and similar data in terminal
 # !! bash script will not treat those as vars only as a plain text
