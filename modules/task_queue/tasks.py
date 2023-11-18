@@ -144,8 +144,11 @@ def live_results_listener_task():
         if result["type"] == "message":
             event = result_event_data_load(result["data"].decode())
             logger.debug(f"RECEIVED::{task_id}::{event.id}")
+            # TODO add check of user input "show result after every finding"
+            #  setting here to optionally not publish results
             log_results.delay(event=event)
-
+            dispatcher = Dispatcher(event=event)
+            dispatcher.run()
 
 @app.task(base=BaseCeleryTaskClass)
 def event_listener_task(module: str) -> None:
