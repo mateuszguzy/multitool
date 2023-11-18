@@ -1,6 +1,7 @@
 import inspect
 import json
 import os
+import uuid
 from unittest import mock
 
 import pytest
@@ -16,7 +17,12 @@ from config.settings import (
     REDIS_MODULES_KEY,
     REDIS_TARGETS_KEY,
     REDIS_USER_INPUT_KEY,
+    STEERING_MODULE,
+    DIRECTORY_BRUTEFORCE,
+    PORT_SCAN,
+    EMAIL_SCRAPER,
 )
+from modules.core.dispatcher.dispatcher import Dispatcher
 from modules.core.steering_module.steering_module import SteeringModule
 from modules.network.request_manager.request_manager import RequestManager
 from modules.network.socket_manager.socket_manager import SocketManager
@@ -31,6 +37,8 @@ from utils.custom_dataclasses import (
     UserInput,
     PortScanInput,
     ScanInput,
+    StartModuleEvent,
+    ResultEvent,
 )
 
 # --- MOCKED INPUT PATHS
@@ -52,6 +60,7 @@ MOCK_USER_INPUT_ALL = f"{TESTS_MOCKED_INPUT_DIR}/mock_user_input_all.json"
 TEST_TARGET = "https://www.example.com"
 TEST_PATH = "/path"
 TEST_PORT_SCAN_TARGET = "www.example.com"
+TEST_RESULT = "test_result"
 DIRECTORY_BRUTEFORCE_WORDLIST_MOCK_INPUT = "word1\nword2\nword3"
 BUILTINS_OPEN_PATH = "builtins.open"
 DIRECTORY_BRUTEFORCE_INPUT_NON_RECURSIVE = DirectoryBruteforceInput(
@@ -64,6 +73,26 @@ TEST_TARGETS_SET = {"http://dvwa/", "https://www.example.com"}
 TEST_PORTS = {80, 443}
 TEST_PORT = 80
 TEST_REQUEST_MANAGER_METHOD = "GET"
+MOCKED_WORKFLOW = {
+    "version": "1.0",
+    "modules": [
+        {
+            "name": "directory_bruteforce",
+            "accept_input_from": ["steering_module"],
+            "pass_results_to": ["email_scraper"],
+        },
+        {
+            "name": "port_scan",
+            "accept_input_from": ["steering_module"],
+            "pass_results_to": None,
+        },
+        {
+            "name": "email_scraper",
+            "accept_input_from": ["steering_module", "directory_bruteforce"],
+            "pass_results_to": None,
+        },
+    ],
+}
 
 # --- MODULE PATHS
 DIRECTORY_BRUTEFORCE_MODULE_PATH = inspect.getmodule(DirectoryBruteforce).__name__  # type: ignore
@@ -71,6 +100,7 @@ PORT_SCAN_MODULE_PATH = inspect.getmodule(PortScan).__name__  # type: ignore
 EMAIL_SCRAPER_MODULE_PATH = inspect.getmodule(EmailScraper).__name__  # type: ignore
 REQUEST_MANAGER_MODULE_PATH = inspect.getmodule(RequestManager).__name__  # type: ignore
 CELERY_TASKS_MODULE_PATH = inspect.getmodule(celery_tasks).__name__  # type: ignore
+DISPATCHER_MODULE_PATH = inspect.getmodule(Dispatcher).__name__  # type: ignore
 
 
 ###################################################
@@ -219,6 +249,78 @@ def steering_module_for_all_fixture():
 
 
 ##########################
+#        DISPATCHER      #
+##########################
+# used by 'lazy_fixture' that why 'usages' are not counted
+@pytest.fixture(scope="class")
+def start_directory_bruteforce_module_event_fixture():
+    return StartModuleEvent(
+        id=uuid.uuid4(),
+        source_module=STEERING_MODULE,
+        target=TEST_TARGET,
+        destination_module=DIRECTORY_BRUTEFORCE,
+        result=TEST_RESULT,
+    )
+
+
+# used by 'lazy_fixture' that why 'usages' are not counted
+@pytest.fixture(scope="class")
+def start_port_scan_module_event_fixture():
+    return StartModuleEvent(
+        id=uuid.uuid4(),
+        source_module=STEERING_MODULE,
+        target=TEST_TARGET,
+        destination_module=PORT_SCAN,
+        result=TEST_RESULT,
+    )
+
+
+# used by 'lazy_fixture' that why 'usages' are not counted
+@pytest.fixture(scope="class")
+def start_email_scraper_module_event_fixture():
+    return StartModuleEvent(
+        id=uuid.uuid4(),
+        source_module=STEERING_MODULE,
+        target=TEST_TARGET,
+        destination_module=EMAIL_SCRAPER,
+        result=TEST_RESULT,
+    )
+
+
+# used by 'lazy_fixture' that why 'usages' are not counted
+@pytest.fixture(scope="class")
+def directory_bruteforce_result_event_fixture():
+    return ResultEvent(
+        id=uuid.uuid4(),
+        source_module=DIRECTORY_BRUTEFORCE,
+        target=TEST_TARGET,
+        result=TEST_RESULT,
+    )
+
+
+# used by 'lazy_fixture' that why 'usages' are not counted
+@pytest.fixture(scope="class")
+def email_scraper_result_event_fixture():
+    return ResultEvent(
+        id=uuid.uuid4(),
+        source_module=EMAIL_SCRAPER,
+        target=TEST_TARGET,
+        result=TEST_RESULT,
+    )
+
+
+# used by 'lazy_fixture' that why 'usages' are not counted
+@pytest.fixture(scope="class")
+def port_scan_result_event_fixture():
+    return ResultEvent(
+        id=uuid.uuid4(),
+        source_module=PORT_SCAN,
+        target=TEST_TARGET,
+        result=TEST_RESULT,
+    )
+
+
+##########################
 #      CLI INTERFACE     #
 ##########################
 @pytest.fixture(scope="class")
@@ -323,6 +425,49 @@ def mock_open_without_data(mocker):
 @pytest.fixture(scope="function")
 def mock_open_with_file_not_found_error(mocker):
     return mocker.patch(BUILTINS_OPEN_PATH, side_effect=FileNotFoundError)
+
+
+##########################
+#        DISPATCHER      #
+##########################
+@pytest.fixture(scope="function")
+def mock_dispatcher_parse_workflow_yaml_function(mocker):
+    return mocker.patch(f"{DISPATCHER_MODULE_PATH}.Dispatcher._parse_workflow_yaml")
+
+
+@pytest.fixture(scope="function")
+def mock_dispatcher_interpret_start_module_event_function(mocker):
+    return mocker.patch(
+        f"{DISPATCHER_MODULE_PATH}.Dispatcher._interpret_start_module_event"
+    )
+
+
+@pytest.fixture(scope="function")
+def mock_dispatcher_interpret_result_event_function(mocker):
+    return mocker.patch(f"{DISPATCHER_MODULE_PATH}.Dispatcher._interpret_result_event")
+
+
+@pytest.fixture(scope="function")
+def mock_dispatcher_directory_bruteforce_task(mocker):
+    return mocker.patch(f"{DISPATCHER_MODULE_PATH}.run_directory_bruteforce_task.delay")
+
+
+@pytest.fixture(scope="function")
+def mock_dispatcher_email_scraper_task(mocker):
+    return mocker.patch(f"{DISPATCHER_MODULE_PATH}.run_email_scraper_task.delay")
+
+
+@pytest.fixture(scope="function")
+def mock_dispatcher_port_scan_task(mocker):
+    return mocker.patch(f"{DISPATCHER_MODULE_PATH}.run_port_scan_task.delay")
+
+
+@pytest.fixture(scope="function")
+def mock_dispatcher_workflow(mocker):
+    return mocker.patch(
+        f"{DISPATCHER_MODULE_PATH}.Dispatcher._parse_workflow_yaml",
+        return_value=MOCKED_WORKFLOW,
+    )
 
 
 ##########################
