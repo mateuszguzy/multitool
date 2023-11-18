@@ -1,40 +1,76 @@
-from config.settings import dispatcher_logger
+from typing import Union
+
+from yaml import load, Loader
+
+from config.settings import (
+    dispatcher_logger,
+    WORKFLOW_YAML_PATH,
+    DIRECTORY_BRUTEFORCE,
+    PORT_SCAN,
+    EMAIL_SCRAPER,
+)
 from modules.task_queue.dispatcher_tasks import (
     run_directory_bruteforce_task,
     run_port_scan_task,
     run_email_scraper_task,
 )
 from utils.abstracts_classes import AbstractModule
-from utils.custom_dataclasses import StartModuleEvent
+from utils.custom_dataclasses import StartModuleEvent, ResultEvent
 
 logger = dispatcher_logger
 
+module_mapper = {
+    DIRECTORY_BRUTEFORCE: run_directory_bruteforce_task,
+    EMAIL_SCRAPER: run_email_scraper_task,
+    PORT_SCAN: run_port_scan_task,
+}
+
 
 class Dispatcher(AbstractModule):
-    event: StartModuleEvent
+    workflow_yaml_path = WORKFLOW_YAML_PATH
+    workflow: dict
 
-    def __init__(self, event: StartModuleEvent):
+    def __init__(self, event: Union[StartModuleEvent, ResultEvent]) -> None:
         super().__init__()
         self.event = event
+        self.workflow = self._parse_workflow_yaml()
 
     def run(self) -> None:
-        logger.debug(f"START::{self.event.id}")
-        # TODO: add "smart" event interpreter
-        self.interpret_event()
+        logger.debug(f"INTERPRETING::{self.event.id}")
+        if isinstance(self.event, StartModuleEvent):
+            self._interpret_start_module_event(event=self.event)
 
-    def interpret_event(self):
-        if self.event.destination_module == "directory_bruteforce":
-            logger.debug("RUN::Directory bruteforce module")
-            run_directory_bruteforce_task.delay(self.event.target)
+        if isinstance(self.event, ResultEvent):
+            self._interpret_result_event(event=self.event)
 
-        elif self.event.destination_module == "email_scraper":
-            logger.debug(
-                f"RUN::Email scraper module {self.event.target} {self.event.result}"
-            )
-            run_email_scraper_task.delay(
-                target=self.event.target, path=self.event.result
-            )
+    def _interpret_start_module_event(self, event: StartModuleEvent) -> None:
+        for module in self.workflow["modules"]:
+            if (
+                module["name"] == event.destination_module
+                and event.source_module.split(".")[-1] in module["accept_input_from"]
+                and event.destination_module in module_mapper
+            ):
+                try:
+                    logger.debug(f"START::{event.id}")
+                    module_mapper[event.destination_module.split(".")[-1]].delay(event)
 
-        elif self.event.destination_module == "port_scan":
-            logger.debug("RUN::Directory bruteforce module")
-            run_port_scan_task.delay(self.event.target)
+                except Exception as e:
+                    logger.error(f"ERROR::{event.id}::{e}")
+
+    def _interpret_result_event(self, event: ResultEvent) -> None:
+        for module in self.workflow["modules"]:
+            if (
+                module["name"] == event.source_module.split(".")[-1]
+                and module["pass_results_to"] is not None
+            ):
+                for destination_module in module["pass_results_to"]:
+                    try:
+                        logger.debug(f"START::{event.id}")
+                        module_mapper[destination_module].delay(event)
+
+                    except Exception as e:
+                        logger.error(f"ERROR::{event.id}::{e}")
+
+    def _parse_workflow_yaml(self) -> dict:
+        with open(self.workflow_yaml_path, "r") as f:
+            return load(f, Loader=Loader)["workflow"]

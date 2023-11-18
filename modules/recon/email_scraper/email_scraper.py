@@ -30,7 +30,7 @@ class EmailScraper(AbstractModule):
             ParseResult(
                 scheme="",
                 netloc=target,
-                path=path if path is not None else "",
+                path=path,
                 params="",
                 query="",
                 fragment="",

@@ -1,0 +1,24 @@
+workflow:
+    version: "1.0"
+    modules:
+        # recon phase modules
+        - name: "directory_bruteforce"
+          phase: "recon"
+          accept_input_from:
+            - "steering_module"
+          pass_results_to:
+            - "email_scraper"
+
+        - name: "email_scraper"
+          phase: "recon"
+          accept_input_from:
+            - "steering_module"
+            - "directory_bruteforce"
+          pass_results_to:
+
+        # scan phase modules
+        - name: "port_scan"
+          phase: "scan"
+          accept_input_from:
+            - "steering_module"
+          pass_results_to:
