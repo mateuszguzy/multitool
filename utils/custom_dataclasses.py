@@ -41,6 +41,7 @@ class SessionRequestResponseObject:
     ok: bool
     status_code: int
     url: str
+    text: Optional[str]
 
 
 @dataclass

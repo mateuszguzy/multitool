@@ -79,6 +79,7 @@ class RequestManager(AbstractContextManager):
             url=response.url,
             status_code=response.status_code,
             ok=response.ok,
+            text=response.text
         )
 
 

@@ -291,6 +291,7 @@ class TestDirectoryBruteforceWebRequest:
             ok=True,
             status_code=self.response_status_code,
             url=self.response_url,
+            text=None,
         )
         mocked_url = mocker.Mock()
         mocker.patch("modules.task_queue.tasks.urlparse", return_value=mocked_url)
@@ -317,6 +318,7 @@ class TestDirectoryBruteforceWebRequest:
             ok=False,
             status_code=self.response_status_code,
             url=self.response_url,
+            text=None,
         )
         mocked_url = mocker.Mock()
         mocker.patch("modules.task_queue.tasks.urlparse", return_value=mocked_url)
