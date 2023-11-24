@@ -78,6 +78,30 @@ def directory_bruteforce_web_request(
 
 
 @app.task(base=BaseCeleryTaskClass)
+def lfi_web_request(
+    request_method: str, target: str, allow_redirects: bool
+) -> Optional[str]:
+    url = urlparse(target)
+
+    with RequestManager(
+        method=request_method,
+        scheme=url.scheme,
+        netloc=url.netloc,
+        path=url.path,
+        params=url.params,
+        query=url.query,
+        fragment=url.fragment,
+        allow_redirects=allow_redirects,
+    ) as rm:
+        response = rm.run()
+
+        if response.ok:
+            return response.text
+        else:
+            return None
+
+
+@app.task(base=BaseCeleryTaskClass)
 def email_scraper_web_request(target: str) -> Optional[str]:
     response = requests.get(url=target, timeout=GET_REQUEST_TIMEOUT)
 

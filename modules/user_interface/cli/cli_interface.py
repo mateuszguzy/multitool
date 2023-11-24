@@ -18,6 +18,7 @@ from config.settings import (
     REDIS_PORT_SCAN_INPUT_KEY,
     REDIS_PORT_SCAN_TYPE_KEY,
     REDIS_PORT_SCAN_PORTS,
+    GAIN_ACCESS_PHASE_MODULES,
 )
 from modules.helper.redis_client import RedisClient
 from utils.abstracts_classes import AbstractModule
@@ -135,6 +136,16 @@ class CliInterface(AbstractModule):
             },
             {
                 "type": "select",
+                "name": "module",
+                "message": "Choose Module to execute:",
+                "choices": GAIN_ACCESS_PHASE_MODULES,
+                "default": "lfi",
+                "when": lambda answers: self.single_module_from_gain_access_phase_is_executed(
+                    answers=answers
+                ),
+            },
+            {
+                "type": "select",
                 "name": "directory_bruteforce_list_size",
                 "message": "Choose size or bruteforce wordlist:",
                 "choices": ["small", "medium", "test"],
@@ -202,6 +213,21 @@ class CliInterface(AbstractModule):
             and answers["use_type"] == "single_module"
             and "phase" in answers
             and answers["phase"] == "scan"
+        ):
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def single_module_from_gain_access_phase_is_executed(answers: dict) -> bool:
+        """
+        Check if single module from 'gain access' phase is executed in current run by checking which modules are used.
+        """
+        if (
+            "use_type" in answers
+            and answers["use_type"] == "single_module"
+            and "phase" in answers
+            and answers["phase"] == "gain_access"
         ):
             return True
         else:

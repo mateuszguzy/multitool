@@ -69,7 +69,14 @@ DIRECTORY_BRUTEFORCE_REQUEST_METHOD = "GET"
 
 # EMAIL_SCRAPER
 EMAIL_SCRAPER = "email_scraper"
-EMAIL_SCRAPER_REGEX_PATTERN = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+EMAIL_SCRAPER_REGEX_PATTERN = r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b"
+
+# --- GAIN_ACCESS_PHASE
+GAIN_ACCESS_PHASE = "gain_access"
+# LFI
+LFI = "lfi"
+LFI_REQUEST_METHOD = "GET"
+
 
 # All currently available modules
 AVAILABLE_FUNCTIONALITY: dict = {
@@ -80,18 +87,22 @@ AVAILABLE_FUNCTIONALITY: dict = {
     SCAN_PHASE: {
         PORT_SCAN,
     },
+    GAIN_ACCESS_PHASE: {
+        LFI,
+    },
 }
 RECON_PHASE_MODULES = list(AVAILABLE_FUNCTIONALITY["recon"])
 SCAN_PHASE_MODULES = list(AVAILABLE_FUNCTIONALITY["scan"])
+GAIN_ACCESS_PHASE_MODULES = list(AVAILABLE_FUNCTIONALITY["gain_access"])
 AVAILABLE_PHASES = list(AVAILABLE_FUNCTIONALITY.keys())
 ALL_MODULES = {module for phase in AVAILABLE_FUNCTIONALITY.values() for module in phase}
 RECON_PHASE_MODULES.sort()
 SCAN_PHASE_MODULES.sort()
-AVAILABLE_PHASES.sort()
+GAIN_ACCESS_PHASE_MODULES.sort()
 
 # make sure user will not get tracebacks and similar data in terminal
 # !! bash script will not treat those as vars only as a plain text
-RESULTS_FOR_USER_FROM_MODULES = ["steering_module", "recon", "scan"]
+RESULTS_FOR_USER_FROM_MODULES = ["steering_module", "recon", "scan", "gain_access"]
 
 # DB / REDIS
 REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
@@ -109,12 +120,16 @@ REDIS_RECON_INPUT_KEY = "recon|"
 REDIS_DIRECTORY_BRUTEFORCE_KEY = "directory_bruteforce|"
 REDIS_DIRECTORY_BRUTEFORCE_LIST_SIZE_KEY = "list_size|"
 REDIS_DIRECTORY_BRUTEFORCE_RECURSIVE_KEY = "recursive|"
-REDIS_DIRECTORY_BRUTEFORCE_INPUT_KEY = f"{REDIS_USER_INPUT_KEY}{REDIS_RECON_INPUT_KEY}{REDIS_DIRECTORY_BRUTEFORCE_KEY}"
+REDIS_DIRECTORY_BRUTEFORCE_INPUT_KEY = (
+    f"{REDIS_USER_INPUT_KEY}{REDIS_RECON_INPUT_KEY}{REDIS_DIRECTORY_BRUTEFORCE_KEY}"
+)
 REDIS_SCAN_INPUT_KEY = "scan|"
 REDIS_PORT_SCAN_KEY = "port_scan|"
 REDIS_PORT_SCAN_TYPE_KEY = "type|"
 REDIS_PORT_SCAN_PORTS = "ports|"
-REDIS_PORT_SCAN_INPUT_KEY = f"{REDIS_USER_INPUT_KEY}{REDIS_SCAN_INPUT_KEY}{REDIS_PORT_SCAN_KEY}"
+REDIS_PORT_SCAN_INPUT_KEY = (
+    f"{REDIS_USER_INPUT_KEY}{REDIS_SCAN_INPUT_KEY}{REDIS_PORT_SCAN_KEY}"
+)
 
 DB_INPUT_MODULE_MAPPER: dict = {
     DIRECTORY_BRUTEFORCE: {
@@ -130,7 +145,7 @@ DB_INPUT_MODULE_MAPPER: dict = {
             "port_scan_type": REDIS_PORT_SCAN_TYPE_KEY,
             "ports": REDIS_PORT_SCAN_PORTS,
         },
-    }
+    },
 }
 
 
@@ -167,7 +182,7 @@ LOGGING = {
             "level": LOGGING_LEVEL_MODULES,
             "class": LOGGING_HANDLER_CLASS,
             "filename": (
-                    LOGGING_FILE_FORMAT % (LOGGING_DIR, CURRENT_DATE, RECON_PHASE)
+                LOGGING_FILE_FORMAT % (LOGGING_DIR, CURRENT_DATE, RECON_PHASE)
             ),
             "formatter": "file",
         },
@@ -177,10 +192,20 @@ LOGGING = {
             "filename": (LOGGING_FILE_FORMAT % (LOGGING_DIR, CURRENT_DATE, SCAN_PHASE)),
             "formatter": "file",
         },
+        "lfi": {
+            "level": LOGGING_LEVEL_MODULES,
+            "class": LOGGING_HANDLER_CLASS,
+            "filename": (
+                LOGGING_FILE_FORMAT % (LOGGING_DIR, CURRENT_DATE, GAIN_ACCESS_PHASE)
+            ),
+            "formatter": "file",
+        },
         "task_queue": {
             "level": LOGGING_LEVEL_MODULES,
             "class": LOGGING_HANDLER_CLASS,
-            "filename": (LOGGING_FILE_FORMAT % (LOGGING_DIR, CURRENT_DATE, STEERING_MODULE)),
+            "filename": (
+                LOGGING_FILE_FORMAT % (LOGGING_DIR, CURRENT_DATE, STEERING_MODULE)
+            ),
             "formatter": "file",
         },
         "request_manager": {
@@ -203,7 +228,7 @@ LOGGING = {
             "level": LOGGING_LEVEL_MODULES,
             "class": LOGGING_HANDLER_CLASS,
             "filename": (
-                    LOGGING_FILE_FORMAT % (LOGGING_DIR, CURRENT_DATE, STEERING_MODULE)
+                LOGGING_FILE_FORMAT % (LOGGING_DIR, CURRENT_DATE, STEERING_MODULE)
             ),
             "formatter": "file",
         },
@@ -226,6 +251,11 @@ LOGGING = {
         },
         "port_scan": {
             "handlers": ["port_scan"],
+            "level": LOGGING_LEVEL_MODULES,
+            "propagate": True,
+        },
+        "lfi": {
+            "handlers": ["lfi"],
             "level": LOGGING_LEVEL_MODULES,
             "propagate": True,
         },
@@ -258,6 +288,7 @@ steering_module_logger = logging.getLogger("steering_module")
 directory_bruteforce_logger = logging.getLogger("directory_bruteforce")
 email_scraper_logger = logging.getLogger("email_scraper")
 port_scan_logger = logging.getLogger("port_scan")
+lfi_logger = logging.getLogger("lfi")
 task_queue_logger = logging.getLogger("task_queue")
 request_manager_logger = logging.getLogger("request_manager")
 socket_manager_logger = logging.getLogger("socket_manager")
@@ -269,4 +300,5 @@ LOGGERS_MAPPER = {
     DIRECTORY_BRUTEFORCE: directory_bruteforce_logger,
     EMAIL_SCRAPER: email_scraper_logger,
     PORT_SCAN: port_scan_logger,
+    LFI: lfi_logger,
 }

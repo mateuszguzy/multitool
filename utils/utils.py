@@ -176,3 +176,10 @@ def withdraw_input_from_db(module: str) -> dict:
             }
 
     return input_dict
+
+
+def extract_passwd_file_content_from_web_response(response: str) -> List[str]:
+    """
+    Extracts the content of the passwd file from the response.
+    """
+    return response.split("<!DOCTYPE")[0].strip().split()
