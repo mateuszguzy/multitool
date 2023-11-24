@@ -24,6 +24,9 @@ from config.settings import (
 )
 from modules.core.dispatcher.dispatcher import Dispatcher
 from modules.core.steering_module.steering_module import SteeringModule
+from modules.gain_access.file_inclusion.lfi.local_file_inclusion import (
+    LocalFileInclusion,
+)
 from modules.network.request_manager.request_manager import RequestManager
 from modules.network.socket_manager.socket_manager import SocketManager
 from modules.recon.directory_bruteforce.directory_bruteforce import DirectoryBruteforce
@@ -101,6 +104,7 @@ EMAIL_SCRAPER_MODULE_PATH = inspect.getmodule(EmailScraper).__name__  # type: ig
 REQUEST_MANAGER_MODULE_PATH = inspect.getmodule(RequestManager).__name__  # type: ignore
 CELERY_TASKS_MODULE_PATH = inspect.getmodule(celery_tasks).__name__  # type: ignore
 DISPATCHER_MODULE_PATH = inspect.getmodule(Dispatcher).__name__  # type: ignore
+LFI_MODULE_PATH = inspect.getmodule(LocalFileInclusion).__name__  # type: ignore
 
 
 ###################################################
@@ -403,6 +407,16 @@ def port_scan_fixture(port_scan_input_fixture):
     )
 
 
+##########################
+#           LFI          #
+##########################
+@pytest.fixture(scope="function")
+def local_file_inclusion_fixture():
+    return LocalFileInclusion(
+        target=TEST_TARGET,
+    )
+
+
 ###################################################
 #                    MOCKS                        #
 ###################################################
@@ -505,6 +519,24 @@ def mock_port_scan_convert_list_or_set_to_dict(mocker):
 @pytest.fixture(scope="function")
 def mock_port_scan_store_module_results_in_database(mocker):
     return mocker.patch(f"{PORT_SCAN_MODULE_PATH}.store_module_results_in_database")
+
+
+##########################
+#           LFI          #
+##########################
+@pytest.fixture(scope="function")
+def mock_lfi_web_request(mocker):
+    return mocker.patch(f"{LFI_MODULE_PATH}.lfi_web_request.delay")
+
+
+@pytest.fixture(scope="function")
+def mock_lfi_module_pass_results(mocker):
+    return mocker.patch(f"{LFI_MODULE_PATH}.LocalFileInclusion._pass_results")
+
+
+@pytest.fixture(scope="function")
+def mock_lfi_module_save_module_results(mocker):
+    return mocker.patch(f"{LFI_MODULE_PATH}.LocalFileInclusion._save_module_results")
 
 
 ##########################
