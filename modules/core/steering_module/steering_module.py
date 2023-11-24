@@ -7,6 +7,7 @@ from config.settings import (
     steering_module_logger,
     SCAN_PHASE_MODULES,
     ALL_MODULES,
+    GAIN_ACCESS_PHASE_MODULES,
 )
 from modules.task_queue.tasks import start_module_event
 from utils.abstracts_classes import AbstractModule
@@ -73,12 +74,25 @@ class SteeringModule(AbstractModule):
             for module in SCAN_PHASE_MODULES:
                 self._run_module(module=module, target=target)
 
+    def _run_gain_access(self):
+        """
+        Function launching 'gain access' phase.
+        """
+        for target in self.targets:
+            logger.debug(f"START::gain_access::{target}")
+            for module in GAIN_ACCESS_PHASE_MODULES:
+                self._run_module(module=module, target=target)
+
     def _run_phase(self, phase: str) -> None:
         """
         Run single phase of hacking process.
         :param phase: e.g. recon / scan / gain_access / maintain_access / cover_tracks
         """
-        phase_mapping = {"recon": self._run_recon, "scan": self._run_scan}
+        phase_mapping = {
+            "recon": self._run_recon,
+            "scan": self._run_scan,
+            "gain_access": self._run_gain_access,
+        }
         if phase in phase_mapping:
             phase_mapping[phase]()
         # double validation, beside input validation on UI side - safety net

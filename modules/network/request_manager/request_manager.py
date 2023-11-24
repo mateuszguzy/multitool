@@ -73,12 +73,11 @@ class RequestManager(AbstractContextManager):
         """
         Make request to the given URL.
         """
-        response = self.session.get(url=self.url, allow_redirects=False)
+        response = self.session.get(url=self.url, allow_redirects=self.allow_redirects)
 
         return SessionRequestResponseObject(
             url=response.url,
             status_code=response.status_code,
             ok=response.ok,
+            text=response.text,
         )
-
-

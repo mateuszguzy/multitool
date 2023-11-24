@@ -81,3 +81,19 @@ def run_port_scan_task(event: StartModuleEvent) -> None:
     # used inside '_run_with_celery()' method, without it 'join()' would block the task
     with allow_join_result():
         port_scan.run()
+
+
+@app.task(base=BaseCeleryTaskClass)
+def run_lfi_task(event: StartModuleEvent) -> None:
+    from modules.gain_access.file_inclusion.lfi.local_file_inclusion import (
+        LocalFileInclusion,
+    )
+
+    lfi = LocalFileInclusion(
+        target=event.target,
+    )
+
+    # this is required because of 'delay()' method aggregating results from all tasks
+    # used inside '_make_request()' method
+    with allow_join_result():
+        lfi.run()

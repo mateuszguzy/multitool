@@ -21,6 +21,7 @@ class TestRequestManager:
         status_code=200,
         url="http://example.com",
         ok=True,
+        text=None,
     )
 
     @pytest.mark.parametrize(

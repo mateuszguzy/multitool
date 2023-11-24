@@ -30,12 +30,18 @@ class TestCliInterface:
     directory_bruteforce_expected_module = "recon|directory_bruteforce"
     email_scraper_expected_module = "recon|email_scraper"
     port_scan_expected_module = "scan|port_scan"
+    lfi_expected_module = "gain_access|lfi"
     recon_phase_expected_modules = {
         directory_bruteforce_expected_module,
         email_scraper_expected_module,
     }
     scan_expected_modules = {port_scan_expected_module}
-    run_all_expected_result = recon_phase_expected_modules | scan_expected_modules
+    gain_access_expected_modules = {lfi_expected_module}
+    run_all_expected_result = (
+        recon_phase_expected_modules
+        | scan_expected_modules
+        | gain_access_expected_modules
+    )
 
     @pytest.mark.parametrize(
         "user_input, expected_output",
