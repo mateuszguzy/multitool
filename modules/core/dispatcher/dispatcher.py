@@ -8,11 +8,13 @@ from config.settings import (
     DIRECTORY_BRUTEFORCE,
     PORT_SCAN,
     EMAIL_SCRAPER,
+    LFI,
 )
 from modules.task_queue.dispatcher_tasks import (
     run_directory_bruteforce_task,
     run_port_scan_task,
     run_email_scraper_task,
+    run_lfi_task,
 )
 from utils.abstracts_classes import AbstractModule
 from utils.custom_dataclasses import StartModuleEvent, ResultEvent
@@ -23,6 +25,7 @@ module_mapper = {
     DIRECTORY_BRUTEFORCE: run_directory_bruteforce_task,
     EMAIL_SCRAPER: run_email_scraper_task,
     PORT_SCAN: run_port_scan_task,
+    LFI: run_lfi_task,
 }
 
 
@@ -52,7 +55,9 @@ class Dispatcher(AbstractModule):
             ):
                 try:
                     logger.debug(f"START::{event.id}")
-                    module_mapper[event.destination_module.split(".")[-1]].delay(event=event)
+                    module_mapper[event.destination_module.split(".")[-1]].delay(
+                        event=event
+                    )
 
                 except Exception as e:
                     logger.error(f"ERROR::{event.id}::{e}")
