@@ -63,6 +63,10 @@ IMPORTANT_PORTS = {
 
 # -- RECON_PHASE
 RECON_PHASE = "recon"
+
+# CRAWLING
+ZAP_SPIDER = "zap_spider"
+
 # DIRECTORY_BRUTEFORCE
 DIRECTORY_BRUTEFORCE = "directory_bruteforce"
 DIRECTORY_BRUTEFORCE_REQUEST_METHOD = "GET"
@@ -77,10 +81,16 @@ GAIN_ACCESS_PHASE = "gain_access"
 LFI = "lfi"
 LFI_REQUEST_METHOD = "GET"
 
+# --- ZAP
+ZAP_API_KEY = os.getenv("ZAP_API_KEY")
+ZAP_EXPOSED_PORT = int(os.getenv("ZAP_EXPOSED_PORT", 8080))
+ZAP_AUTHENTICATION_SCRIPT_NAME = "auth-dvwa.js"
+ZAP_AUTHENTICATION_SCRIPT_PATH = f"/zap/scripts/custom/{ZAP_AUTHENTICATION_SCRIPT_NAME}"
 
 # All currently available modules
 AVAILABLE_FUNCTIONALITY: dict = {
     RECON_PHASE: {
+        ZAP_SPIDER,
         DIRECTORY_BRUTEFORCE,
         EMAIL_SCRAPER,
     },
@@ -200,6 +210,14 @@ LOGGING = {
             ),
             "formatter": "file",
         },
+        "zap_spider": {
+            "level": LOGGING_LEVEL_MODULES,
+            "class": LOGGING_HANDLER_CLASS,
+            "filename": (
+                LOGGING_FILE_FORMAT % (LOGGING_DIR, CURRENT_DATE, RECON_PHASE)
+            ),
+            "formatter": "file",
+        },
         "task_queue": {
             "level": LOGGING_LEVEL_MODULES,
             "class": LOGGING_HANDLER_CLASS,
@@ -259,6 +277,11 @@ LOGGING = {
             "level": LOGGING_LEVEL_MODULES,
             "propagate": True,
         },
+        "zap_spider": {
+            "handlers": ["zap_spider"],
+            "level": LOGGING_LEVEL_MODULES,
+            "propagate": True,
+        },
         "task_queue": {
             "handlers": ["task_queue"],
             "level": LOGGING_LEVEL_MODULES,
@@ -289,6 +312,7 @@ directory_bruteforce_logger = logging.getLogger("directory_bruteforce")
 email_scraper_logger = logging.getLogger("email_scraper")
 port_scan_logger = logging.getLogger("port_scan")
 lfi_logger = logging.getLogger("lfi")
+zap_spider_logger = logging.getLogger("zap_spider")
 task_queue_logger = logging.getLogger("task_queue")
 request_manager_logger = logging.getLogger("request_manager")
 socket_manager_logger = logging.getLogger("socket_manager")
@@ -297,6 +321,7 @@ dispatcher_logger = logging.getLogger("dispatcher")
 # Dictionary mapping module names to loggers
 LOGGERS_MAPPER = {
     "__main__": steering_module_logger,
+    ZAP_SPIDER: zap_spider_logger,
     DIRECTORY_BRUTEFORCE: directory_bruteforce_logger,
     EMAIL_SCRAPER: email_scraper_logger,
     PORT_SCAN: port_scan_logger,

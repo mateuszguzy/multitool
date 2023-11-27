@@ -53,7 +53,11 @@ questionary==2.0.1
 redis==4.5.5
     # via -r /home/mateusz/PycharmProjects/multitool/requirements/common.in
 requests==2.31.0
-    # via -r /home/mateusz/PycharmProjects/multitool/requirements/common.in
+    # via
+    #   -r /home/mateusz/PycharmProjects/multitool/requirements/common.in
+    #   zaproxy
+six==1.16.0
+    # via zaproxy
 tornado==6.3.2
     # via flower
 urllib3==1.26.17
@@ -66,6 +70,8 @@ vine==5.0.0
     #   kombu
 wcwidth==0.2.6
     # via prompt-toolkit
+zaproxy==0.2.0
+    # via -r /home/mateusz/PycharmProjects/multitool/requirements/common.in
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools

@@ -17,6 +17,15 @@ logger = task_queue_logger
 
 
 @app.task(base=BaseCeleryTaskClass)
+def run_zap_spider_task(event: StartModuleEvent) -> None:
+    from modules.zap.zap_spider import start_zap_spider
+
+    # deliberately run twice to make sure that all the links are discovered
+    start_zap_spider(target_url=event.target)
+    start_zap_spider(target_url=event.target)
+
+
+@app.task(base=BaseCeleryTaskClass)
 def run_directory_bruteforce_task(event: StartModuleEvent):
     from modules.recon.directory_bruteforce.directory_bruteforce import (
         DirectoryBruteforce,

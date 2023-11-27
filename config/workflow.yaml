@@ -2,6 +2,13 @@ workflow:
     version: "1.0"
     modules:
         # recon phase modules
+        - name: "zap_spider"
+          phase: "recon"
+          accept_input_from:
+            - "steering_module"
+            - "directory_bruteforce"
+          pass_results_to:
+
         - name: "directory_bruteforce"
           phase: "recon"
           accept_input_from:

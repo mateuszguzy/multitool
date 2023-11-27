@@ -8,6 +8,7 @@ services:
         source: ./logs
         target: /app/logs
     depends_on:
+      - zap
       - dvwa
       - redis
       - worker_main
@@ -17,6 +18,18 @@ services:
     command: python main.py
     stdin_open: true
     tty: true
+
+  zap:
+    image: softwaresecurityproject/zap-stable:2.14.0
+    command: zap.sh -daemon -host ${ZAP_URL} -port ${ZAP_PORT} -config api.addrs.addr.name=.\* -config api.addrs.addr.regex=true -config api.key=${ZAP_API_KEY}
+    expose:
+        - "${ZAP_EXPOSED_PORT}"
+    ports:
+      - "${ZAP_EXPOSED_PORT}:${ZAP_PORT}"
+    volumes:
+      - type: bind
+        source: ./modules/zap/scripts/authentication
+        target: /zap/scripts/custom
 
   dvwa:
     image: vulnerables/web-dvwa:1.9
