@@ -55,9 +55,7 @@ class Dispatcher(AbstractModule):
             ):
                 try:
                     logger.debug(f"START::{event.id}")
-                    module_mapper[event.destination_module.split(".")[-1]].delay(
-                        event=event
-                    )
+                    module_mapper[event.destination_module.split(".")[-1]](event=event)
 
                 except Exception as e:
                     logger.error(f"ERROR::{event.id}::{e}")
@@ -71,7 +69,15 @@ class Dispatcher(AbstractModule):
                 for destination_module in module["pass_results_to"]:
                     try:
                         logger.debug(f"START::{event.id}::{destination_module}")
-                        module_mapper[destination_module].delay(event=event)
+                        module_mapper[destination_module](
+                            event=StartModuleEvent(
+                                id=event.id,
+                                source_module=event.source_module,
+                                destination_module=destination_module,
+                                target=event.target,
+                                result=event.result,
+                            )
+                        )
 
                     except Exception as e:
                         logger.error(f"ERROR::{event.id}::{e}")

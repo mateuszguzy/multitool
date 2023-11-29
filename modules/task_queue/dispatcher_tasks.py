@@ -5,7 +5,6 @@ from config.settings import (
     DIRECTORY_BRUTEFORCE,
     PORT_SCAN,
 )
-from modules.task_queue.celery import app, BaseCeleryTaskClass
 from utils.custom_dataclasses import (
     DirectoryBruteforceInput,
     PortScanInput,
@@ -16,7 +15,14 @@ from utils.utils import withdraw_input_from_db, expression_is_true
 logger = task_queue_logger
 
 
-@app.task(base=BaseCeleryTaskClass)
+def run_zap_spider_task(event: StartModuleEvent) -> None:
+    from modules.zap.zap_spider import start_zap_spider
+
+    # deliberately run twice to make sure that all the links are discovered
+    start_zap_spider(target_url=event.target)
+    start_zap_spider(target_url=event.target)
+
+
 def run_directory_bruteforce_task(event: StartModuleEvent):
     from modules.recon.directory_bruteforce.directory_bruteforce import (
         DirectoryBruteforce,
@@ -41,7 +47,6 @@ def run_directory_bruteforce_task(event: StartModuleEvent):
         directory_bruteforce.run()
 
 
-@app.task(base=BaseCeleryTaskClass)
 def run_email_scraper_task(event: StartModuleEvent):
     from modules.recon.email_scraper.email_scraper import (
         EmailScraper,
@@ -59,7 +64,6 @@ def run_email_scraper_task(event: StartModuleEvent):
         email_scraper.run()
 
 
-@app.task(base=BaseCeleryTaskClass)
 def run_port_scan_task(event: StartModuleEvent) -> None:
     from modules.scan.port_scan.port_scan import PortScan
 
@@ -83,7 +87,6 @@ def run_port_scan_task(event: StartModuleEvent) -> None:
         port_scan.run()
 
 
-@app.task(base=BaseCeleryTaskClass)
 def run_lfi_task(event: StartModuleEvent) -> None:
     from modules.gain_access.file_inclusion.lfi.local_file_inclusion import (
         LocalFileInclusion,
