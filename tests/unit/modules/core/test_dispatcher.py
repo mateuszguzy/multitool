@@ -45,18 +45,21 @@ class TestDispatcher:
         dispatcher._interpret_result_event.assert_called_once()
 
     @pytest.mark.parametrize(
-        "event, task",
+        "event, mapper_mock, task",
         [
             (
                 pytest.lazy_fixture("start_directory_bruteforce_module_event_fixture"),  # type: ignore
+                pytest.lazy_fixture("mock_dispatcher_module_mapper_with_directory_bruteforce_task"),  # type: ignore
                 pytest.lazy_fixture("mock_dispatcher_directory_bruteforce_task"),  # type: ignore
             ),
             (
                 pytest.lazy_fixture("start_email_scraper_module_event_fixture"),  # type: ignore
+                pytest.lazy_fixture("mock_dispatcher_module_mapper_with_email_scraper_task"),  # type: ignore
                 pytest.lazy_fixture("mock_dispatcher_email_scraper_task"),  # type: ignore
             ),
             (
                 pytest.lazy_fixture("start_port_scan_module_event_fixture"),  # type: ignore
+                pytest.lazy_fixture("mock_dispatcher_module_mapper_with_port_scan_task"),  # type: ignore
                 pytest.lazy_fixture("mock_dispatcher_port_scan_task"),  # type: ignore
             ),
         ],
@@ -64,6 +67,7 @@ class TestDispatcher:
     def test_interpret_start_module_event_success(
         self,
         event,
+        mapper_mock,
         task,
         mock_dispatcher_workflow,
     ):
@@ -74,10 +78,11 @@ class TestDispatcher:
         task.assert_called_once_with(event=event)
 
     @pytest.mark.parametrize(
-        "event, task",
+        "event, mapper_mock, task",
         [
             (
                 pytest.lazy_fixture("directory_bruteforce_result_event_fixture"),  # type: ignore
+                pytest.lazy_fixture("mock_dispatcher_module_mapper_with_email_scraper_task"),  # type: ignore
                 pytest.lazy_fixture("mock_dispatcher_email_scraper_task"),  # type: ignore
             ),
         ],
@@ -85,6 +90,7 @@ class TestDispatcher:
     def test_interpret_result_event_success(
         self,
         event,
+        mapper_mock,
         task,
         mock_dispatcher_workflow,
     ):
