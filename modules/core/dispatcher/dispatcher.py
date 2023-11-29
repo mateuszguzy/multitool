@@ -9,12 +9,14 @@ from config.settings import (
     PORT_SCAN,
     EMAIL_SCRAPER,
     LFI,
+    ZAP_SPIDER,
 )
 from modules.task_queue.dispatcher_tasks import (
     run_directory_bruteforce_task,
     run_port_scan_task,
     run_email_scraper_task,
     run_lfi_task,
+    run_zap_spider_task,
 )
 from utils.abstracts_classes import AbstractModule
 from utils.custom_dataclasses import StartModuleEvent, ResultEvent
@@ -22,6 +24,7 @@ from utils.custom_dataclasses import StartModuleEvent, ResultEvent
 logger = dispatcher_logger
 
 module_mapper = {
+    ZAP_SPIDER: run_zap_spider_task,
     DIRECTORY_BRUTEFORCE: run_directory_bruteforce_task,
     EMAIL_SCRAPER: run_email_scraper_task,
     PORT_SCAN: run_port_scan_task,

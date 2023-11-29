@@ -125,7 +125,13 @@ questionary==2.0.1
 redis==4.5.5
     # via -r /home/mateusz/PycharmProjects/multitool/requirements/common.txt
 requests==2.31.0
-    # via -r /home/mateusz/PycharmProjects/multitool/requirements/common.txt
+    # via
+    #   -r /home/mateusz/PycharmProjects/multitool/requirements/common.txt
+    #   zaproxy
+six==1.16.0
+    # via
+    #   -r /home/mateusz/PycharmProjects/multitool/requirements/common.txt
+    #   zaproxy
 tomli==2.0.1
     # via pytest
 tornado==6.3.2
@@ -154,6 +160,8 @@ wcwidth==0.2.6
     #   prompt-toolkit
 web-pdb==1.6.0
     # via -r /home/mateusz/PycharmProjects/multitool/requirements/dev.in
+zaproxy==0.2.0
+    # via -r /home/mateusz/PycharmProjects/multitool/requirements/common.txt
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools

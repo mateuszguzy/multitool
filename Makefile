@@ -44,6 +44,10 @@ setup s:
 	@docker compose up dvwa worker_main worker_logging flower redis -d
 	@./setup_logs.sh
 
+.PHONY: zap z
+zap z:
+	@docker compose up zap
+
 .PHONY: run r
 run r:
 	@docker compose run --rm multitool
