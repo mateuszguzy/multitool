@@ -34,6 +34,8 @@ from modules.recon.email_scraper.email_scraper import EmailScraper
 from modules.scan.port_scan.port_scan import PortScan
 from modules.task_queue.tasks import start_event_listeners
 from modules.user_interface.cli.cli_interface import CliInterface
+from modules.zap.context import create_new_context
+from modules.zap.zap_spider import start_zap_spider
 from utils.custom_dataclasses import (
     DirectoryBruteforceInput,
     ReconInput,
@@ -102,6 +104,8 @@ MOCKED_WORKFLOW = {
 }
 
 # --- MODULE PATHS
+ZAP_SPIDER_MODULE_PATH = inspect.getmodule(start_zap_spider).__name__  # type: ignore
+CONTEXT_MODULE_PATH = inspect.getmodule(create_new_context).__name__  # type: ignore
 DIRECTORY_BRUTEFORCE_MODULE_PATH = inspect.getmodule(DirectoryBruteforce).__name__  # type: ignore
 PORT_SCAN_MODULE_PATH = inspect.getmodule(PortScan).__name__  # type: ignore
 EMAIL_SCRAPER_MODULE_PATH = inspect.getmodule(EmailScraper).__name__  # type: ignore
@@ -532,6 +536,29 @@ def mock_dispatcher_workflow(mocker):
 
 
 ##########################
+#        ZAP SPIDER      #
+##########################
+@pytest.fixture(scope="function")
+def mock_zap_context(mocker):
+    return mocker.patch(f"{CONTEXT_MODULE_PATH}.zap.context")
+
+
+@pytest.fixture(scope="function")
+def mock_zap_spider(mocker):
+    return mocker.patch(f"{ZAP_SPIDER_MODULE_PATH}.zap.spider")
+
+
+@pytest.fixture(scope="function")
+def mock_log_results_in_zap_spider_module(mocker):
+    return mocker.patch(f"{ZAP_SPIDER_MODULE_PATH}.log_results")
+
+
+@pytest.fixture(scope="function")
+def mock_pass_result_event_in_zap_spider_module(mocker):
+    return mocker.patch(f"{ZAP_SPIDER_MODULE_PATH}.pass_result_event")
+
+
+##########################
 #  DIRECTORY BRUTEFORCE  #
 ##########################
 @pytest.fixture(scope="function")
@@ -703,7 +730,7 @@ def mock_store_module_results_in_database(mocker):
 
 
 @pytest.fixture(scope="function")
-def mock_log_results(mocker):
+def mock_log_results_in_email_scraper_module(mocker):
     return mocker.patch(f"{EMAIL_SCRAPER_MODULE_PATH}.log_results.delay")
 
 

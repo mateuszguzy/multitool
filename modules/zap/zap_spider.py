@@ -45,7 +45,7 @@ def start_zap_spider(
 
 def log_zap_spider_progress(scan_id: int) -> None:
     while int(zap.spider.status(scan_id)) < 100:
-        logger.debug(f"RUN::{scan_id}::{zap.spider.status(scan_id)}%")
+        logger.info(f"RUN::{scan_id}::{zap.spider.status(scan_id)}%")
         time.sleep(1)
 
 
