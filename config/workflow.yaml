@@ -15,6 +15,7 @@ workflow:
             - "steering_module"
           pass_results_to:
             - "email_scraper"
+            - "zap_spider"
 
         - name: "email_scraper"
           phase: "recon"
