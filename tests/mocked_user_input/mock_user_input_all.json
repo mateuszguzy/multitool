@@ -7,6 +7,10 @@
     "directory_bruteforce": {
       "list_size": "small",
       "recursive": false
+    },
+    "zap_spider" : {
+      "as_user": false,
+      "enhanced": false
     }
   },
   "scan": {

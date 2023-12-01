@@ -6,6 +6,7 @@ from utils.custom_dataclasses import (
     ReconInput,
     ScanInput,
     PortScanInput,
+    ZapSpiderInput,
 )
 
 
@@ -14,10 +15,20 @@ class TestSteeringModule:
     test_ports = TEST_PORTS
     # couldn't use this as a fixture ¯\_(ツ)_/¯
     test_recon_input = ReconInput(
-        DirectoryBruteforceInput(list_size="small", recursive=False)
+        ZapSpiderInput(as_user=False, enhanced=False),
+        DirectoryBruteforceInput(list_size="small", recursive=False),
+    )
+    test_single_module_directory_bruteforce_input = ReconInput(
+        ZapSpiderInput(as_user=None, enhanced=None),
+        DirectoryBruteforceInput(list_size="small", recursive=False),
+    )
+    test_single_module_zap_spider_input = ReconInput(
+        ZapSpiderInput(as_user=False, enhanced=False),
+        DirectoryBruteforceInput(list_size=None, recursive=None),
     )
     test_recon_input_empty = ReconInput(
-        DirectoryBruteforceInput(list_size=None, recursive=None)
+        ZapSpiderInput(as_user=None, enhanced=None),
+        DirectoryBruteforceInput(list_size=None, recursive=None),
     )
     test_scan_input = ScanInput(
         PortScanInput(port_scan_type="custom", ports=test_ports)  # type: ignore
@@ -30,13 +41,25 @@ class TestSteeringModule:
         "steering_module_with_input, expected_output",
         [
             (
+                pytest.lazy_fixture("steering_module_for_single_module_zap_spider_fixture"),  # type: ignore
+                {
+                    "use_type": "single_module",
+                    "phase": "recon",
+                    "module": "zap_spider",
+                    "targets": testing_targets,
+                    "recon": test_single_module_zap_spider_input,
+                    "scan": test_scan_input_empty,
+                    "output_after_every_finding": True,
+                },
+            ),
+            (
                 pytest.lazy_fixture("steering_module_for_single_module_directory_bruteforce_fixture"),  # type: ignore
                 {
                     "use_type": "single_module",
                     "phase": "recon",
                     "module": "directory_bruteforce",
                     "targets": testing_targets,
-                    "recon": test_recon_input,
+                    "recon": test_single_module_directory_bruteforce_input,
                     "scan": test_scan_input_empty,
                     "output_after_every_finding": True,
                 },

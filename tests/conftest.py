@@ -42,9 +42,13 @@ from utils.custom_dataclasses import (
     ScanInput,
     StartModuleEvent,
     ResultEvent,
+    ZapSpiderInput,
 )
 
 # --- MOCKED INPUT PATHS
+MOCK_USER_INPUT_SINGLE_MODULE_ZAP_SPIDER = (
+    f"{TESTS_MOCKED_INPUT_DIR}/mock_user_input_single_module_zap_spider.json"
+)
 MOCK_USER_INPUT_SINGLE_MODULE_DIRECTORY_BRUTEFORCE = (
     f"{TESTS_MOCKED_INPUT_DIR}/mock_user_input_single_module_directory_bruteforce.json"
 )
@@ -127,6 +131,11 @@ def convert_user_input_to_dataclass(path: str) -> UserInput:
         .get("recursive"),
     )
 
+    zap_spider_input = ZapSpiderInput(
+        as_user=user_input_dict.get("recon").get("zap_spider").get("as_user"),
+        enhanced=user_input_dict.get("recon").get("zap_spider").get("enhanced"),
+    )
+
     port_scan_input = PortScanInput(
         ports=set(user_input_dict.get("scan").get("port_scan").get("ports")),
         port_scan_type=user_input_dict.get("scan")
@@ -139,7 +148,7 @@ def convert_user_input_to_dataclass(path: str) -> UserInput:
         phase=user_input_dict.get("phase"),
         module=user_input_dict.get("module"),
         targets=set(user_input_dict.get("targets")),
-        recon=ReconInput(directory_bruteforce_input),
+        recon=ReconInput(zap_spider_input, directory_bruteforce_input),
         scan=ScanInput(port_scan_input),
         output_after_every_finding=True,
     )
@@ -214,6 +223,14 @@ def setup_event_listeners_fixture():
 ##########################
 #     STEERING MODULE    #
 ##########################
+# used by 'lazy_fixture' that why 'usages' are not counted
+@pytest.fixture(scope="class")
+def steering_module_for_single_module_zap_spider_fixture():
+    return create_steering_module_instance_with_user_input(
+        MOCK_USER_INPUT_SINGLE_MODULE_ZAP_SPIDER
+    )
+
+
 # used by 'lazy_fixture' that why 'usages' are not counted
 @pytest.fixture(scope="class")
 def steering_module_for_single_module_directory_bruteforce_fixture():
