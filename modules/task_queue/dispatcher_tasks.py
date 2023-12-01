@@ -4,15 +4,74 @@ from config.settings import (
     task_queue_logger,
     DIRECTORY_BRUTEFORCE,
     PORT_SCAN,
+    STEERING_MODULE,
+    ZAP_SPIDER,
+    REDIS_USER_INPUT_KEY,
+    REDIS_USER_TYPE_KEY,
 )
 from utils.custom_dataclasses import (
     DirectoryBruteforceInput,
     PortScanInput,
     StartModuleEvent,
+    ZapSpiderInput,
 )
-from utils.utils import withdraw_input_from_db, expression_is_true
+from utils.utils import (
+    withdraw_input_from_db,
+    expression_is_true,
+    withdraw_single_data_from_db,
+)
 
 logger = task_queue_logger
+
+
+def run_zap_spider_task(event: StartModuleEvent) -> None:
+    from modules.zap.zap_spider import start_zap_spider
+
+    use_type = withdraw_single_data_from_db(
+        key=f"{REDIS_USER_INPUT_KEY}{REDIS_USER_TYPE_KEY}*"
+    )
+    input_dict = withdraw_input_from_db(module=ZAP_SPIDER)
+    zap_spider_input = ZapSpiderInput(
+        as_user=expression_is_true(
+            expression=input_dict.get("as_user", False)[0].decode("utf-8")
+        ),
+        enhanced=expression_is_true(
+            expression=input_dict.get("enhanced", False)[0].decode("utf-8")
+        ),
+    )
+    # case when only zap spider is run
+    if (
+        use_type == "single_module"
+        and STEERING_MODULE in event.source_module
+        and zap_spider_input.enhanced is True
+    ):
+        logger.debug(f"START::zap_spider::single::enhanced::{event.target}")
+        start_zap_spider(target_url=event.target, as_user=zap_spider_input.as_user)
+        run_directory_bruteforce_task(event=event)
+
+    # case when all modules or whole recon phase is run
+    # and results are passed from directory bruteforce
+    elif (
+        DIRECTORY_BRUTEFORCE in event.source_module
+        and zap_spider_input.enhanced is True
+    ):
+        logger.debug(
+            f"START::zap_spider::after_result::enhanced::{event.target}{event.result}"
+        )
+        # in case of single spider ZAP is ignoring the context ¯\_(ツ)_/¯
+        # in this case only new spider for different URL can be run
+        start_zap_spider(
+            target_url=f"{event.target}{event.result}", as_user=zap_spider_input.as_user
+        )
+
+    # case when all modules, whole recon phase or only not enhanced zap spider is run
+    else:
+        logger.debug(
+            f"START::zap_spider::all::phase::single::not_enhanced::{event.target}"
+        )
+        # deliberately run twice to make sure that all the links are discovered
+        start_zap_spider(target_url=event.target, as_user=zap_spider_input.as_user)
+        start_zap_spider(target_url=event.target, as_user=zap_spider_input.as_user)
 
 
 def run_directory_bruteforce_task(event: StartModuleEvent):

@@ -1,27 +1,32 @@
 import pytest
 
 from utils.utils import (
-    convert_list_or_set_to_dict, url_formatter, clean_and_validate_input_ports,
+    convert_list_or_set_to_dict,
+    url_formatter,
+    clean_and_validate_input_ports,
 )
 
 
 class TestUrlFormatter:
     directory_bruteforce = "directory_bruteforce"
     port_scan = "port_scan"
-    expected_url_1 = "http://example.com/"
+    expected_url_1 = "http://example.com"
     expected_url_2 = "example.com"
     expected_url_3 = "www.example.com"
 
     @pytest.mark.parametrize(
         "url, expected_output",
         [
-            ("example", "http://example/"),
+            ("example", "http://example"),
             ("example.com", expected_url_1),
             ("http://example.com", expected_url_1),
         ],
     )
     def test_directory_bruteforce_url_formatting(self, url, expected_output):
-        assert url_formatter(input_target=url, module=self.directory_bruteforce) == expected_output
+        assert (
+            url_formatter(input_target=url, module=self.directory_bruteforce)
+            == expected_output
+        )
 
     @pytest.mark.parametrize(
         "url, expected_output",
@@ -41,6 +46,7 @@ class TestCleanAndValidateInputPorts:
     """
     Test clean_and_validate_input_ports function.
     """
+
     @pytest.mark.parametrize(
         "input_ports, expected_output",
         [

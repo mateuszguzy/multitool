@@ -1,5 +1,5 @@
 import uuid
-from typing import Set
+from typing import Set, Tuple
 
 from config.settings import (
     AVAILABLE_FUNCTIONALITY,
@@ -8,10 +8,15 @@ from config.settings import (
     SCAN_PHASE_MODULES,
     ALL_MODULES,
     GAIN_ACCESS_PHASE_MODULES,
+    CURRENT_DATE,
+    REDIS_ZAP_CONTEXT_ID_KEY,
+    REDIS_ZAP_CONTEXT_NAME_KEY,
 )
 from modules.task_queue.tasks import start_module_event
+from modules.zap.context import create_new_context, include_in_context
 from utils.abstracts_classes import AbstractModule
 from utils.custom_dataclasses import ReconInput, UserInput, ScanInput, StartModuleEvent
+from utils.utils import store_single_data_in_db
 
 logger = steering_module_logger
 
@@ -33,6 +38,8 @@ class SteeringModule(AbstractModule):
         """
         First function to run after user input is passed. Defines app top level behaviour.
         """
+        self.context_setup()
+
         if self.use_type == "all":
             self._run_all()
 
@@ -134,3 +141,38 @@ class SteeringModule(AbstractModule):
         self.output_after_every_finding = getattr(
             user_input, "output_after_every_finding"
         )
+
+    def context_setup(self) -> None:
+        """
+        Function responsible for setting up context for ZAP and storing relevant data in the database.
+        """
+        context_id, context_name = self._handle_context_creation()
+        self._add_targets_to_context(context_name=context_name)
+        self._store_context_data_in_database(
+            context_id=context_id, context_name=context_name
+        )
+
+    @staticmethod
+    def _handle_context_creation() -> Tuple[int, str]:
+        """
+        Function responsible for creating context for ZAP.
+        """
+        context_name = f"{CURRENT_DATE}_{uuid.uuid4()}"
+        context_id = create_new_context(context_name=context_name)
+
+        return context_id, context_name
+
+    def _add_targets_to_context(self, context_name: str) -> None:
+        """
+        Function responsible for adding targets to context for ZAP.
+        """
+        for target in self.targets:
+            include_in_context(target=target, context_name=context_name)
+
+    @staticmethod
+    def _store_context_data_in_database(context_id: int, context_name: str) -> None:
+        """
+        Store context data in Redis database for later use.
+        """
+        store_single_data_in_db(data={f"{REDIS_ZAP_CONTEXT_ID_KEY}1": str(context_id)})
+        store_single_data_in_db(data={f"{REDIS_ZAP_CONTEXT_NAME_KEY}1": context_name})

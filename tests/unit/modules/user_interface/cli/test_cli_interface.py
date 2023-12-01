@@ -29,9 +29,11 @@ class TestCliInterface:
     questionary_prompt_path = "modules.user_interface.cli.cli_interface.prompt"
     directory_bruteforce_expected_module = "recon|directory_bruteforce"
     email_scraper_expected_module = "recon|email_scraper"
+    zap_spider_expected_module = "recon|zap_spider"
     port_scan_expected_module = "scan|port_scan"
     lfi_expected_module = "gain_access|lfi"
     recon_phase_expected_modules = {
+        zap_spider_expected_module,
         directory_bruteforce_expected_module,
         email_scraper_expected_module,
     }

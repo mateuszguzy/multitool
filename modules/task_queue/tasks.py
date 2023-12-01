@@ -20,6 +20,7 @@ from modules.core.dispatcher.dispatcher import Dispatcher
 from modules.network.request_manager.request_manager import RequestManager
 from modules.network.socket_manager.socket_manager import SocketManager
 from modules.task_queue.celery import app, BaseCeleryTaskClass
+from modules.zap.zap import zap
 from utils.custom_dataclasses import StartModuleEvent, ResultEvent
 from utils.custom_serializers.result_event_serializer import (
     result_event_encoder,
@@ -189,7 +190,19 @@ def event_listener_task(module: str) -> None:
 
 def running_tasks_left() -> bool:
     # TODO: maybe this can be done better ?
-    while True:
+    scans_running = True
+    tasks_running = True
+
+    while scans_running:
+        if all([scan["state"] == "FINISHED" for scan in zap.spider.scans]):
+            logger.debug("CLOSING::no zap spiders running")
+            scans_running = False
+        else:
+            logger.debug("FOUND::zap spiders running")
+
+        time.sleep(1)
+
+    while tasks_running:
         active_workers = [
             worker for worker in app.control.inspect().reserved().values()
         ]
@@ -212,7 +225,10 @@ def running_tasks_left() -> bool:
 
             if len(active_tasks) == listener_tasks_running:
                 logger.debug("CLOSING::Only listener tasks left")
-                return False
+                tasks_running = False
+        time.sleep(1)
+
+    return False
 
 
 def start_event_listeners(output_after_every_finding: bool) -> None:

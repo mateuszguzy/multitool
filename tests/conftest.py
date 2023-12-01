@@ -34,6 +34,8 @@ from modules.recon.email_scraper.email_scraper import EmailScraper
 from modules.scan.port_scan.port_scan import PortScan
 from modules.task_queue.tasks import start_event_listeners
 from modules.user_interface.cli.cli_interface import CliInterface
+from modules.zap.context import create_new_context
+from modules.zap.zap_spider import start_zap_spider
 from utils.custom_dataclasses import (
     DirectoryBruteforceInput,
     ReconInput,
@@ -42,9 +44,13 @@ from utils.custom_dataclasses import (
     ScanInput,
     StartModuleEvent,
     ResultEvent,
+    ZapSpiderInput,
 )
 
 # --- MOCKED INPUT PATHS
+MOCK_USER_INPUT_SINGLE_MODULE_ZAP_SPIDER = (
+    f"{TESTS_MOCKED_INPUT_DIR}/mock_user_input_single_module_zap_spider.json"
+)
 MOCK_USER_INPUT_SINGLE_MODULE_DIRECTORY_BRUTEFORCE = (
     f"{TESTS_MOCKED_INPUT_DIR}/mock_user_input_single_module_directory_bruteforce.json"
 )
@@ -98,6 +104,8 @@ MOCKED_WORKFLOW = {
 }
 
 # --- MODULE PATHS
+ZAP_SPIDER_MODULE_PATH = inspect.getmodule(start_zap_spider).__name__  # type: ignore
+CONTEXT_MODULE_PATH = inspect.getmodule(create_new_context).__name__  # type: ignore
 DIRECTORY_BRUTEFORCE_MODULE_PATH = inspect.getmodule(DirectoryBruteforce).__name__  # type: ignore
 PORT_SCAN_MODULE_PATH = inspect.getmodule(PortScan).__name__  # type: ignore
 EMAIL_SCRAPER_MODULE_PATH = inspect.getmodule(EmailScraper).__name__  # type: ignore
@@ -127,6 +135,11 @@ def convert_user_input_to_dataclass(path: str) -> UserInput:
         .get("recursive"),
     )
 
+    zap_spider_input = ZapSpiderInput(
+        as_user=user_input_dict.get("recon").get("zap_spider").get("as_user"),
+        enhanced=user_input_dict.get("recon").get("zap_spider").get("enhanced"),
+    )
+
     port_scan_input = PortScanInput(
         ports=set(user_input_dict.get("scan").get("port_scan").get("ports")),
         port_scan_type=user_input_dict.get("scan")
@@ -139,7 +152,7 @@ def convert_user_input_to_dataclass(path: str) -> UserInput:
         phase=user_input_dict.get("phase"),
         module=user_input_dict.get("module"),
         targets=set(user_input_dict.get("targets")),
-        recon=ReconInput(directory_bruteforce_input),
+        recon=ReconInput(zap_spider_input, directory_bruteforce_input),
         scan=ScanInput(port_scan_input),
         output_after_every_finding=True,
     )
@@ -214,6 +227,14 @@ def setup_event_listeners_fixture():
 ##########################
 #     STEERING MODULE    #
 ##########################
+# used by 'lazy_fixture' that why 'usages' are not counted
+@pytest.fixture(scope="class")
+def steering_module_for_single_module_zap_spider_fixture():
+    return create_steering_module_instance_with_user_input(
+        MOCK_USER_INPUT_SINGLE_MODULE_ZAP_SPIDER
+    )
+
+
 # used by 'lazy_fixture' that why 'usages' are not counted
 @pytest.fixture(scope="class")
 def steering_module_for_single_module_directory_bruteforce_fixture():
@@ -515,6 +536,29 @@ def mock_dispatcher_workflow(mocker):
 
 
 ##########################
+#        ZAP SPIDER      #
+##########################
+@pytest.fixture(scope="function")
+def mock_zap_context(mocker):
+    return mocker.patch(f"{CONTEXT_MODULE_PATH}.zap.context")
+
+
+@pytest.fixture(scope="function")
+def mock_zap_spider(mocker):
+    return mocker.patch(f"{ZAP_SPIDER_MODULE_PATH}.zap.spider")
+
+
+@pytest.fixture(scope="function")
+def mock_log_results_in_zap_spider_module(mocker):
+    return mocker.patch(f"{ZAP_SPIDER_MODULE_PATH}.log_results")
+
+
+@pytest.fixture(scope="function")
+def mock_pass_result_event_in_zap_spider_module(mocker):
+    return mocker.patch(f"{ZAP_SPIDER_MODULE_PATH}.pass_result_event")
+
+
+##########################
 #  DIRECTORY BRUTEFORCE  #
 ##########################
 @pytest.fixture(scope="function")
@@ -686,7 +730,7 @@ def mock_store_module_results_in_database(mocker):
 
 
 @pytest.fixture(scope="function")
-def mock_log_results(mocker):
+def mock_log_results_in_email_scraper_module(mocker):
     return mocker.patch(f"{EMAIL_SCRAPER_MODULE_PATH}.log_results.delay")
 
 
