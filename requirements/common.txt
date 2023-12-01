@@ -60,7 +60,7 @@ six==1.16.0
     # via zaproxy
 tornado==6.3.2
     # via flower
-urllib3==1.26.17
+urllib3==1.26.18
     # via
     #   -r /home/mateusz/PycharmProjects/multitool/requirements/common.in
     #   requests
