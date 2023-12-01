@@ -9,10 +9,10 @@ logger = steering_module_logger
 
 def create_new_context(context_name: str) -> int:
     try:
+        logger.info(f"CREATING::CONTEXT::{context_name}")
         zap.context.new_context(context_name)
         context = get_context(context_name)
         context_id = context.get("id")
-        logger.info(f"CREATED::CONTEXT::{context_name}")
 
         return context_id if context_id else None
 
@@ -33,8 +33,8 @@ def include_in_context(target: str, context_name: str) -> None:
 
     if not target_in_included_regexs(target=include_url, context=context):
         try:
+            logger.info(f"INCLUDING::CONTEXT::{include_url}")
             zap.context.include_in_context(context_name, include_url)
-            logger.info(f"INCLUDED::CONTEXT::{include_url}")
         except Exception as e:
             logger.error(f"CONTEXT::{include_url}::{e}")
 
@@ -43,15 +43,18 @@ def include_in_context(target: str, context_name: str) -> None:
 
 
 def exclude_from_context(targets: List[str], context_name: str) -> None:
+    context = get_context(context_name)
+
     for target in targets:
-        if not target_in_excluded_regexs(
-            target=target, context=get_context(context_name)
-        ):
+        if not target_in_excluded_regexs(target=target, context=context):
             try:
+                logger.info(f"EXCLUDING::CONTEXT::{target}")
                 zap.context.exclude_from_context(context_name, target)
-                logger.info(f"EXCLUDED::CONTEXT::{target}")
             except Exception as e:
                 logger.error(f"CONTEXT::{target}::{e}")
+
+        else:
+            logger.warning(f"CONTEXT::{target}::Already excluded from context")
 
 
 def target_in_included_regexs(target: str, context: dict) -> bool:
@@ -75,7 +78,6 @@ def target_in_excluded_regexs(target: str, context: dict) -> bool:
 
     for regex in included_regexs:
         if target in regex:
-            logger.warning(f"CONTEXT::{target}::Already excluded from context")
             return True
 
     return False
