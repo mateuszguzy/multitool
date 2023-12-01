@@ -4,6 +4,12 @@ from uuid import UUID
 
 
 @dataclass
+class ZapSpiderInput:
+    as_user: Optional[bool]
+    enhanced: Optional[bool]
+
+
+@dataclass
 class DirectoryBruteforceInput:
     list_size: Optional[str]
     recursive: Optional[bool]
@@ -17,6 +23,7 @@ class PortScanInput:
 
 @dataclass
 class ReconInput:
+    zap_spider: ZapSpiderInput
     directory_bruteforce: DirectoryBruteforceInput
 
 

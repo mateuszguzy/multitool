@@ -23,10 +23,7 @@ def url_formatter(input_target: str, module: Optional[str] = None) -> str:
 
     if not url.scheme and url.path:
         path = url.path
-        url = url._replace(netloc=path, path="/", scheme="http")
-
-    if not url.path:
-        url = url._replace(path="/")
+        url = url._replace(netloc=path, path="", scheme="http")
 
     if module == "port_scan":
         if url.scheme:
@@ -183,3 +180,19 @@ def extract_passwd_file_content_from_web_response(response: str) -> List[str]:
     Extracts the content of the passwd file from the response.
     """
     return response.split("<!DOCTYPE")[0].strip().split()
+
+
+def store_single_data_in_db(data: dict) -> None:
+    """
+    Stores the data in the database.
+    """
+    with RedisClient() as rc:
+        rc.mset(data)
+
+
+def withdraw_single_data_from_db(key: str) -> str:
+    """
+    Withdraws the data from the database.
+    """
+    with RedisClient() as rc:
+        return rc.mget(rc.keys(key))[0].decode("utf-8")

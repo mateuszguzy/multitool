@@ -19,6 +19,9 @@ from config.settings import (
     REDIS_PORT_SCAN_TYPE_KEY,
     REDIS_PORT_SCAN_PORTS,
     GAIN_ACCESS_PHASE_MODULES,
+    REDIS_ZAP_SPIDER_INPUT_KEY,
+    REDIS_ZAP_SPIDER_AS_USER_KEY,
+    REDIS_ZAP_SPIDER_ENHANCED_KEY,
 )
 from modules.helper.redis_client import RedisClient
 from utils.abstracts_classes import AbstractModule
@@ -28,6 +31,7 @@ from utils.custom_dataclasses import (
     UserInput,
     ScanInput,
     PortScanInput,
+    ZapSpiderInput,
 )
 from utils.utils import (
     convert_list_or_set_to_dict,
@@ -45,6 +49,7 @@ class CliInterface(AbstractModule):
     use_type: str
     output_after_every_finding: bool
     questions: List[dict] = list()
+    choose_module_message: str = "Choose Module to execute:"
 
     def __init__(self):
         super().__init__()
@@ -83,6 +88,9 @@ class CliInterface(AbstractModule):
         https://questionary.readthedocs.io/en/stable/pages/advanced.html#create-questions-from-dictionaries
         """
         return [
+            ##########################
+            #         GENERAL        #
+            ##########################
             {
                 "type": "select",
                 "name": "use_type",
@@ -117,7 +125,7 @@ class CliInterface(AbstractModule):
             {
                 "type": "select",
                 "name": "module",
-                "message": "Choose Module to execute:",
+                "message": self.choose_module_message,
                 "choices": RECON_PHASE_MODULES,
                 "default": "directory_bruteforce",
                 "when": lambda answers: self.single_module_from_recon_phase_is_executed(
@@ -127,7 +135,7 @@ class CliInterface(AbstractModule):
             {
                 "type": "select",
                 "name": "module",
-                "message": "Choose Module to execute:",
+                "message": self.choose_module_message,
                 "choices": SCAN_PHASE_MODULES,
                 "default": "port_scan",
                 "when": lambda answers: self.single_module_from_scan_phase_is_executed(
@@ -137,13 +145,33 @@ class CliInterface(AbstractModule):
             {
                 "type": "select",
                 "name": "module",
-                "message": "Choose Module to execute:",
+                "message": self.choose_module_message,
                 "choices": GAIN_ACCESS_PHASE_MODULES,
                 "default": "lfi",
                 "when": lambda answers: self.single_module_from_gain_access_phase_is_executed(
                     answers=answers
                 ),
             },
+            ##########################
+            #        ZAP SPIDER      #
+            ##########################
+            {
+                "type": "confirm",
+                "name": "zap_spider_enhanced",
+                "message": "Enhance spider functionality with results from directory bruteforce module?",
+                "default": False,
+                "when": lambda answers: self.zap_spider_is_executed(answers=answers),
+            },
+            {
+                "type": "confirm",
+                "name": "zap_spider_as_user",
+                "message": "Run spider as user? (DVWA only)",
+                "default": False,
+                "when": lambda answers: self.zap_spider_is_executed(answers=answers),
+            },
+            ##########################
+            #  DIRECTORY BRUTEFORCE  #
+            ##########################
             {
                 "type": "select",
                 "name": "directory_bruteforce_list_size",
@@ -163,6 +191,9 @@ class CliInterface(AbstractModule):
                     answers=answers
                 ),
             },
+            ##########################
+            #        PORT SCAN       #
+            ##########################
             {
                 "type": "select",
                 "name": "port_scan_type",
@@ -180,6 +211,9 @@ class CliInterface(AbstractModule):
                 ),
                 "validate": lambda val: self.validate_ports_to_scan(ports_to_scan=val),
             },
+            ##########################
+            #         OUTPUT         #
+            ##########################
             {
                 "type": "confirm",
                 "name": "output_after_every_finding",
@@ -234,6 +268,33 @@ class CliInterface(AbstractModule):
             return False
 
     @staticmethod
+    def zap_spider_is_executed(answers: dict) -> bool:
+        """
+        Check if zap spider is executed in current run by checking which modules are used.
+        """
+        if "use_type" in answers and answers["use_type"] == "all":
+            return True
+
+        elif (
+            "use_type" in answers
+            and answers["use_type"] == "single_phase"
+            and "phase" in answers
+            and answers["phase"] == "recon"
+        ):
+            return True
+
+        elif (
+            "phase" in answers
+            and answers["phase"] == "recon"
+            and "module" in answers
+            and answers["module"] == "zap_spider"
+        ):
+            return True
+
+        else:
+            return False
+
+    @staticmethod
     def directory_bruteforce_is_executed(answers: dict) -> bool:
         """
         Check if directory bruteforce is executed in current run by checking which modules are used.
@@ -254,6 +315,14 @@ class CliInterface(AbstractModule):
             and answers["phase"] == "recon"
             and "module" in answers
             and answers["module"] == "directory_bruteforce"
+        ):
+            return True
+
+        elif (
+            "module" in answers
+            and answers["module"] == "zap_spider"
+            and "zap_spider_enhanced" in answers
+            and answers["zap_spider_enhanced"] is True
         ):
             return True
 
@@ -333,7 +402,10 @@ class CliInterface(AbstractModule):
         directory_bruteforce_input = self.aggregate_directory_bruteforce_data(
             answers=answers
         )
-        return ReconInput(directory_bruteforce=directory_bruteforce_input)
+        zap_spider_input = self.aggregate_zap_spider_data(answers=answers)
+        return ReconInput(
+            directory_bruteforce=directory_bruteforce_input, zap_spider=zap_spider_input
+        )
 
     def aggregate_scan_phase_data(self, answers: dict) -> ScanInput:
         """
@@ -341,6 +413,16 @@ class CliInterface(AbstractModule):
         """
         port_scan_input = self.aggregate_port_scan_data(answers=answers)
         return ScanInput(port_scan=port_scan_input)
+
+    @staticmethod
+    def aggregate_zap_spider_data(answers: dict) -> ZapSpiderInput:
+        """
+        Aggregate zap spider data from user input and return it in form of dictionary.
+        """
+        return ZapSpiderInput(
+            as_user=answers.get("zap_spider_as_user", None),
+            enhanced=answers.get("zap_spider_enhanced", None),
+        )
 
     @staticmethod
     def aggregate_directory_bruteforce_data(answers: dict) -> DirectoryBruteforceInput:
@@ -438,6 +520,20 @@ class CliInterface(AbstractModule):
             ####################################
             #               RECON              #
             ####################################
+            rc.mset(
+                {
+                    f"{REDIS_ZAP_SPIDER_INPUT_KEY}"
+                    f"{REDIS_ZAP_SPIDER_AS_USER_KEY}"
+                    + "1": str(recon_phase_input.zap_spider.as_user)
+                }
+            )
+            rc.mset(
+                {
+                    f"{REDIS_ZAP_SPIDER_INPUT_KEY}"
+                    f"{REDIS_ZAP_SPIDER_ENHANCED_KEY}"
+                    + "1": str(recon_phase_input.zap_spider.enhanced)
+                }
+            )
             rc.mset(
                 {
                     f"{REDIS_DIRECTORY_BRUTEFORCE_INPUT_KEY}"
