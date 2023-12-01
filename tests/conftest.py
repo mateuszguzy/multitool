@@ -462,18 +462,48 @@ def mock_dispatcher_interpret_result_event_function(mocker):
 
 
 @pytest.fixture(scope="function")
+def mock_dispatcher_module_mapper_with_directory_bruteforce_task(
+    mocker, mock_dispatcher_directory_bruteforce_task
+):
+    return mocker.patch.dict(
+        f"{DISPATCHER_MODULE_PATH}.module_mapper",
+        {DIRECTORY_BRUTEFORCE: mock_dispatcher_directory_bruteforce_task},
+    )
+
+
+@pytest.fixture(scope="function")
 def mock_dispatcher_directory_bruteforce_task(mocker):
-    return mocker.patch(f"{DISPATCHER_MODULE_PATH}.run_directory_bruteforce_task.delay")
+    return mocker.patch(f"{DISPATCHER_MODULE_PATH}.run_directory_bruteforce_task")
+
+
+@pytest.fixture(scope="function")
+def mock_dispatcher_module_mapper_with_email_scraper_task(
+    mocker, mock_dispatcher_email_scraper_task
+):
+    return mocker.patch.dict(
+        f"{DISPATCHER_MODULE_PATH}.module_mapper",
+        {EMAIL_SCRAPER: mock_dispatcher_email_scraper_task},
+    )
 
 
 @pytest.fixture(scope="function")
 def mock_dispatcher_email_scraper_task(mocker):
-    return mocker.patch(f"{DISPATCHER_MODULE_PATH}.run_email_scraper_task.delay")
+    return mocker.patch(f"{DISPATCHER_MODULE_PATH}.run_email_scraper_task")
+
+
+@pytest.fixture(scope="function")
+def mock_dispatcher_module_mapper_with_port_scan_task(
+    mocker, mock_dispatcher_port_scan_task
+):
+    return mocker.patch.dict(
+        f"{DISPATCHER_MODULE_PATH}.module_mapper",
+        {PORT_SCAN: mock_dispatcher_port_scan_task},
+    )
 
 
 @pytest.fixture(scope="function")
 def mock_dispatcher_port_scan_task(mocker):
-    return mocker.patch(f"{DISPATCHER_MODULE_PATH}.run_port_scan_task.delay")
+    return mocker.patch(f"{DISPATCHER_MODULE_PATH}.run_port_scan_task")
 
 
 @pytest.fixture(scope="function")
