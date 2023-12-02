@@ -1,4 +1,3 @@
-import pdb
 import sys
 import uuid
 
@@ -8,7 +7,7 @@ from config.settings import steering_module_logger
 from modules.core.steering_module.steering_module import SteeringModule
 from modules.task_queue.tasks import (
     stop_listener_tasks,
-    running_tasks_left,
+    background_jobs_still_running,
     start_event_listeners,
     pass_result_event,
 )
@@ -47,10 +46,10 @@ def main():
         steering_module = SteeringModule(user_input=user_input)
         steering_module.run()
 
-        # wait for all tasks to finish before logging results
+        # wait for all background jobs to finish before logging results
         tasks_running = True
         while tasks_running:
-            tasks_running = running_tasks_left()
+            tasks_running = background_jobs_still_running()
 
         pass_result_event.delay(
             event=ResultEvent(

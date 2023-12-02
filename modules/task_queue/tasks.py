@@ -15,12 +15,13 @@ from config.settings import (
     PUBSUB_RESULTS_CHANNEL_NAME,
     STEERING_MODULE,
     GET_REQUEST_TIMEOUT,
+    SECONDS_TO_WAIT_FOR_MESSAGES_BEFORE_CLOSING,
+    PUBSUB_LAST_MESSAGE_TIME_KEY,
 )
 from modules.core.dispatcher.dispatcher import Dispatcher
 from modules.network.request_manager.request_manager import RequestManager
 from modules.network.socket_manager.socket_manager import SocketManager
 from modules.task_queue.celery import app, BaseCeleryTaskClass
-from modules.zap.zap import zap
 from utils.custom_dataclasses import StartModuleEvent, ResultEvent
 from utils.custom_serializers.result_event_serializer import (
     result_event_encoder,
@@ -30,7 +31,11 @@ from utils.custom_serializers.start_module_event_serializer import (
     start_module_event_encoder,
     start_module_event_data_load,
 )
-from utils.utils import get_logger
+from utils.utils import (
+    get_logger,
+    pull_single_value_from_db,
+    save_message_time,
+)
 
 logger = task_queue_logger
 
@@ -164,6 +169,7 @@ def live_results_listener_task():
 
     for result in pubsub.listen():
         if result["type"] == "message":
+            save_message_time()
             event = result_event_data_load(result["data"].decode())
             logger.debug(f"RECEIVED::{task_id}::{event.id}")
             # TODO add check of user input "show result after every finding"
@@ -182,27 +188,49 @@ def event_listener_task(module: str) -> None:
 
     for result in pubsub.listen():
         if result["type"] == "message":
+            save_message_time()
             event = start_module_event_data_load(result["data"].decode())
             logger.debug(f"RECEIVED::{task_id}::{event.id}")
             dispatcher = Dispatcher(event=event)
             dispatcher.run()
 
 
-def running_tasks_left() -> bool:
-    # TODO: maybe this can be done better ?
-    scans_running = True
+def background_jobs_still_running() -> bool:
     tasks_running = True
+    messages_still_passed = True
 
-    while scans_running:
-        if all([scan["state"] == "FINISHED" for scan in zap.spider.scans]):
-            logger.debug("CLOSING::no zap spiders running")
-            scans_running = False
-        else:
-            logger.debug("FOUND::zap spiders running")
+    # wait for messages to be passed
+    # (when single module is run this part can be reached before any message is passed)
+    time.sleep(5)
 
-        time.sleep(1)
+    while messages_still_passed:
+        messages_still_passed = pubsub_still_active()
 
     while tasks_running:
+        tasks_running = check_tasks_running()
+
+    return False
+
+
+def pubsub_still_active():
+    last_message_time = float(
+        pull_single_value_from_db(f"{PUBSUB_LAST_MESSAGE_TIME_KEY}")
+    )
+
+    if (last_message_time + SECONDS_TO_WAIT_FOR_MESSAGES_BEFORE_CLOSING) < time.time():
+        logger.debug(
+            f"CLOSING::No messages received in last {SECONDS_TO_WAIT_FOR_MESSAGES_BEFORE_CLOSING} seconds"
+        )
+        return False
+
+    time.sleep(1)
+
+
+def check_tasks_running() -> bool:
+    # TODO: maybe this can be done better ?
+    condition = True
+
+    while condition:
         active_workers = [
             worker for worker in app.control.inspect().reserved().values()
         ]
@@ -225,7 +253,8 @@ def running_tasks_left() -> bool:
 
             if len(active_tasks) == listener_tasks_running:
                 logger.debug("CLOSING::Only listener tasks left")
-                tasks_running = False
+                condition = False
+
         time.sleep(1)
 
     return False
