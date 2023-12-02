@@ -21,9 +21,12 @@ app = Celery(
     include=["modules.task_queue.tasks"],
 )
 
-# new queue for task 'log_results' to avoid being blocked by other tasks
 app.conf.task_routes = {
     "modules.task_queue.tasks.log_results": {"queue": "log_results"},
+    "modules.task_queue.tasks.pass_result_event": {"queue": "events_queue"},
+    "modules.task_queue.tasks.start_module_event": {"queue": "events_queue"},
+    "modules.task_queue.tasks.live_results_listener_task": {"queue": "events_queue"},
+    "modules.task_queue.tasks.event_listener_task": {"queue": "events_queue"},
 }
 
 logger = task_queue_logger

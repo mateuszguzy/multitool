@@ -41,7 +41,7 @@ build b:
 .PHONY: setup s
 setup s:
 	@#docker compose up dvwa worker flower redis #-d
-	@docker compose up dvwa worker_main worker_logging flower redis -d
+	@docker compose up dvwa worker_main worker_logging worker_events flower redis -d
 	@./setup_logs.sh
 
 .PHONY: zap z

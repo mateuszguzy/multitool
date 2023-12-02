@@ -13,6 +13,7 @@ services:
       - redis
       - worker_main
       - worker_logging
+      - worker_events
     env_file:
       - .env
     command: python main.py
@@ -51,6 +52,18 @@ services:
     build: .
     entrypoint: celery
     command: -A modules.task_queue.celery -b "redis://${REDIS_HOST}:${REDIS_PORT}/${REDIS_DB}" --result-backend "redis://${REDIS_HOST}:${REDIS_PORT}/${REDIS_DB}" worker -Q log_results
+    depends_on:
+      - redis
+    volumes:
+      - type: bind
+        source: ./logs
+        target: /app/logs
+
+  worker_events:
+    restart: unless-stopped
+    build: .
+    entrypoint: celery
+    command: -A modules.task_queue.celery -b "redis://${REDIS_HOST}:${REDIS_PORT}/${REDIS_DB}" --result-backend "redis://${REDIS_HOST}:${REDIS_PORT}/${REDIS_DB}" worker -Q events_queue
     depends_on:
       - redis
     volumes:
