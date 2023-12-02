@@ -1,3 +1,4 @@
+import time
 import traceback
 from logging import Logger
 from typing import Set, List, Optional
@@ -10,6 +11,7 @@ from config.settings import (
     REDIS_USER_INPUT_KEY,
     DB_INPUT_MODULE_MAPPER,
     LOGGERS_MAPPER,
+    PUBSUB_LAST_MESSAGE_TIME_KEY,
 )
 from modules.helper.redis_client import RedisClient
 
@@ -190,9 +192,33 @@ def store_single_data_in_db(data: dict) -> None:
         rc.mset(data)
 
 
+def put_single_value_in_db(key, value):
+    """
+    Puts single key data in the database.
+    """
+    with RedisClient() as rc:
+        rc.set(name=key, value=value)
+
+
+def pull_single_value_from_db(key: str) -> str:
+    """
+    Pulls single key data from the database.
+    """
+    with RedisClient() as rc:
+        return rc.get(key).decode("utf-8")
+
+
 def withdraw_single_data_from_db(key: str) -> str:
     """
     Withdraws the data from the database.
     """
     with RedisClient() as rc:
         return rc.mget(rc.keys(key))[0].decode("utf-8")
+
+
+def save_message_time():
+    """
+    Saves the time of the last message received from the broker.
+    Used to check if the broker is still alive.
+    """
+    put_single_value_in_db(f"{PUBSUB_LAST_MESSAGE_TIME_KEY}", str(time.time()))

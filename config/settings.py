@@ -15,6 +15,7 @@ NUMBER_OF_AVAILABLE_CPU_CORES = multiprocessing.cpu_count() + 2
 CURRENT_DATE = datetime.datetime.utcnow().strftime("%Y%m%d")
 MAX_RECURSION_DEPTH = 6
 GET_REQUEST_TIMEOUT = 5
+SECONDS_TO_WAIT_FOR_MESSAGES_BEFORE_CLOSING = 5
 
 # --- DIRECTORIES
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -121,6 +122,7 @@ REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
 CELERY_BROKER_BACKEND = os.getenv("CELERY_BROKER_BACKEND")
 PUBSUB_RESULTS_CHANNEL_NAME = "results"
+PUBSUB_LAST_MESSAGE_TIME_KEY = "last_message_time"
 REDIS_USER_INPUT_KEY = "user_input|"
 REDIS_TARGETS_KEY = "targets|"
 REDIS_MODULES_KEY = "modules|"
