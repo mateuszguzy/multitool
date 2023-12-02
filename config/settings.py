@@ -15,7 +15,7 @@ NUMBER_OF_AVAILABLE_CPU_CORES = multiprocessing.cpu_count() + 2
 CURRENT_DATE = datetime.datetime.utcnow().strftime("%Y%m%d")
 MAX_RECURSION_DEPTH = 6
 GET_REQUEST_TIMEOUT = 5
-SECONDS_TO_WAIT_FOR_MESSAGES_BEFORE_CLOSING = 5
+SECONDS_TO_WAIT_FOR_MESSAGES_BEFORE_CLOSING = 10
 
 # --- DIRECTORIES
 BASE_DIR = Path(__file__).resolve().parent.parent
