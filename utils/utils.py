@@ -12,8 +12,10 @@ from config.settings import (
     DB_INPUT_MODULE_MAPPER,
     LOGGERS_MAPPER,
     PUBSUB_LAST_MESSAGE_TIME_KEY,
+    ZAP_SPIDER,
 )
 from modules.helper.redis_client import RedisClient
+from modules.zap.zap import zap
 
 
 def url_formatter(input_target: str, module: Optional[str] = None) -> str:
@@ -88,9 +90,12 @@ def prepare_final_results_dictionary() -> dict:
                 if not results[target].get(phase):
                     results[target][phase] = {}
 
-                results[target][phase][module] = [
-                    result.decode("utf-8") for result in rc.mget(keys)
-                ]
+                if module == ZAP_SPIDER:
+                    results[target][phase][module] = zap.spider.all_urls
+                else:
+                    results[target][phase][module] = [
+                        result.decode("utf-8") for result in rc.mget(keys)
+                    ]
 
         rc.flushall()
 
