@@ -11,7 +11,7 @@ from config.settings import (
     email_scraper_logger,
     EMAIL_SCRAPER_REGEX_PATTERN,
 )
-from modules.task_queue.tasks import log_results, email_scraper_web_request
+from modules.task_queue.tasks import email_scraper_web_request, pass_result_event
 from utils.abstracts_classes import AbstractModule
 from utils.custom_dataclasses import ResultEvent
 from utils.custom_exceptions import UnhandledException
@@ -94,4 +94,4 @@ class EmailScraper(AbstractModule):
                 target=self.target,
                 result=result,
             )
-            log_results.delay(event=event)
+            pass_result_event.delay(event=event)
