@@ -203,10 +203,8 @@ def background_jobs_still_running() -> bool:
     # (when single module is run this part can be reached before any message is passed)
     time.sleep(3)
 
-    while messages_still_passed:
+    while any({messages_still_passed, tasks_running}):
         messages_still_passed = pubsub_still_active()
-
-    while tasks_running:
         tasks_running = check_tasks_running()
 
     return False
@@ -223,7 +221,7 @@ def pubsub_still_active() -> bool:
         )
         return False
 
-    time.sleep(1)
+    time.sleep(5)
     return True
 
 
@@ -247,7 +245,7 @@ def check_tasks_running() -> bool:
             logger.debug("CLOSING::Only listener tasks left")
             return False
 
-    time.sleep(1)
+    time.sleep(5)
     return True
 
 
