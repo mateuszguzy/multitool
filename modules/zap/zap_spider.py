@@ -3,7 +3,7 @@ import uuid
 from typing import Optional, Set
 
 from config.settings import zap_spider_logger, RECON_PHASE, ZAP_SPIDER
-from modules.task_queue.tasks import log_results, pass_result_event
+from modules.task_queue.tasks import pass_result_event
 from modules.zap.authentication.authentication_dvwa import (
     prepare_authentication_for_dvwa,
 )
@@ -30,7 +30,11 @@ def start_zap_spider(
     spider_results = set(zap.spider.results(scan_id))
 
     if len(spider_results) > 0:
-        save_zap_spider_results(spider_results=spider_results, target=target_url)
+        # current solution is not to store results in database - it produces duplicates due to repeated results
+        # in different scans. Right now ZAP scan results are aggregated via 'all_urls' variable
+        # during final results aggregation
+
+        # save_zap_spider_results(spider_results=spider_results, target=target_url)
 
         for result in spider_results:
             event = ResultEvent(
@@ -40,7 +44,6 @@ def start_zap_spider(
                 result=result,
             )
             pass_result_event.delay(event=event)
-            log_results.delay(event=event)
 
 
 def log_zap_spider_progress(scan_id: int) -> None:
