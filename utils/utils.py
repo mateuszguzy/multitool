@@ -83,7 +83,7 @@ def prepare_final_results_dictionary() -> dict:
                 phase = used_module.split("|")[0]
                 module = used_module.split("|")[1]
 
-                keys = rc.keys(f"{target}|{phase}|{module}|*")
+                keys = rc.keys(f"{target}*|{phase}|{module}|*")
 
                 if not results[target].get(phase):
                     results[target][phase] = {}
