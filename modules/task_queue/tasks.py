@@ -201,7 +201,7 @@ def background_jobs_still_running() -> bool:
 
     # wait for messages to be passed
     # (when single module is run this part can be reached before any message is passed)
-    time.sleep(5)
+    time.sleep(3)
 
     while messages_still_passed:
         messages_still_passed = pubsub_still_active()
@@ -212,7 +212,7 @@ def background_jobs_still_running() -> bool:
     return False
 
 
-def pubsub_still_active():
+def pubsub_still_active() -> bool:
     last_message_time = float(
         pull_single_value_from_db(f"{PUBSUB_LAST_MESSAGE_TIME_KEY}")
     )
@@ -224,40 +224,31 @@ def pubsub_still_active():
         return False
 
     time.sleep(1)
+    return True
 
 
 def check_tasks_running() -> bool:
     # TODO: maybe this can be done better ?
-    condition = True
+    active_workers = [worker for worker in app.control.inspect().reserved().values()]
+    reserved_tasks = [task for worker_data in active_workers for task in worker_data]
+    logger.debug(f"FOUND::Reserved_tasks::{len(reserved_tasks)} {reserved_tasks}")
 
-    while condition:
-        active_workers = [
-            worker for worker in app.control.inspect().reserved().values()
-        ]
-        reserved_tasks = [
-            task for worker_data in active_workers for task in worker_data
-        ]
-        logger.debug(f"FOUND::Reserved_tasks::{len(reserved_tasks)} {reserved_tasks}")
+    if len(reserved_tasks) == 0:
+        active_workers = [task for task in app.control.inspect().active().values()]
+        active_tasks = [task for worker_data in active_workers for task in worker_data]
+        logger.debug(f"FOUND::Active_tasks::{len(active_tasks)} {active_tasks}")
 
-        if len(reserved_tasks) == 0:
-            active_workers = [task for task in app.control.inspect().active().values()]
-            active_tasks = [
-                task for worker_data in active_workers for task in worker_data
-            ]
-            logger.debug(f"FOUND::Active_tasks::{len(active_tasks)} {active_tasks}")
+        listener_tasks_running = 0
+        for task in active_tasks:
+            if "listener_task" in task["name"]:
+                listener_tasks_running += 1
 
-            listener_tasks_running = 0
-            for task in active_tasks:
-                if "listener_task" in task["name"]:
-                    listener_tasks_running += 1
+        if len(active_tasks) == listener_tasks_running:
+            logger.debug("CLOSING::Only listener tasks left")
+            return False
 
-            if len(active_tasks) == listener_tasks_running:
-                logger.debug("CLOSING::Only listener tasks left")
-                condition = False
-
-        time.sleep(1)
-
-    return False
+    time.sleep(1)
+    return True
 
 
 def start_event_listeners(output_after_every_finding: bool) -> None:
