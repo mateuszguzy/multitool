@@ -1,12 +1,15 @@
 import pytest
 
+from config.settings import EMAIL_SCRAPER
 from modules.core.dispatcher.dispatcher import Dispatcher
 from tests.conftest import TEST_TARGET, DISPATCHER_MODULE_PATH
+from utils.custom_dataclasses import StartModuleEvent
 
 
 class TestDispatcher:
     test_target = TEST_TARGET
     module_path = DISPATCHER_MODULE_PATH
+    email_scraper = EMAIL_SCRAPER
 
     @pytest.mark.parametrize(
         "event",
@@ -78,12 +81,13 @@ class TestDispatcher:
         task.assert_called_once_with(event=event)
 
     @pytest.mark.parametrize(
-        "event, mapper_mock, task",
+        "event, mapper_mock, task, destination_module",
         [
             (
                 pytest.lazy_fixture("directory_bruteforce_result_event_fixture"),  # type: ignore
                 pytest.lazy_fixture("mock_dispatcher_module_mapper_with_email_scraper_task"),  # type: ignore
                 pytest.lazy_fixture("mock_dispatcher_email_scraper_task"),  # type: ignore
+                email_scraper,
             ),
         ],
     )
@@ -92,13 +96,21 @@ class TestDispatcher:
         event,
         mapper_mock,
         task,
+        destination_module,
         mock_dispatcher_workflow,
     ):
         dispatcher = Dispatcher(event=event)
         dispatcher._interpret_result_event(event=event)
 
+        expected_result = StartModuleEvent(
+            id=event.id,
+            target=event.target,
+            source_module=event.source_module,
+            destination_module=destination_module,
+            result=event.result,
+        )
         # assertions
-        task.assert_called_once_with(event=event)
+        task.assert_called_once_with(event=expected_result)
 
     @pytest.mark.parametrize(
         "event",

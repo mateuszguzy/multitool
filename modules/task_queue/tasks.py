@@ -221,7 +221,7 @@ def pubsub_still_active() -> bool:
         )
         return False
 
-    time.sleep(5)
+    time.sleep(10)
     return True
 
 
@@ -245,7 +245,7 @@ def check_tasks_running() -> bool:
             logger.debug("CLOSING::Only listener tasks left")
             return False
 
-    time.sleep(5)
+    time.sleep(10)
     return True
 
 
