@@ -9,7 +9,7 @@ from config.settings import (
 from modules.zap.script.script_dvwa import upload_authentication_script_for_dvwa
 from modules.zap.users.users_dvwa import set_user_auth_config_for_dvwa
 from modules.zap.zap import zap
-from utils.utils import withdraw_single_data_from_db
+from utils.utils import pull_single_value_from_db
 
 logger = steering_module_logger
 
@@ -43,7 +43,7 @@ def set_script_based_auth_for_dvwa(target: str, context_id: int) -> None:
 
 
 def prepare_authentication_for_dvwa(target: str) -> Tuple[int, int]:
-    context_id = int(withdraw_single_data_from_db(key=f"{REDIS_ZAP_CONTEXT_ID_KEY}*"))
+    context_id = int(pull_single_value_from_db(key=REDIS_ZAP_CONTEXT_ID_KEY))
 
     upload_authentication_script_for_dvwa()
     set_script_based_auth_for_dvwa(target=target, context_id=context_id)

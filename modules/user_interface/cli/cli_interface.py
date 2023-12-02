@@ -10,7 +10,7 @@ from config.settings import (
     REDIS_TARGETS_KEY,
     REDIS_USER_INPUT_KEY,
     REDIS_MODULES_KEY,
-    REDIS_USER_TYPE_KEY,
+    REDIS_USE_TYPE_KEY,
     REDIS_OUTPUT_AFTER_EVERY_FINDING_KEY,
     REDIS_DIRECTORY_BRUTEFORCE_LIST_SIZE_KEY,
     REDIS_DIRECTORY_BRUTEFORCE_RECURSIVE_KEY,
@@ -37,6 +37,7 @@ from utils.utils import (
     convert_list_or_set_to_dict,
     url_formatter,
     clean_and_validate_input_ports,
+    put_single_value_in_db,
 )
 
 ALL, SINGLE_PHASE, SINGLE_MODULE = "all", "single_phase", "single_module"
@@ -508,54 +509,40 @@ class CliInterface(AbstractModule):
                     for k, v in modules_dictionary.items()
                 }
             )
-            rc.mset(
-                {f"{REDIS_USER_INPUT_KEY}{REDIS_USER_TYPE_KEY}" + "1": self.use_type}
+            put_single_value_in_db(
+                key=f"{REDIS_USER_INPUT_KEY}{REDIS_USE_TYPE_KEY}", value=self.use_type
             )
-            rc.mset(
-                {
-                    f"{REDIS_USER_INPUT_KEY}{REDIS_OUTPUT_AFTER_EVERY_FINDING_KEY}"
-                    + "1": str(self.output_after_every_finding)
-                }
+            put_single_value_in_db(
+                key=f"{REDIS_USER_INPUT_KEY}{REDIS_OUTPUT_AFTER_EVERY_FINDING_KEY}",
+                value=str(self.output_after_every_finding),
             )
             ####################################
             #               RECON              #
             ####################################
-            rc.mset(
-                {
-                    f"{REDIS_ZAP_SPIDER_INPUT_KEY}"
-                    f"{REDIS_ZAP_SPIDER_AS_USER_KEY}"
-                    + "1": str(recon_phase_input.zap_spider.as_user)
-                }
+            put_single_value_in_db(
+                key=f"{REDIS_ZAP_SPIDER_INPUT_KEY}{REDIS_ZAP_SPIDER_AS_USER_KEY}",
+                value=str(recon_phase_input.zap_spider.as_user),
             )
-            rc.mset(
-                {
-                    f"{REDIS_ZAP_SPIDER_INPUT_KEY}"
-                    f"{REDIS_ZAP_SPIDER_ENHANCED_KEY}"
-                    + "1": str(recon_phase_input.zap_spider.enhanced)
-                }
+            put_single_value_in_db(
+                key=f"{REDIS_ZAP_SPIDER_INPUT_KEY}{REDIS_ZAP_SPIDER_ENHANCED_KEY}",
+                value=str(recon_phase_input.zap_spider.enhanced),
             )
-            rc.mset(
-                {
-                    f"{REDIS_DIRECTORY_BRUTEFORCE_INPUT_KEY}"
-                    f"{REDIS_DIRECTORY_BRUTEFORCE_LIST_SIZE_KEY}"
-                    + "1": str(recon_phase_input.directory_bruteforce.list_size)
-                }
+            put_single_value_in_db(
+                key=f"{REDIS_DIRECTORY_BRUTEFORCE_INPUT_KEY}"
+                f"{REDIS_DIRECTORY_BRUTEFORCE_LIST_SIZE_KEY}",
+                value=str(recon_phase_input.directory_bruteforce.list_size),
             )
-            rc.mset(
-                {
-                    f"{REDIS_DIRECTORY_BRUTEFORCE_INPUT_KEY}"
-                    f"{REDIS_DIRECTORY_BRUTEFORCE_RECURSIVE_KEY}"
-                    + "1": str(recon_phase_input.directory_bruteforce.recursive)
-                }
+            put_single_value_in_db(
+                key=f"{REDIS_DIRECTORY_BRUTEFORCE_INPUT_KEY}"
+                f"{REDIS_DIRECTORY_BRUTEFORCE_RECURSIVE_KEY}",
+                value=str(recon_phase_input.directory_bruteforce.recursive),
             )
             ####################################
             #               SCAN               #
             ####################################
-            rc.mset(
-                {
-                    f"{REDIS_PORT_SCAN_INPUT_KEY}{REDIS_PORT_SCAN_TYPE_KEY}"
-                    + "1": str(scan_phase_input.port_scan.port_scan_type)
-                }
+            put_single_value_in_db(
+                key=f"{REDIS_PORT_SCAN_INPUT_KEY}{REDIS_PORT_SCAN_TYPE_KEY}",
+                value=str(scan_phase_input.port_scan.port_scan_type),
             )
             rc.mset(
                 {

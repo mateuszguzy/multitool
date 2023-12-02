@@ -184,15 +184,7 @@ def extract_passwd_file_content_from_web_response(response: str) -> List[str]:
     return response.split("<!DOCTYPE")[0].strip().split()
 
 
-def store_single_data_in_db(data: dict) -> None:
-    """
-    Stores the data in the database.
-    """
-    with RedisClient() as rc:
-        rc.mset(data)
-
-
-def put_single_value_in_db(key, value):
+def put_single_value_in_db(key: str, value: str) -> None:
     """
     Puts single key data in the database.
     """
@@ -208,17 +200,9 @@ def pull_single_value_from_db(key: str) -> str:
         return rc.get(key).decode("utf-8")
 
 
-def withdraw_single_data_from_db(key: str) -> str:
-    """
-    Withdraws the data from the database.
-    """
-    with RedisClient() as rc:
-        return rc.mget(rc.keys(key))[0].decode("utf-8")
-
-
 def save_message_time():
     """
     Saves the time of the last message received from the broker.
     Used to check if the broker is still alive.
     """
-    put_single_value_in_db(f"{PUBSUB_LAST_MESSAGE_TIME_KEY}", str(time.time()))
+    put_single_value_in_db(key=PUBSUB_LAST_MESSAGE_TIME_KEY, value=str(time.time()))

@@ -16,7 +16,7 @@ from modules.task_queue.tasks import start_module_event
 from modules.zap.context import create_new_context, include_in_context
 from utils.abstracts_classes import AbstractModule
 from utils.custom_dataclasses import ReconInput, UserInput, ScanInput, StartModuleEvent
-from utils.utils import store_single_data_in_db
+from utils.utils import put_single_value_in_db
 
 logger = steering_module_logger
 
@@ -174,5 +174,5 @@ class SteeringModule(AbstractModule):
         """
         Store context data in Redis database for later use.
         """
-        store_single_data_in_db(data={f"{REDIS_ZAP_CONTEXT_ID_KEY}1": str(context_id)})
-        store_single_data_in_db(data={f"{REDIS_ZAP_CONTEXT_NAME_KEY}1": context_name})
+        put_single_value_in_db(key=REDIS_ZAP_CONTEXT_ID_KEY, value=str(context_id))
+        put_single_value_in_db(key=REDIS_ZAP_CONTEXT_NAME_KEY, value=context_name)

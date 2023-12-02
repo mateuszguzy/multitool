@@ -214,7 +214,7 @@ def background_jobs_still_running() -> bool:
 
 def pubsub_still_active() -> bool:
     last_message_time = float(
-        pull_single_value_from_db(f"{PUBSUB_LAST_MESSAGE_TIME_KEY}")
+        pull_single_value_from_db(key=PUBSUB_LAST_MESSAGE_TIME_KEY)
     )
 
     if (last_message_time + SECONDS_TO_WAIT_FOR_MESSAGES_BEFORE_CLOSING) < time.time():
