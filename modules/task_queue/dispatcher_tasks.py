@@ -65,7 +65,7 @@ def run_zap_spider_task(event: StartModuleEvent) -> None:
         )
 
     # case when all modules, whole recon phase or only not enhanced zap spider is run
-    else:
+    elif STEERING_MODULE in event.source_module:
         logger.debug(
             f"START::zap_spider::all::phase::single::not_enhanced::{event.target}"
         )
