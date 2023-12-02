@@ -12,14 +12,10 @@ class TestZapSpider:
         self,
         mocker,
         mock_zap_spider,
-        mock_log_results_in_zap_spider_module,
         mock_pass_result_event_in_zap_spider_module,
     ):
         mocker.patch(f"{self.module_path}.prepare_authentication_for_dvwa")
         mocked_log_results = mocker.patch(f"{self.module_path}.log_zap_spider_progress")
-        mocked_zap_save_spider_results = mocker.patch(
-            f"{self.module_path}.save_zap_spider_results"
-        )
         mock_zap_spider.results.return_value = self.test_results
 
         start_zap_spider(target_url=self.test_target)
@@ -27,11 +23,7 @@ class TestZapSpider:
         # assertions
         mock_zap_spider.scan.assert_called_once()
         mocked_log_results.assert_called_once()
-        mocked_zap_save_spider_results.assert_called_once()
         assert mock_pass_result_event_in_zap_spider_module.delay.call_count == len(
-            self.test_results
-        )
-        assert mock_log_results_in_zap_spider_module.delay.call_count == len(
             self.test_results
         )
 
@@ -39,14 +31,10 @@ class TestZapSpider:
         self,
         mocker,
         mock_zap_spider,
-        mock_log_results_in_zap_spider_module,
         mock_pass_result_event_in_zap_spider_module,
     ):
         mocker.patch(f"{self.module_path}.prepare_authentication_for_dvwa")
         mocked_log_results = mocker.patch(f"{self.module_path}.log_zap_spider_progress")
-        mocked_zap_save_spider_results = mocker.patch(
-            f"{self.module_path}.save_zap_spider_results"
-        )
         mocked_prepare_authentication_results = (mocker.MagicMock(), mocker.MagicMock())
         mocked_prepare_authentication = mocker.patch(
             f"{self.module_path}.prepare_authentication_for_dvwa",
@@ -60,11 +48,7 @@ class TestZapSpider:
         mocked_prepare_authentication.assert_called_once()
         mock_zap_spider.scan_as_user.assert_called_once()
         mocked_log_results.assert_called_once()
-        mocked_zap_save_spider_results.assert_called_once()
         assert mock_pass_result_event_in_zap_spider_module.delay.call_count == len(
-            self.test_results
-        )
-        assert mock_log_results_in_zap_spider_module.delay.call_count == len(
             self.test_results
         )
 

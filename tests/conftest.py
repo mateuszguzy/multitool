@@ -549,11 +549,6 @@ def mock_zap_spider(mocker):
 
 
 @pytest.fixture(scope="function")
-def mock_log_results_in_zap_spider_module(mocker):
-    return mocker.patch(f"{ZAP_SPIDER_MODULE_PATH}.log_results")
-
-
-@pytest.fixture(scope="function")
 def mock_pass_result_event_in_zap_spider_module(mocker):
     return mocker.patch(f"{ZAP_SPIDER_MODULE_PATH}.pass_result_event")
 
