@@ -7,7 +7,7 @@ from config.settings import (
     STEERING_MODULE,
     ZAP_SPIDER,
     REDIS_USER_INPUT_KEY,
-    REDIS_USER_TYPE_KEY,
+    REDIS_USE_TYPE_KEY,
 )
 from utils.custom_dataclasses import (
     DirectoryBruteforceInput,
@@ -18,7 +18,7 @@ from utils.custom_dataclasses import (
 from utils.utils import (
     withdraw_input_from_db,
     expression_is_true,
-    withdraw_single_data_from_db,
+    pull_single_value_from_db,
 )
 
 logger = task_queue_logger
@@ -27,8 +27,8 @@ logger = task_queue_logger
 def run_zap_spider_task(event: StartModuleEvent) -> None:
     from modules.zap.zap_spider import start_zap_spider
 
-    use_type = withdraw_single_data_from_db(
-        key=f"{REDIS_USER_INPUT_KEY}{REDIS_USER_TYPE_KEY}*"
+    use_type = pull_single_value_from_db(
+        key=f"{REDIS_USER_INPUT_KEY}{REDIS_USE_TYPE_KEY}"
     )
     input_dict = withdraw_input_from_db(module=ZAP_SPIDER)
     zap_spider_input = ZapSpiderInput(
