@@ -1,8 +1,8 @@
-urllib3==1.26.17
 celery==5.2.7
 flower==2.0.0
+questionary==2.0.1
 redis==4.5.5
 requests==2.31.0
-questionary==2.0.1
 setuptools>=65.5.1
+urllib3==1.26.18
 zaproxy==0.2.0
