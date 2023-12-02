@@ -33,6 +33,8 @@ services:
 
   dvwa:
     image: vulnerables/web-dvwa:1.9
+    ports:
+        - "6969:80"
 
   worker_main:
     restart: unless-stopped
@@ -73,3 +75,5 @@ services:
   redis:
     restart: unless-stopped
     image: redis:7.0.11
+    ports:
+      - "6666:6379"
