@@ -220,3 +220,16 @@ def hash_target_name(target: str) -> str:
     Hashes the target name with black2b algorithm.
     """
     return blake2b(target.encode("utf-8"), digest_size=BLACK2B_DIGEST_SIZE).hexdigest()
+
+
+def transform_regexs_into_urls(targets: List[str]) -> Set[str]:
+    """
+    Function responsible for transforming regexs into urls.
+    """
+    result_targets = set()
+
+    for target in targets:
+        target = target.replace(".*", "")
+        result_targets.add(target)
+
+    return result_targets

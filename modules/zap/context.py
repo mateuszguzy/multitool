@@ -1,6 +1,6 @@
 import ast
 import os
-from typing import List
+from typing import List, Set
 
 from config.settings import (
     steering_module_logger,
@@ -8,6 +8,7 @@ from config.settings import (
     ZAP_CONTEXT_FILES_LOCAL_DIR,
 )
 from modules.zap.zap import zap
+from utils.utils import transform_regexs_into_urls
 
 logger = steering_module_logger
 
@@ -117,3 +118,14 @@ def list_context_files() -> List[str]:
     context_files.sort(reverse=True)
 
     return context_files
+
+
+def extract_targets_from_context_file(context_name: str) -> Set[str]:
+    """
+    Function responsible for extracting targets from context file.
+    """
+    logger.info(f"EXTRACTING::TARGETS::FROM::CONTEXT::{context_name}")
+    regex_targets = zap.context.include_regexs(context_name)
+    targets = transform_regexs_into_urls(regex_targets)
+
+    return targets
