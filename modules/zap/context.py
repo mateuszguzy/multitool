@@ -1,7 +1,12 @@
 import ast
+import os
 from typing import List
 
-from config.settings import steering_module_logger
+from config.settings import (
+    steering_module_logger,
+    ZAP_CONTEXT_FILES_CONTAINER_DIR,
+    ZAP_CONTEXT_FILES_LOCAL_DIR,
+)
 from modules.zap.zap import zap
 
 logger = steering_module_logger
@@ -81,3 +86,34 @@ def target_in_excluded_regexs(target: str, context: dict) -> bool:
             return True
 
     return False
+
+
+def export_context_file(context_name: str) -> None:
+    """
+    Function responsible for exporting context file inside ZAP container.
+    """
+    logger.info(f"EXPORTING::CONTEXT::{context_name}")
+    return zap.context.export_context(
+        context_name,
+        f"{ZAP_CONTEXT_FILES_CONTAINER_DIR}/{context_name}.xml",
+    )
+
+
+def import_context_file(context_filename: str) -> None:
+    """
+    Function responsible for importing context file inside ZAP container.
+    """
+    logger.info(f"IMPORTING::CONTEXT::{context_filename}")
+    return zap.context.import_context(
+        f"{ZAP_CONTEXT_FILES_CONTAINER_DIR}/{context_filename}",
+    )
+
+
+def list_context_files() -> List[str]:
+    """
+    List all context files in directory.
+    """
+    context_files = os.listdir(ZAP_CONTEXT_FILES_LOCAL_DIR)
+    context_files.sort(reverse=True)
+
+    return context_files

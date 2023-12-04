@@ -16,6 +16,7 @@ CURRENT_DATE = datetime.datetime.utcnow().strftime("%Y%m%d")
 MAX_RECURSION_DEPTH = 6
 GET_REQUEST_TIMEOUT = 5
 SECONDS_TO_WAIT_FOR_MESSAGES_BEFORE_CLOSING = 10
+BLACK2B_DIGEST_SIZE = 6
 
 # --- DIRECTORIES
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -23,6 +24,8 @@ WORDLISTS_DIR = f"{BASE_DIR}/utils/wordlists"
 LOGGING_DIR = f"{BASE_DIR}/logs/{CURRENT_DATE}/"
 TESTS_MOCKED_INPUT_DIR = f"{BASE_DIR}/tests/mocked_user_input"
 WORKFLOW_YAML_PATH = f"{BASE_DIR}/config/workflow.yaml"
+ZAP_CONTEXT_FILES_CONTAINER_DIR = "/home/zap/.ZAP/context_files"
+ZAP_CONTEXT_FILES_LOCAL_DIR = f"{BASE_DIR}/modules/zap/context_files"
 
 # --- MODULES
 # STEERING_MODULE

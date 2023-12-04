@@ -1,5 +1,6 @@
 import time
 import traceback
+from hashlib import blake2b
 from logging import Logger
 from typing import Set, List, Optional
 from urllib.parse import urlparse
@@ -13,6 +14,7 @@ from config.settings import (
     LOGGERS_MAPPER,
     PUBSUB_LAST_MESSAGE_TIME_KEY,
     ZAP_SPIDER,
+    BLACK2B_DIGEST_SIZE,
 )
 from modules.helper.redis_client import RedisClient
 from modules.zap.zap import zap
@@ -211,3 +213,10 @@ def save_message_time():
     Used to check if the broker is still alive.
     """
     put_single_value_in_db(key=PUBSUB_LAST_MESSAGE_TIME_KEY, value=str(time.time()))
+
+
+def hash_target_name(target: str) -> str:
+    """
+    Hashes the target name with black2b algorithm.
+    """
+    return blake2b(target.encode("utf-8"), digest_size=BLACK2B_DIGEST_SIZE).hexdigest()

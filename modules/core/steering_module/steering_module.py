@@ -1,3 +1,4 @@
+import datetime
 import uuid
 from typing import Set, Tuple
 
@@ -13,10 +14,14 @@ from config.settings import (
     REDIS_ZAP_CONTEXT_NAME_KEY,
 )
 from modules.task_queue.tasks import start_module_event
-from modules.zap.context import create_new_context, include_in_context
+from modules.zap.context import (
+    create_new_context,
+    include_in_context,
+    export_context_file,
+)
 from utils.abstracts_classes import AbstractModule
 from utils.custom_dataclasses import ReconInput, UserInput, ScanInput, StartModuleEvent
-from utils.utils import put_single_value_in_db
+from utils.utils import put_single_value_in_db, hash_target_name
 
 logger = steering_module_logger
 
@@ -151,13 +156,16 @@ class SteeringModule(AbstractModule):
         self._store_context_data_in_database(
             context_id=context_id, context_name=context_name
         )
+        # TODO: add context exclusion
+        export_context_file(context_name=context_name)
 
-    @staticmethod
-    def _handle_context_creation() -> Tuple[int, str]:
+    def _handle_context_creation(self) -> Tuple[int, str]:
         """
         Function responsible for creating context for ZAP.
         """
-        context_name = f"{CURRENT_DATE}_{uuid.uuid4()}"
+        current_time = datetime.datetime.now().strftime("%H%M")
+        hashed_target_name = hash_target_name(target=list(self.targets)[0])
+        context_name = f"{CURRENT_DATE}_{current_time}_{hashed_target_name}"
         context_id = create_new_context(context_name=context_name)
 
         return context_id, context_name

@@ -24,6 +24,7 @@ from config.settings import (
     REDIS_ZAP_SPIDER_ENHANCED_KEY,
 )
 from modules.helper.redis_client import RedisClient
+from modules.zap.context import list_context_files
 from utils.abstracts_classes import AbstractModule
 from utils.custom_dataclasses import (
     DirectoryBruteforceInput,
@@ -42,6 +43,7 @@ from utils.utils import (
 
 ALL, SINGLE_PHASE, SINGLE_MODULE = "all", "single_phase", "single_module"
 PORT_SCAN_TYPES = ["important", "top_1000", "all", "custom"]
+NEW_CONTEXT, EXISTING_CONTEXT = "new", "existing"
 
 
 class CliInterface(AbstractModule):
@@ -51,6 +53,7 @@ class CliInterface(AbstractModule):
     output_after_every_finding: bool
     questions: List[dict] = list()
     choose_module_message: str = "Choose Module to execute:"
+    context_files: List[str] = list_context_files()
 
     def __init__(self):
         super().__init__()
@@ -97,13 +100,29 @@ class CliInterface(AbstractModule):
                 "name": "use_type",
                 "message": "Choose Multitool use type:",
                 "choices": [ALL, SINGLE_PHASE, SINGLE_MODULE],
-                "default": "all",
+                "default": ALL,
+            },
+            {
+                "type": "select",
+                "name": "context",
+                "message": "Create new context or use existing one:",
+                "choices": [NEW_CONTEXT, EXISTING_CONTEXT],
+                "default": NEW_CONTEXT,
+            },
+            {
+                "type": "select",
+                "name": "context_file_name",
+                "choices": self.context_files,
+                "message": "Choose context file:",
+                "when": lambda answers: answers["context"] == "existing",
+                "default": self.context_files[0],
             },
             {
                 "type": "text",
                 "name": "targets",
                 "message": "Enter URLs as comma separated values:",
                 "validate": lambda val: val != "",
+                "when": lambda answers: answers["context"] == "new",
             },
             {
                 "type": "select",
