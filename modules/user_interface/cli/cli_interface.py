@@ -24,6 +24,7 @@ from config.settings import (
     REDIS_ZAP_SPIDER_ENHANCED_KEY,
 )
 from modules.helper.redis_client import RedisClient
+from modules.zap.context import list_context_files, extract_targets_from_context_file
 from utils.abstracts_classes import AbstractModule
 from utils.custom_dataclasses import (
     DirectoryBruteforceInput,
@@ -42,6 +43,7 @@ from utils.utils import (
 
 ALL, SINGLE_PHASE, SINGLE_MODULE = "all", "single_phase", "single_module"
 PORT_SCAN_TYPES = ["important", "top_1000", "all", "custom"]
+NEW_CONTEXT, EXISTING_CONTEXT = "new", "existing"
 
 
 class CliInterface(AbstractModule):
@@ -51,6 +53,7 @@ class CliInterface(AbstractModule):
     output_after_every_finding: bool
     questions: List[dict] = list()
     choose_module_message: str = "Choose Module to execute:"
+    context_files: List[str] = list_context_files()
 
     def __init__(self):
         super().__init__()
@@ -64,7 +67,15 @@ class CliInterface(AbstractModule):
         used_modules = self.extract_used_phases_and_modules_data_from_user_input(
             answers=answers
         )
-        self.format_targets_as_urls(answers["targets"])
+
+        if "targets" in answers and answers["targets"]:
+            self.format_targets_as_urls(answers["targets"])
+
+        elif "context_file_name" in answers and answers["context_file_name"]:
+            self.valid_targets = extract_targets_from_context_file(
+                context_name=answers["context_file_name"].split(".")[0]
+            )
+
         self.output_after_every_finding = answers.get("output_after_every_finding", 0)
         self.use_type = answers.get("use_type", "")
         self.save_reusable_data_in_db(
@@ -97,14 +108,37 @@ class CliInterface(AbstractModule):
                 "name": "use_type",
                 "message": "Choose Multitool use type:",
                 "choices": [ALL, SINGLE_PHASE, SINGLE_MODULE],
-                "default": "all",
+                "default": ALL,
+            },
+            ##########################
+            #         CONTEXT        #
+            ##########################
+            {
+                "type": "select",
+                "name": "context",
+                "message": "Create new context or use existing one:",
+                "choices": [NEW_CONTEXT, EXISTING_CONTEXT],
+                "default": NEW_CONTEXT,
+                "when": lambda answers: self.any_context_file_exist(),
+            },
+            {
+                "type": "select",
+                "name": "context_file_name",
+                "choices": self.context_files,
+                "message": "Choose context file:",
+                "when": lambda answers: self.existing_context_is_used(answers=answers),
+                "default": self.context_files[0] if self.context_files else None,
             },
             {
                 "type": "text",
                 "name": "targets",
                 "message": "Enter URLs as comma separated values:",
                 "validate": lambda val: val != "",
+                "when": lambda answers: self.new_context_is_used(answers=answers),
             },
+            ##########################
+            #     MODULE SELECTION   #
+            ##########################
             {
                 "type": "select",
                 "name": "phase",
@@ -223,6 +257,44 @@ class CliInterface(AbstractModule):
             },
         ]
 
+    ##########################
+    #         CONTEXT        #
+    ##########################
+    def any_context_file_exist(self) -> bool:
+        """
+        Check if any context file exist.
+        """
+        if len(self.context_files) > 0:
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def existing_context_is_used(answers: dict) -> bool:
+        """
+        Check if existing context can be used in current run.
+        """
+        if "context" in answers and answers["context"] == EXISTING_CONTEXT:
+            return True
+        else:
+            return False
+
+    def new_context_is_used(self, answers: dict) -> bool:
+        """
+        Check if existing context can be used in current run.
+        """
+        if (
+            "context" in answers
+            and answers["context"] == NEW_CONTEXT
+            or not self.any_context_file_exist()
+        ):
+            return True
+        else:
+            return False
+
+    ##########################
+    #     MODULE SELECTION   #
+    ##########################
     @staticmethod
     def single_module_from_recon_phase_is_executed(answers: dict) -> bool:
         """
@@ -268,6 +340,9 @@ class CliInterface(AbstractModule):
         else:
             return False
 
+    ##########################
+    #        ZAP SPIDER      #
+    ##########################
     @staticmethod
     def zap_spider_is_executed(answers: dict) -> bool:
         """
@@ -295,6 +370,9 @@ class CliInterface(AbstractModule):
         else:
             return False
 
+    ##########################
+    #  DIRECTORY BRUTEFORCE  #
+    ##########################
     @staticmethod
     def directory_bruteforce_is_executed(answers: dict) -> bool:
         """
@@ -330,6 +408,9 @@ class CliInterface(AbstractModule):
         else:
             return False
 
+    ##########################
+    #        PORT SCAN       #
+    ##########################
     @staticmethod
     def port_scan_is_executed(answers: dict) -> bool:
         """
@@ -367,6 +448,9 @@ class CliInterface(AbstractModule):
         else:
             return False
 
+    ##########################
+    #          UTILS         #
+    ##########################
     def format_targets_as_urls(self, targets: str) -> None:
         """
         Validate targets and return True if any of them are valid.
@@ -385,6 +469,9 @@ class CliInterface(AbstractModule):
             return False
         return True
 
+    ##########################
+    #     DATA AGGREGATION   #
+    ##########################
     def aggregate_phase_specific_data(
         self, answers: dict
     ) -> Tuple[ReconInput, ScanInput]:

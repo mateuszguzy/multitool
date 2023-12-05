@@ -7,6 +7,11 @@ services:
       - type: bind
         source: ./logs
         target: /app/logs
+      # volume needed to access the context files saved by zap
+      # without re-launching the application
+      - type: bind
+        source: ./modules/zap/context_files
+        target: /app/modules/zap/context_files
     depends_on:
       - zap
       - dvwa
@@ -31,6 +36,9 @@ services:
       - type: bind
         source: ./modules/zap/scripts/authentication
         target: /zap/scripts/custom
+      - type: bind
+        source: ./modules/zap/context_files
+        target: /home/zap/.ZAP/context_files
 
   dvwa:
     image: vulnerables/web-dvwa:1.9

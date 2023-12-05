@@ -179,3 +179,4 @@ pyrightconfig.json
 /test.py
 /TODOs.md
 /logs
+/modules/zap/context_files/
