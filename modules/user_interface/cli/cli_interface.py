@@ -53,11 +53,12 @@ class CliInterface(AbstractModule):
     output_after_every_finding: bool
     questions: List[dict] = list()
     choose_module_message: str = "Choose Module to execute:"
-    context_files: List[str] = list_context_files()
+    context_files: List[str] = list()
 
     def __init__(self):
         super().__init__()
         self.questions = self.prepare_questions()
+        self.context_files = list_context_files()
 
     def run(self) -> UserInput:
         answers = prompt(self.questions)
@@ -68,15 +69,30 @@ class CliInterface(AbstractModule):
             answers=answers
         )
 
+        include_targets = set()
+        exclude_targets = set()
+
         if "targets" in answers and answers["targets"]:
-            self.format_targets_as_urls(answers["targets"])
+            self.valid_targets = self.format_targets_as_urls(answers["targets"])
 
         elif "context_file_name" in answers and answers["context_file_name"]:
             self.valid_targets = extract_targets_from_context_file(
                 context_name=answers["context_file_name"].split(".")[0]
             )
 
-        self.output_after_every_finding = answers.get("output_after_every_finding", 0)
+        if answers.get("include_targets", None):
+            include_targets = self.format_targets_as_urls(answers["include_targets"])
+            self.valid_targets = self.valid_targets.union(include_targets)
+
+        if answers.get("exclude_targets", None):
+            # do not format as URLs because keyword might be provided in input
+            exclude_targets = {
+                item.strip() for item in answers["exclude_targets"].split(",")
+            }
+
+        self.output_after_every_finding = answers.get(
+            "output_after_every_finding", False
+        )
         self.use_type = answers.get("use_type", "")
         self.save_reusable_data_in_db(
             used_modules=used_modules,
@@ -88,7 +104,10 @@ class CliInterface(AbstractModule):
             use_type=self.use_type,
             phase=answers.get("phase", ""),
             module=answers.get("module", None),
+            context_file_name=answers.get("context_file_name", None),
             targets=self.valid_targets,
+            include_targets=include_targets,
+            exclude_targets=exclude_targets,
             recon=recon_phase_input,
             scan=scan_phase_input,
             output_after_every_finding=self.output_after_every_finding,
@@ -131,10 +150,21 @@ class CliInterface(AbstractModule):
             },
             {
                 "type": "text",
+                "name": "include_targets",
+                "message": "Enter URL targets to INCLUDE in the context (as comma separated values):",
+                "when": lambda answers: self.existing_context_is_used(answers=answers),
+            },
+            {
+                "type": "text",
                 "name": "targets",
-                "message": "Enter URLs as comma separated values:",
+                "message": "Enter URL targets (as comma separated values):",
                 "validate": lambda val: val != "",
                 "when": lambda answers: self.new_context_is_used(answers=answers),
+            },
+            {
+                "type": "text",
+                "name": "exclude_targets",
+                "message": "Enter URLs targets or keywords to EXCLUDE from the context (as comma separated values):",
             },
             ##########################
             #     MODULE SELECTION   #
@@ -451,14 +481,13 @@ class CliInterface(AbstractModule):
     ##########################
     #          UTILS         #
     ##########################
-    def format_targets_as_urls(self, targets: str) -> None:
+    @staticmethod
+    def format_targets_as_urls(targets: str) -> Set[str]:
         """
         Validate targets and return True if any of them are valid.
         """
         split_targets = targets.split(",")
-        self.valid_targets = {
-            url_formatter(input_target=target.strip()) for target in split_targets
-        }
+        return {url_formatter(input_target=target.strip()) for target in split_targets}
 
     def validate_ports_to_scan(self, ports_to_scan: str) -> bool:
         """

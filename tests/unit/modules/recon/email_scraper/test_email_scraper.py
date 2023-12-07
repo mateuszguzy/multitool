@@ -92,7 +92,7 @@ class TestEmailScraper:
         self,
         mocker,
         mock_email_scraper_module,
-        mock_log_results_in_email_scraper_module,
+        mock_pass_results_in_email_scraper_module,
         mock_store_module_results_in_database,
     ):
         mocker.patch(
@@ -112,6 +112,6 @@ class TestEmailScraper:
             phase="recon",
             module="email_scraper",
         )
-        assert mock_log_results_in_email_scraper_module.call_count == len(
+        assert mock_pass_results_in_email_scraper_module.call_count == len(
             self.mocked_emails
         )

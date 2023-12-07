@@ -52,7 +52,8 @@ def exclude_from_context(targets: List[str], context_name: str) -> None:
     context = get_context(context_name)
 
     for target in targets:
-        if not target_in_excluded_regexs(target=target, context=context):
+        target_regex = f".*{target}.*"
+        if not target_in_excluded_regexs(target=target_regex, context=context):
             try:
                 logger.info(f"EXCLUDING::CONTEXT::{target}")
                 zap.context.exclude_from_context(context_name, target)
@@ -94,19 +95,18 @@ def export_context_file(context_name: str) -> None:
     Function responsible for exporting context file inside ZAP container.
     """
     logger.info(f"EXPORTING::CONTEXT::{context_name}")
-    return zap.context.export_context(
-        context_name,
-        f"{ZAP_CONTEXT_FILES_CONTAINER_DIR}/{context_name}.xml",
+    zap.context.export_context(
+        context_name, f"{ZAP_CONTEXT_FILES_CONTAINER_DIR}/{context_name}.xml"
     )
 
 
-def import_context_file(context_filename: str) -> None:
+def import_context_file(context_file_name: str) -> int:
     """
     Function responsible for importing context file inside ZAP container.
     """
-    logger.info(f"IMPORTING::CONTEXT::{context_filename}")
+    logger.info(f"IMPORTING::CONTEXT::{context_file_name}")
     return zap.context.import_context(
-        f"{ZAP_CONTEXT_FILES_CONTAINER_DIR}/{context_filename}",
+        f"{ZAP_CONTEXT_FILES_CONTAINER_DIR}/{context_file_name}",
     )
 
 

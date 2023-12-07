@@ -113,6 +113,7 @@ REQUEST_MANAGER_MODULE_PATH = inspect.getmodule(RequestManager).__name__  # type
 CELERY_TASKS_MODULE_PATH = inspect.getmodule(celery_tasks).__name__  # type: ignore
 DISPATCHER_MODULE_PATH = inspect.getmodule(Dispatcher).__name__  # type: ignore
 LFI_MODULE_PATH = inspect.getmodule(LocalFileInclusion).__name__  # type: ignore
+CLI_INTERFACE_MODULE_PATH = inspect.getmodule(CliInterface).__name__  # type: ignore
 
 
 ###################################################
@@ -152,6 +153,9 @@ def convert_user_input_to_dataclass(path: str) -> UserInput:
         phase=user_input_dict.get("phase"),
         module=user_input_dict.get("module"),
         targets=set(user_input_dict.get("targets")),
+        context_file_name=user_input_dict.get("context_file_name"),
+        include_targets=user_input_dict.get("include_targets"),
+        exclude_targets=user_input_dict.get("exclude_targets"),
         recon=ReconInput(zap_spider_input, directory_bruteforce_input),
         scan=ScanInput(port_scan_input),
         output_after_every_finding=True,
@@ -348,8 +352,9 @@ def port_scan_result_event_fixture():
 ##########################
 #      CLI INTERFACE     #
 ##########################
-@pytest.fixture(scope="class")
-def cli_interface_fixture():
+@pytest.fixture(scope="function")
+def cli_interface_fixture(mocker):
+    mocker.patch(f"{CLI_INTERFACE_MODULE_PATH}.list_context_files")
     return CliInterface()
 
 
@@ -725,8 +730,8 @@ def mock_store_module_results_in_database(mocker):
 
 
 @pytest.fixture(scope="function")
-def mock_log_results_in_email_scraper_module(mocker):
-    return mocker.patch(f"{EMAIL_SCRAPER_MODULE_PATH}.log_results.delay")
+def mock_pass_results_in_email_scraper_module(mocker):
+    return mocker.patch(f"{EMAIL_SCRAPER_MODULE_PATH}.pass_result_event.delay")
 
 
 ##########################

@@ -69,7 +69,7 @@ clean c:
 
 .PHONY: tests t
 tests t: build
-	@docker compose -f "docker-compose.tests.yaml" up dvwa test-worker redis -d &>/dev/null
+	@docker compose -f "docker-compose.tests.yaml" up test-dvwa test-worker redis -d &>/dev/null
 	@sleep 5
 	@docker compose -f "docker-compose.tests.yaml" up test-multitool
-	@docker compose down --volumes &>/dev/null
+	@docker compose -f "docker-compose.tests.yaml" down --volumes &>/dev/null
