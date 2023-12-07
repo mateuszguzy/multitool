@@ -37,7 +37,10 @@ class UserInput:
     use_type: str
     phase: str
     module: Optional[str]
+    context_file_name: Optional[str]
     targets: Set[str]
+    include_targets: Optional[Set[str]]
+    exclude_targets: Optional[Set[str]]
     recon: ReconInput
     scan: ScanInput
     output_after_every_finding: bool

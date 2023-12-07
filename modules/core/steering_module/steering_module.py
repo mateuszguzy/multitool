@@ -18,6 +18,8 @@ from modules.zap.context import (
     create_new_context,
     include_in_context,
     export_context_file,
+    exclude_from_context,
+    import_context_file,
 )
 from utils.abstracts_classes import AbstractModule
 from utils.custom_dataclasses import ReconInput, UserInput, ScanInput, StartModuleEvent
@@ -140,7 +142,10 @@ class SteeringModule(AbstractModule):
         self.use_type = getattr(user_input, "use_type")
         self.phase = getattr(user_input, "phase")
         self.module = getattr(user_input, "module")
+        self.context_file_name = getattr(user_input, "context_file_name")
         self.targets = getattr(user_input, "targets")
+        self.include_targets = getattr(user_input, "include_targets")
+        self.exclude_targets = getattr(user_input, "exclude_targets")
         self.recon_input = getattr(user_input, "recon")
         self.scan_input = getattr(user_input, "scan")
         self.output_after_every_finding = getattr(
@@ -151,12 +156,19 @@ class SteeringModule(AbstractModule):
         """
         Function responsible for setting up context for ZAP and storing relevant data in the database.
         """
-        context_id, context_name = self._handle_context_creation()
+        if not self.context_file_name:
+            context_id, context_name = self._handle_context_creation()
+        else:
+            context_id = import_context_file(context_file_name=self.context_file_name)
+            context_name = self.context_file_name.split(".")[
+                0
+            ]  # get rid of the extension
+
         self._add_targets_to_context(context_name=context_name)
         self._store_context_data_in_database(
             context_id=context_id, context_name=context_name
         )
-        # TODO: add context exclusion
+        self._exclude_from_context(context_name=context_name)
         export_context_file(context_name=context_name)
 
     def _handle_context_creation(self) -> Tuple[int, str]:
@@ -176,6 +188,12 @@ class SteeringModule(AbstractModule):
         """
         for target in self.targets:
             include_in_context(target=target, context_name=context_name)
+
+    def _exclude_from_context(self, context_name: str) -> None:
+        """
+        Function responsible for excluding targets from context for ZAP.
+        """
+        exclude_from_context(targets=self.exclude_targets, context_name=context_name)
 
     @staticmethod
     def _store_context_data_in_database(context_id: int, context_name: str) -> None:
