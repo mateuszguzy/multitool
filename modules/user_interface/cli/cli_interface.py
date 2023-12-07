@@ -53,11 +53,12 @@ class CliInterface(AbstractModule):
     output_after_every_finding: bool
     questions: List[dict] = list()
     choose_module_message: str = "Choose Module to execute:"
-    context_files: List[str] = list_context_files()
+    context_files: List[str] = list()
 
     def __init__(self):
         super().__init__()
         self.questions = self.prepare_questions()
+        self.context_files = list_context_files()
 
     def run(self) -> UserInput:
         answers = prompt(self.questions)

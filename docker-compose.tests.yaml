@@ -13,10 +13,7 @@ services:
     volumes:
       - type: bind
         source: /
-        target: /app/
-      - type: bind
-        source: ./modules/zap/context_files
-        target: /app/modules/zap/context_files
+        target: /project/
 
   test-dvwa:
     image: vulnerables/web-dvwa:1.9

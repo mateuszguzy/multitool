@@ -113,6 +113,7 @@ REQUEST_MANAGER_MODULE_PATH = inspect.getmodule(RequestManager).__name__  # type
 CELERY_TASKS_MODULE_PATH = inspect.getmodule(celery_tasks).__name__  # type: ignore
 DISPATCHER_MODULE_PATH = inspect.getmodule(Dispatcher).__name__  # type: ignore
 LFI_MODULE_PATH = inspect.getmodule(LocalFileInclusion).__name__  # type: ignore
+CLI_INTERFACE_MODULE_PATH = inspect.getmodule(CliInterface).__name__  # type: ignore
 
 
 ###################################################
@@ -351,8 +352,9 @@ def port_scan_result_event_fixture():
 ##########################
 #      CLI INTERFACE     #
 ##########################
-@pytest.fixture(scope="class")
-def cli_interface_fixture():
+@pytest.fixture(scope="function")
+def cli_interface_fixture(mocker):
+    mocker.patch(f"{CLI_INTERFACE_MODULE_PATH}.list_context_files")
     return CliInterface()
 
 
