@@ -728,8 +728,8 @@ def mock_store_module_results_in_database(mocker):
 
 
 @pytest.fixture(scope="function")
-def mock_log_results_in_email_scraper_module(mocker):
-    return mocker.patch(f"{EMAIL_SCRAPER_MODULE_PATH}.log_results.delay")
+def mock_pass_results_in_email_scraper_module(mocker):
+    return mocker.patch(f"{EMAIL_SCRAPER_MODULE_PATH}.pass_result_event.delay")
 
 
 ##########################
