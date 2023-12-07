@@ -55,6 +55,9 @@ class TestCliInterface:
                     phase="",
                     module=None,
                     targets={test_url},
+                    context_file_name=None,
+                    include_targets=set(),
+                    exclude_targets=set(),
                     recon=pytest.lazy_fixture("scan_recon_fixture"),  # type: ignore
                     scan=pytest.lazy_fixture("scan_input_fixture"),  # type: ignore
                     output_after_every_finding=True,
@@ -67,6 +70,9 @@ class TestCliInterface:
                     phase="recon",
                     module=None,
                     targets={test_url},
+                    context_file_name=None,
+                    include_targets=set(),
+                    exclude_targets=set(),
                     recon=pytest.lazy_fixture("scan_recon_fixture"),  # type: ignore
                     scan=pytest.lazy_fixture("scan_input_fixture"),  # type: ignore
                     output_after_every_finding=True,
@@ -79,6 +85,9 @@ class TestCliInterface:
                     phase="scan",
                     module=None,
                     targets={test_url},
+                    context_file_name=None,
+                    include_targets=set(),
+                    exclude_targets=set(),
                     recon=pytest.lazy_fixture("scan_recon_fixture"),  # type: ignore
                     scan=pytest.lazy_fixture("scan_input_fixture"),  # type: ignore
                     output_after_every_finding=True,
@@ -91,6 +100,9 @@ class TestCliInterface:
                     phase="recon",
                     module="directory_bruteforce",
                     targets={test_url},
+                    context_file_name=None,
+                    include_targets=set(),
+                    exclude_targets=set(),
                     recon=pytest.lazy_fixture("scan_recon_fixture"),  # type: ignore
                     scan=pytest.lazy_fixture("scan_input_fixture"),  # type: ignore
                     output_after_every_finding=True,
@@ -103,6 +115,9 @@ class TestCliInterface:
                     phase="scan",
                     module="port_scan",
                     targets={test_url},
+                    context_file_name=None,
+                    include_targets=set(),
+                    exclude_targets=set(),
                     recon=pytest.lazy_fixture("scan_recon_fixture"),  # type: ignore
                     scan=pytest.lazy_fixture("scan_input_fixture"),  # type: ignore
                     output_after_every_finding=True,
@@ -128,7 +143,7 @@ class TestCliInterface:
         mocker.patch(
             self.extract_used_phases_and_modules_data_from_user_input_path,
         )
-        mocker.patch(self.format_targets_as_urls_path)
+        mocker.patch(self.format_targets_as_urls_path, return_value={self.test_url})
         mocker.patch(
             self.save_reusable_data_in_db_function_path,
         )
