@@ -47,6 +47,9 @@ class TestSteeringModule:
                     "phase": "recon",
                     "module": "zap_spider",
                     "targets": testing_targets,
+                    "context_file_name": None,
+                    "include_targets": None,
+                    "exclude_targets": None,
                     "recon": test_single_module_zap_spider_input,
                     "scan": test_scan_input_empty,
                     "output_after_every_finding": True,
@@ -59,6 +62,9 @@ class TestSteeringModule:
                     "phase": "recon",
                     "module": "directory_bruteforce",
                     "targets": testing_targets,
+                    "context_file_name": None,
+                    "include_targets": None,
+                    "exclude_targets": None,
                     "recon": test_single_module_directory_bruteforce_input,
                     "scan": test_scan_input_empty,
                     "output_after_every_finding": True,
@@ -71,6 +77,9 @@ class TestSteeringModule:
                     "phase": "scan",
                     "module": "port_scan",
                     "targets": testing_targets,
+                    "context_file_name": None,
+                    "include_targets": None,
+                    "exclude_targets": None,
                     "recon": test_recon_input_empty,
                     "scan": test_scan_input,
                     "output_after_every_finding": True,
@@ -83,6 +92,9 @@ class TestSteeringModule:
                     "phase": "recon",
                     "module": None,
                     "targets": testing_targets,
+                    "context_file_name": None,
+                    "include_targets": None,
+                    "exclude_targets": None,
                     "recon": test_recon_input,
                     "scan": test_scan_input_empty,
                     "output_after_every_finding": True,
@@ -95,6 +107,9 @@ class TestSteeringModule:
                     "phase": "scan",
                     "module": None,
                     "targets": testing_targets,
+                    "context_file_name": None,
+                    "include_targets": None,
+                    "exclude_targets": None,
                     "recon": test_recon_input_empty,
                     "scan": test_scan_input,
                     "output_after_every_finding": True,
@@ -107,6 +122,9 @@ class TestSteeringModule:
                     "phase": "",
                     "module": None,
                     "targets": testing_targets,
+                    "context_file_name": None,
+                    "include_targets": None,
+                    "exclude_targets": None,
                     "recon": test_recon_input,
                     "scan": test_scan_input,
                     "output_after_every_finding": True,
@@ -124,6 +142,9 @@ class TestSteeringModule:
         assert sm.phase == expected_output["phase"]
         assert sm.module == expected_output["module"]
         assert sm.targets == expected_output["targets"]
+        assert sm.context_file_name == expected_output["context_file_name"]
+        assert sm.include_targets == expected_output["include_targets"]
+        assert sm.exclude_targets == expected_output["exclude_targets"]
         assert sm.recon_input == expected_output["recon"]
         assert sm.scan_input == expected_output["scan"]
         assert (

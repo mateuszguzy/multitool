@@ -4,7 +4,7 @@ services:
   test-multitool:
     build: .
     depends_on:
-      - dvwa
+      - test-dvwa
       - redis
       - test-worker
     command: pytest
@@ -15,7 +15,7 @@ services:
         source: /
         target: /project/
 
-  dvwa:
+  test-dvwa:
     image: vulnerables/web-dvwa:1.9
 
   test-worker:
