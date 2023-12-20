@@ -23,6 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 WORDLISTS_DIR = f"{BASE_DIR}/utils/wordlists"
 LOGGING_DIR = f"{BASE_DIR}/logs/{CURRENT_DATE}/"
 TESTS_MOCKED_INPUT_DIR = f"{BASE_DIR}/tests/mocked_user_input"
+TESTS_E2E_CLI_INTERFACE_DIR = f"{BASE_DIR}/tests/e2e/modules/user_interface"
 WORKFLOW_YAML_PATH = f"{BASE_DIR}/config/workflow.yaml"
 ZAP_CONTEXT_FILES_CONTAINER_DIR = "/home/zap/.ZAP/context_files"
 ZAP_CONTEXT_FILES_LOCAL_DIR = f"{BASE_DIR}/modules/zap/context_files"

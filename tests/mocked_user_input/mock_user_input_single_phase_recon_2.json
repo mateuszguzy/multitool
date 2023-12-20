@@ -1,0 +1,23 @@
+{
+  "use_type": "single_phase",
+  "phase": "recon",
+  "module": null,
+  "targets": ["http://dvwa/", "https://www.example.com"],
+  "recon": {
+    "directory_bruteforce": {
+      "list_size": "medium",
+      "recursive": true
+    },
+    "zap_spider" : {
+      "as_user": false,
+      "enhanced": true
+    }
+  },
+  "scan": {
+    "port_scan": {
+      "port_scan_type": "custom",
+      "ports": []
+    }
+  },
+  "output_after_every_finding": true
+}

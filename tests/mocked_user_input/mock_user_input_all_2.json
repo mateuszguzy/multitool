@@ -1,0 +1,23 @@
+{
+  "use_type": "all",
+  "phase": "",
+  "module": null,
+  "targets": ["https://www.example.com"],
+  "exclude_targets": null,
+  "recon": {
+    "directory_bruteforce": {
+      "list_size": "medium",
+      "recursive": true
+    },
+    "zap_spider" : {
+      "as_user": true,
+      "enhanced": true
+    }
+  },
+  "scan": {
+    "port_scan": {
+      "port_scan_type": "all"
+    }
+  },
+  "output_after_every_finding": false
+}

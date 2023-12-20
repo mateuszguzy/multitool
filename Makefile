@@ -68,7 +68,8 @@ clean c:
 	@docker system prune
 
 .PHONY: tests t
-tests t: build
+tests t:
+	@docker compose -f "docker-compose.tests.yaml" build -q
 	@docker compose -f "docker-compose.tests.yaml" up test-dvwa test-worker redis -d &>/dev/null
 	@sleep 5
 	@docker compose -f "docker-compose.tests.yaml" up test-multitool

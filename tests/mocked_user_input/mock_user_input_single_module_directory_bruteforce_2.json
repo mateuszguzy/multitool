@@ -3,10 +3,11 @@
   "phase": "recon",
   "module": "directory_bruteforce",
   "targets": ["http://dvwa/", "https://www.example.com"],
+  "exclude_targets": null,
   "recon": {
     "directory_bruteforce": {
-      "list_size": "small",
-      "recursive": false
+      "list_size": "medium",
+      "recursive": true
     },
     "zap_spider" : {
       "as_user": null,
@@ -19,5 +20,5 @@
       "ports": []
     }
   },
-  "output_after_every_finding": true
+  "output_after_every_finding": false
 }
