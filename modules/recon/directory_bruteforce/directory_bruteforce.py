@@ -10,7 +10,8 @@ from config.settings import (
 from modules.task_queue.tasks import directory_bruteforce_web_request
 from utils.abstracts_classes import AbstractModule
 from utils.custom_dataclasses import DirectoryBruteforceInput
-from utils.utils import store_module_results_in_database, convert_list_or_set_to_dict
+from utils.redis_utils import store_module_results_in_database
+from utils.utils import convert_list_or_set_to_dict
 
 
 class DirectoryBruteforce(AbstractModule):

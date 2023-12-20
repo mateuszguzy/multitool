@@ -1,10 +1,15 @@
 from unittest import TestCase
 
-from utils.utils import prepare_final_results_dictionary, store_module_results_in_database
+from utils.redis_utils import (
+    prepare_final_results_dictionary,
+    store_module_results_in_database,
+)
 
 
 class TestPrepareFinalResultsDictionary:
-    def test_prepare_final_results_dictionary_complete(self, redis_db_results_complete_fixture):
+    def test_prepare_final_results_dictionary_complete(
+        self, redis_db_results_complete_fixture
+    ):
         expected_results = {
             "target1": {
                 "phase1": {"module1": ["result1", "result2"], "module2": ["result3"]}
@@ -17,7 +22,9 @@ class TestPrepareFinalResultsDictionary:
         # assertion
         TestCase().assertDictEqual(result, expected_results)
 
-    def test_prepare_final_results_dictionary_only_targets(self, redis_db_results_only_targets_fixture):
+    def test_prepare_final_results_dictionary_only_targets(
+        self, redis_db_results_only_targets_fixture
+    ):
         expected_results = {
             "target1": {},
             "target2": {},

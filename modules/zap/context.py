@@ -8,7 +8,7 @@ from config.settings import (
     ZAP_CONTEXT_FILES_LOCAL_DIR,
 )
 from modules.zap.zap import zap
-from utils.utils import transform_regexs_into_urls
+from utils.url_utils import transform_regexs_into_urls
 
 logger = steering_module_logger
 

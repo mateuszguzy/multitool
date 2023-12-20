@@ -34,11 +34,11 @@ from utils.custom_dataclasses import (
     PortScanInput,
     ZapSpiderInput,
 )
+from utils.redis_utils import put_single_value_in_db
+from utils.url_utils import url_formatter
 from utils.utils import (
     convert_list_or_set_to_dict,
-    url_formatter,
     clean_and_validate_input_ports,
-    put_single_value_in_db,
 )
 
 ALL, SINGLE_PHASE, SINGLE_MODULE = "all", "single_phase", "single_module"

@@ -4,10 +4,10 @@ from config.settings import IMPORTANT_PORTS
 from modules.task_queue.tasks import socket_request
 from utils.abstracts_classes import AbstractModule
 from utils.custom_dataclasses import PortScanInput
+from utils.redis_utils import store_module_results_in_database
+from utils.url_utils import url_formatter
 from utils.utils import (
     convert_list_or_set_to_dict,
-    store_module_results_in_database,
-    url_formatter,
 )
 
 
@@ -21,7 +21,11 @@ class PortScan(AbstractModule):
         self.target = target
         self.formatted_target = url_formatter(input_target=target, module="port_scan")
         self.port_scan_type = getattr(port_scan_input, "port_scan_type")
-        self.ports = getattr(port_scan_input, "ports", set()) if self.port_scan_type == "custom" else set()
+        self.ports = (
+            getattr(port_scan_input, "ports", set())
+            if self.port_scan_type == "custom"
+            else set()
+        )
 
     def run(self):
         self._determine_use_type()

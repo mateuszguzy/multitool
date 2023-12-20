@@ -13,9 +13,9 @@ from config.settings import LFI, GAIN_ACCESS_PHASE, lfi_logger, LFI_REQUEST_METH
 from modules.task_queue.tasks import lfi_web_request, pass_result_event
 from utils.abstracts_classes import AbstractModule
 from utils.custom_dataclasses import ResultEvent
+from utils.redis_utils import store_module_results_in_database
 from utils.utils import (
     convert_list_or_set_to_dict,
-    store_module_results_in_database,
     extract_passwd_file_content_from_web_response,
 )
 
