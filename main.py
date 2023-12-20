@@ -1,6 +1,4 @@
-import datetime
 import sys
-import time
 import uuid
 
 from click import Abort
@@ -19,8 +17,10 @@ from utils.custom_exceptions import (
     AbortException,
     UnhandledException,
 )
-from utils.logging_utils import log_exception
-from utils.redis_utils import prepare_final_results_dictionary
+from utils.utils import (
+    prepare_final_results_dictionary,
+    log_exception,
+)
 
 logger = steering_module_logger
 
@@ -39,7 +39,6 @@ def main():
         raise UnhandledException("Unhandled exception")
 
     try:
-        start = time.time()
         start_event_listeners(
             output_after_every_finding=user_input.output_after_every_finding
         )
@@ -63,10 +62,6 @@ def main():
 
     finally:
         stop_listener_tasks()
-    stop = time.time()
-    logger.info(
-        f"Scan time: {str(datetime.timedelta(seconds=(round(stop-start, 2)))).split('.')[0]}"
-    )
 
 
 if __name__ == "__main__":
