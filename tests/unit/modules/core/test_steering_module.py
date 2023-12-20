@@ -6,7 +6,8 @@ from utils.custom_dataclasses import (
     ReconInput,
     ScanInput,
     PortScanInput,
-    ZapSpiderInput
+    ZapSpiderInput,
+    ModulZDupy
 )
 
 
