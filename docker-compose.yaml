@@ -12,6 +12,9 @@ services:
       - type: bind
         source: ./modules/zap/context_files
         target: /app/modules/zap/context_files
+      - type: bind
+        source: ./results
+        target: /app/results
     depends_on:
       - zap
       - dvwa

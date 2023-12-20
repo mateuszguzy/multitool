@@ -32,7 +32,11 @@ from utils.custom_serializers.start_module_event_serializer import (
     start_module_event_data_load,
 )
 from utils.logging_utils import get_logger
-from utils.redis_utils import save_message_time, pull_single_value_from_db
+from utils.redis_utils import (
+    save_message_time,
+    pull_single_value_from_db,
+    redis_cleanup,
+)
 
 logger = task_queue_logger
 
@@ -282,3 +286,5 @@ def stop_listener_tasks() -> None:
         for task in active_tasks[active_worker]:
             if "listener_task" in task["name"]:
                 app.control.revoke(task["id"], terminate=True)
+
+    redis_cleanup()

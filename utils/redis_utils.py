@@ -50,8 +50,6 @@ def prepare_final_results_dictionary() -> dict:
                         result.decode("utf-8") for result in rc.mget(keys)
                     ]
 
-        rc.flushall()
-
     return results
 
 
@@ -112,3 +110,12 @@ def save_message_time():
     Used to check if the broker is still alive.
     """
     put_single_value_in_db(key=PUBSUB_LAST_MESSAGE_TIME_KEY, value=str(time.time()))
+
+
+def redis_cleanup() -> None:
+    """
+    Purge all keys after complete application run.
+    Allows to re-run app without restarting Redis.
+    """
+    with RedisClient() as rc:
+        rc.flushall()

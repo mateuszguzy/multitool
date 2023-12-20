@@ -27,6 +27,7 @@ TESTS_E2E_CLI_INTERFACE_DIR = f"{BASE_DIR}/tests/e2e/modules/user_interface"
 WORKFLOW_YAML_PATH = f"{BASE_DIR}/config/workflow.yaml"
 ZAP_CONTEXT_FILES_CONTAINER_DIR = "/home/zap/.ZAP/context_files"
 ZAP_CONTEXT_FILES_LOCAL_DIR = f"{BASE_DIR}/modules/zap/context_files"
+RESULTS_DIR = f"{BASE_DIR}/results"
 
 # --- MODULES
 # STEERING_MODULE
