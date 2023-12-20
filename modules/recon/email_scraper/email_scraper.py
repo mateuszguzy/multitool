@@ -15,7 +15,8 @@ from modules.task_queue.tasks import email_scraper_web_request, pass_result_even
 from utils.abstracts_classes import AbstractModule
 from utils.custom_dataclasses import ResultEvent
 from utils.custom_exceptions import UnhandledException
-from utils.utils import convert_list_or_set_to_dict, store_module_results_in_database
+from utils.redis_utils import store_module_results_in_database
+from utils.utils import convert_list_or_set_to_dict
 
 logger = email_scraper_logger
 

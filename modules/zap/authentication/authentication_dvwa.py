@@ -9,7 +9,7 @@ from config.settings import (
 from modules.zap.script.script_dvwa import upload_authentication_script_for_dvwa
 from modules.zap.users.users_dvwa import set_user_auth_config_for_dvwa
 from modules.zap.zap import zap
-from utils.utils import pull_single_value_from_db
+from utils.redis_utils import pull_single_value_from_db
 
 logger = steering_module_logger
 

@@ -1,8 +1,8 @@
 import pytest
 
+from utils.url_utils import url_formatter
 from utils.utils import (
     convert_list_or_set_to_dict,
-    url_formatter,
     clean_and_validate_input_ports,
 )
 

@@ -23,7 +23,8 @@ from modules.zap.context import (
 )
 from utils.abstracts_classes import AbstractModule
 from utils.custom_dataclasses import ReconInput, UserInput, ScanInput, StartModuleEvent
-from utils.utils import put_single_value_in_db, hash_target_name
+from utils.redis_utils import put_single_value_in_db
+from utils.utils import hash_target_name
 
 logger = steering_module_logger
 

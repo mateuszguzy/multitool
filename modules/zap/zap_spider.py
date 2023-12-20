@@ -9,7 +9,8 @@ from modules.zap.authentication.authentication_dvwa import (
 )
 from modules.zap.zap import zap
 from utils.custom_dataclasses import ResultEvent
-from utils.utils import convert_list_or_set_to_dict, store_module_results_in_database
+from utils.redis_utils import store_module_results_in_database
+from utils.utils import convert_list_or_set_to_dict
 
 logger = zap_spider_logger
 

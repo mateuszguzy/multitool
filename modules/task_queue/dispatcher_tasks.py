@@ -15,10 +15,9 @@ from utils.custom_dataclasses import (
     StartModuleEvent,
     ZapSpiderInput,
 )
+from utils.redis_utils import pull_single_value_from_db, withdraw_input_from_db
 from utils.utils import (
-    withdraw_input_from_db,
     expression_is_true,
-    pull_single_value_from_db,
 )
 
 logger = task_queue_logger

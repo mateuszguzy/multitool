@@ -31,11 +31,8 @@ from utils.custom_serializers.start_module_event_serializer import (
     start_module_event_encoder,
     start_module_event_data_load,
 )
-from utils.utils import (
-    get_logger,
-    pull_single_value_from_db,
-    save_message_time,
-)
+from utils.logging_utils import get_logger
+from utils.redis_utils import save_message_time, pull_single_value_from_db
 
 logger = task_queue_logger
 
