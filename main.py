@@ -1,6 +1,4 @@
-import datetime
 import sys
-import time
 import uuid
 
 from click import Abort
@@ -19,8 +17,10 @@ from utils.custom_exceptions import (
     AbortException,
     UnhandledException,
 )
-from utils.logging_utils import log_exception
-from utils.redis_utils import prepare_final_results_dictionary
+from utils.utils import (
+    prepare_final_results_dictionary,
+    log_exception,
+)
 
 logger = steering_module_logger
 
