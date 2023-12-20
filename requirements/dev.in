@@ -1,4 +1,5 @@
 -r common.txt
+pexpect==4.9.0
 pre-commit==3.3.1
 pydantic==2.4.0
 pytest-lazy-fixture==0.6.3

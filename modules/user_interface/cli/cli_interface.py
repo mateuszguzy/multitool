@@ -61,7 +61,7 @@ class CliInterface(AbstractModule):
         self.context_files = list_context_files()
 
     def run(self) -> UserInput:
-        answers = prompt(self.questions)
+        answers = self.ask_questions()
         recon_phase_input, scan_phase_input = self.aggregate_phase_specific_data(
             answers=answers
         )
@@ -112,6 +112,12 @@ class CliInterface(AbstractModule):
             scan=scan_phase_input,
             output_after_every_finding=self.output_after_every_finding,
         )
+
+    def ask_questions(self):
+        """
+        Function made for better testability of CLI Interface.
+        """
+        return prompt(self.questions)
 
     def prepare_questions(self) -> List[dict]:
         """

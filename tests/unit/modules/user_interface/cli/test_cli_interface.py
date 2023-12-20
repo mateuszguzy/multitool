@@ -2,12 +2,12 @@ import pytest
 
 from modules.user_interface.cli.cli_interface import CliInterface
 from tests.conftest import (
-    MOCK_USER_INPUT_ALL,
+    MOCK_USER_INPUT_ALL_1,
     convert_json_input_to_dict,
-    MOCK_USER_INPUT_SINGLE_PHASE_RECON,
-    MOCK_USER_INPUT_SINGLE_PHASE_SCAN,
-    MOCK_USER_INPUT_SINGLE_MODULE_DIRECTORY_BRUTEFORCE,
-    MOCK_USER_INPUT_SINGLE_MODULE_PORT_SCAN,
+    MOCK_USER_INPUT_SINGLE_PHASE_RECON_1,
+    MOCK_USER_INPUT_SINGLE_PHASE_SCAN_1,
+    MOCK_USER_INPUT_SINGLE_MODULE_DIRECTORY_BRUTEFORCE_1,
+    MOCK_USER_INPUT_SINGLE_MODULE_PORT_SCAN_1,
 )
 from utils.custom_dataclasses import (
     UserInput,
@@ -49,7 +49,7 @@ class TestCliInterface:
         "user_input, expected_output",
         [
             (
-                MOCK_USER_INPUT_ALL,
+                MOCK_USER_INPUT_ALL_1,
                 UserInput(
                     use_type="all",
                     phase="",
@@ -64,7 +64,7 @@ class TestCliInterface:
                 ),
             ),
             (
-                MOCK_USER_INPUT_SINGLE_PHASE_RECON,
+                MOCK_USER_INPUT_SINGLE_PHASE_RECON_1,
                 UserInput(
                     use_type="single_phase",
                     phase="recon",
@@ -79,7 +79,7 @@ class TestCliInterface:
                 ),
             ),
             (
-                MOCK_USER_INPUT_SINGLE_PHASE_SCAN,
+                MOCK_USER_INPUT_SINGLE_PHASE_SCAN_1,
                 UserInput(
                     use_type="single_phase",
                     phase="scan",
@@ -94,7 +94,7 @@ class TestCliInterface:
                 ),
             ),
             (
-                MOCK_USER_INPUT_SINGLE_MODULE_DIRECTORY_BRUTEFORCE,
+                MOCK_USER_INPUT_SINGLE_MODULE_DIRECTORY_BRUTEFORCE_1,
                 UserInput(
                     use_type="single_module",
                     phase="recon",
@@ -109,7 +109,7 @@ class TestCliInterface:
                 ),
             ),
             (
-                MOCK_USER_INPUT_SINGLE_MODULE_PORT_SCAN,
+                MOCK_USER_INPUT_SINGLE_MODULE_PORT_SCAN_1,
                 UserInput(
                     use_type="single_module",
                     phase="scan",

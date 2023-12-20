@@ -1,0 +1,7 @@
+{
+  "use_type": "single_module",
+  "phase": "gain_access",
+  "module": "lfi",
+  "targets": ["http://dvwa/", "https://www.example.com"],
+  "output_after_every_finding": true
+}

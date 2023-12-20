@@ -2,8 +2,10 @@ import inspect
 import json
 import os
 import uuid
+from typing import List
 from unittest import mock
 
+import pexpect  # type: ignore
 import pytest
 from redis import Redis
 
@@ -21,6 +23,7 @@ from config.settings import (
     DIRECTORY_BRUTEFORCE,
     PORT_SCAN,
     EMAIL_SCRAPER,
+    TESTS_E2E_CLI_INTERFACE_DIR,
 )
 from modules.core.dispatcher.dispatcher import Dispatcher
 from modules.core.steering_module.steering_module import SteeringModule
@@ -48,22 +51,43 @@ from utils.custom_dataclasses import (
 )
 
 # --- MOCKED INPUT PATHS
-MOCK_USER_INPUT_SINGLE_MODULE_ZAP_SPIDER = (
-    f"{TESTS_MOCKED_INPUT_DIR}/mock_user_input_single_module_zap_spider.json"
+MOCK_USER_INPUT_SINGLE_MODULE_ZAP_SPIDER_1 = (
+    f"{TESTS_MOCKED_INPUT_DIR}/mock_user_input_single_module_zap_spider_1.json"
 )
-MOCK_USER_INPUT_SINGLE_MODULE_DIRECTORY_BRUTEFORCE = (
-    f"{TESTS_MOCKED_INPUT_DIR}/mock_user_input_single_module_directory_bruteforce.json"
+MOCK_USER_INPUT_SINGLE_MODULE_ZAP_SPIDER_2 = (
+    f"{TESTS_MOCKED_INPUT_DIR}/mock_user_input_single_module_zap_spider_2.json"
 )
-MOCK_USER_INPUT_SINGLE_MODULE_PORT_SCAN = (
-    f"{TESTS_MOCKED_INPUT_DIR}/mock_user_input_single_module_port_scan.json"
+MOCK_USER_INPUT_SINGLE_MODULE_ZAP_SPIDER_3 = (
+    f"{TESTS_MOCKED_INPUT_DIR}/mock_user_input_single_module_zap_spider_3.json"
 )
-MOCK_USER_INPUT_SINGLE_PHASE_RECON = (
-    f"{TESTS_MOCKED_INPUT_DIR}/mock_user_input_single_phase_recon.json"
+MOCK_USER_INPUT_SINGLE_MODULE_DIRECTORY_BRUTEFORCE_1 = f"{TESTS_MOCKED_INPUT_DIR}/mock_user_input_single_module_directory_bruteforce_1.json"
+MOCK_USER_INPUT_SINGLE_MODULE_DIRECTORY_BRUTEFORCE_2 = f"{TESTS_MOCKED_INPUT_DIR}/mock_user_input_single_module_directory_bruteforce_2.json"
+MOCK_USER_INPUT_SINGLE_MODULE_PORT_SCAN_1 = (
+    f"{TESTS_MOCKED_INPUT_DIR}/mock_user_input_single_module_port_scan_1.json"
 )
-MOCK_USER_INPUT_SINGLE_PHASE_SCAN = (
-    f"{TESTS_MOCKED_INPUT_DIR}/mock_user_input_single_phase_scan.json"
+MOCK_USER_INPUT_SINGLE_MODULE_PORT_SCAN_2 = (
+    f"{TESTS_MOCKED_INPUT_DIR}/mock_user_input_single_module_port_scan_2.json"
 )
-MOCK_USER_INPUT_ALL = f"{TESTS_MOCKED_INPUT_DIR}/mock_user_input_all.json"
+MOCK_USER_INPUT_SINGLE_MODULE_PORT_SCAN_3 = (
+    f"{TESTS_MOCKED_INPUT_DIR}/mock_user_input_single_module_port_scan_3.json"
+)
+MOCK_USER_INPUT_SINGLE_MODULE_PORT_SCAN_4 = (
+    f"{TESTS_MOCKED_INPUT_DIR}/mock_user_input_single_module_port_scan_4.json"
+)
+MOCK_USER_INPUT_SINGLE_MODULE_LFI_1 = (
+    f"{TESTS_MOCKED_INPUT_DIR}/mock_user_input_single_module_lfi_1.json"
+)
+MOCK_USER_INPUT_SINGLE_PHASE_RECON_1 = (
+    f"{TESTS_MOCKED_INPUT_DIR}/mock_user_input_single_phase_recon_1.json"
+)
+MOCK_USER_INPUT_SINGLE_PHASE_RECON_2 = (
+    f"{TESTS_MOCKED_INPUT_DIR}/mock_user_input_single_phase_recon_2.json"
+)
+MOCK_USER_INPUT_SINGLE_PHASE_SCAN_1 = (
+    f"{TESTS_MOCKED_INPUT_DIR}/mock_user_input_single_phase_scan_1.json"
+)
+MOCK_USER_INPUT_ALL_1 = f"{TESTS_MOCKED_INPUT_DIR}/mock_user_input_all_1.json"
+MOCK_USER_INPUT_ALL_2 = f"{TESTS_MOCKED_INPUT_DIR}/mock_user_input_all_2.json"
 
 # --- TEST DATA
 TEST_TARGET = "https://www.example.com"
@@ -166,6 +190,22 @@ def create_steering_module_instance_with_user_input(user_input):
     return SteeringModule(convert_user_input_to_dataclass(user_input))
 
 
+def read_e2e_user_input_test_file_content(filename: str) -> dict:
+    with open(f"{filename}", "r") as f:
+        return json.loads(f.read())
+
+
+def pexpect_child_cli_interface_test(tmp_file_path: str):
+    return pexpect.spawn(
+        f"python {TESTS_E2E_CLI_INTERFACE_DIR}/run_cli_interface_questions_script.py {tmp_file_path}",
+        timeout=5,
+    )
+
+
+def target_list_to_string(targets: List[str]) -> str:
+    return ", ".join([str(target) for target in targets])
+
+
 ###################################################
 #           INTEGRATION TESTS FIXTURES            #
 ###################################################
@@ -179,7 +219,7 @@ def docker_compose_file_for_running_tests(pytestconfig):
 @pytest.fixture(scope="class")
 def steering_module_with_directory_bruteforce_test_input_integration_fixture():
     return create_steering_module_instance_with_user_input(
-        MOCK_USER_INPUT_SINGLE_MODULE_DIRECTORY_BRUTEFORCE
+        MOCK_USER_INPUT_SINGLE_MODULE_DIRECTORY_BRUTEFORCE_1
     )
 
 
@@ -235,7 +275,7 @@ def setup_event_listeners_fixture():
 @pytest.fixture(scope="class")
 def steering_module_for_single_module_zap_spider_fixture():
     return create_steering_module_instance_with_user_input(
-        MOCK_USER_INPUT_SINGLE_MODULE_ZAP_SPIDER
+        MOCK_USER_INPUT_SINGLE_MODULE_ZAP_SPIDER_1
     )
 
 
@@ -243,7 +283,7 @@ def steering_module_for_single_module_zap_spider_fixture():
 @pytest.fixture(scope="class")
 def steering_module_for_single_module_directory_bruteforce_fixture():
     return create_steering_module_instance_with_user_input(
-        MOCK_USER_INPUT_SINGLE_MODULE_DIRECTORY_BRUTEFORCE
+        MOCK_USER_INPUT_SINGLE_MODULE_DIRECTORY_BRUTEFORCE_1
     )
 
 
@@ -251,7 +291,7 @@ def steering_module_for_single_module_directory_bruteforce_fixture():
 @pytest.fixture(scope="class")
 def steering_module_for_single_module_port_scan_fixture():
     return create_steering_module_instance_with_user_input(
-        MOCK_USER_INPUT_SINGLE_MODULE_PORT_SCAN
+        MOCK_USER_INPUT_SINGLE_MODULE_PORT_SCAN_1
     )
 
 
@@ -259,7 +299,7 @@ def steering_module_for_single_module_port_scan_fixture():
 @pytest.fixture(scope="class")
 def steering_module_for_single_phase_recon_fixture():
     return create_steering_module_instance_with_user_input(
-        MOCK_USER_INPUT_SINGLE_PHASE_RECON
+        MOCK_USER_INPUT_SINGLE_PHASE_RECON_1
     )
 
 
@@ -267,14 +307,14 @@ def steering_module_for_single_phase_recon_fixture():
 @pytest.fixture(scope="class")
 def steering_module_for_single_phase_scan_fixture():
     return create_steering_module_instance_with_user_input(
-        MOCK_USER_INPUT_SINGLE_PHASE_SCAN
+        MOCK_USER_INPUT_SINGLE_PHASE_SCAN_1
     )
 
 
 # used by 'lazy_fixture' that why 'usages' are not counted
 @pytest.fixture(scope="class")
 def steering_module_for_all_fixture():
-    return create_steering_module_instance_with_user_input(MOCK_USER_INPUT_ALL)
+    return create_steering_module_instance_with_user_input(MOCK_USER_INPUT_ALL_1)
 
 
 ##########################

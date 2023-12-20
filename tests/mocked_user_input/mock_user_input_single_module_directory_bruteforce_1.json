@@ -1,16 +1,17 @@
 {
-  "use_type": "single_phase",
+  "use_type": "single_module",
   "phase": "recon",
-  "module": null,
+  "module": "directory_bruteforce",
   "targets": ["http://dvwa/", "https://www.example.com"],
+  "exclude_targets": null,
   "recon": {
     "directory_bruteforce": {
       "list_size": "small",
       "recursive": false
     },
-        "zap_spider" : {
-      "as_user": false,
-      "enhanced": false
+    "zap_spider" : {
+      "as_user": null,
+      "enhanced": null
     }
   },
   "scan": {
