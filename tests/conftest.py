@@ -228,7 +228,7 @@ def redis_client_fixture():
     return Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB)
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="function")
 def redis_db_results_complete_fixture(redis_client_fixture):
     rc = redis_client_fixture
 
@@ -248,7 +248,7 @@ def redis_db_results_complete_fixture(redis_client_fixture):
     rc.flushall()
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="function")
 def redis_db_results_only_targets_fixture(redis_client_fixture):
     rc = redis_client_fixture
 
