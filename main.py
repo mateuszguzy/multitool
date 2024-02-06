@@ -21,6 +21,7 @@ from utils.custom_exceptions import (
 )
 from utils.logging_utils import log_exception
 from utils.redis_utils import prepare_final_results_dictionary
+from utils.utils import save_results_to_file
 
 logger = steering_module_logger
 
@@ -51,14 +52,16 @@ def main():
         while tasks_running:
             tasks_running = background_jobs_still_running()
 
+        results = prepare_final_results_dictionary()
         pass_result_event.delay(
             event=ResultEvent(
                 id=uuid.uuid4(),
                 source_module=__name__,
                 target="ALL",
-                result=str(prepare_final_results_dictionary()),
+                result=str(results),
             )
         )
+        save_results_to_file(results=results)
 
     finally:
         stop_listener_tasks()
