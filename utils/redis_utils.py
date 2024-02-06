@@ -44,7 +44,7 @@ def prepare_final_results_dictionary() -> dict:
                     results[target][phase] = {}
 
                 if module == ZAP_SPIDER:
-                    results[target][phase][module] = zap.spider.all_urls
+                    results[target][phase][module] = zap.core.urls()
                 else:
                     results[target][phase][module] = [
                         result.decode("utf-8") for result in rc.mget(keys)
