@@ -1,6 +1,9 @@
 import json
 import sys
 
+sys.path.append(".")
+
+
 from modules.user_interface.cli.cli_interface import CliInterface
 
 

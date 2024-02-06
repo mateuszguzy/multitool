@@ -114,7 +114,10 @@ def list_context_files() -> List[str]:
     """
     List all context files in directory.
     """
-    context_files = os.listdir(ZAP_CONTEXT_FILES_LOCAL_DIR)
+    try:
+        context_files = os.listdir(ZAP_CONTEXT_FILES_LOCAL_DIR)
+    except FileNotFoundError:
+        context_files = []
     context_files.sort(reverse=True)
 
     return context_files
