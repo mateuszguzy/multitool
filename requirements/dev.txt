@@ -69,7 +69,7 @@ humanize==4.7.0
     #   flower
 identify==2.5.26
     # via pre-commit
-idna==3.4
+idna==3.7
     # via
     #   -r /home/mateusz/PycharmProjects/multitool/requirements/common.txt
     #   requests
