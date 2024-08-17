@@ -40,6 +40,7 @@ def main():
         raise UnhandledException("Unhandled exception")
 
     try:
+        start = time.time()
         start_event_listeners(
             output_after_every_finding=user_input.output_after_every_finding
         )
@@ -65,6 +66,11 @@ def main():
 
     finally:
         stop_listener_tasks()
+
+    stop = time.time()
+    logger.info(
+        f"Scan time: {str(datetime.timedelta(seconds=(round(stop-start, 2)))).split('.')[0]}"
+    )
 
 
 if __name__ == "__main__":
