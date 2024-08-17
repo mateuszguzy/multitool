@@ -14,7 +14,7 @@ celery==5.2.7
     # via
     #   -r /home/mateusz/PycharmProjects/multitool/requirements/common.in
     #   flower
-certifi==2023.7.22
+certifi==2024.7.4
     # via requests
 charset-normalizer==3.2.0
     # via requests
