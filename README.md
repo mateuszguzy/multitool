@@ -24,6 +24,9 @@ Currently, application contains following features, divided into phases:
 - **Gain Access**
   - LFI [Local File Inclusion] (Currently works only as single module, when correct URL address is provided)
 
+## Issues
+- Choosing existing context fails the application
+
 ## Installation
 1. Application runs in Docker containers. Docker installation guide can be found [here](https://docs.docker.com/engine/install/)
 2. Copy `env.template` file and rename it to `.env` in the same directory
