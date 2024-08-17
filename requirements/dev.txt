@@ -128,7 +128,7 @@ questionary==2.0.1
     # via -r /home/mateusz/PycharmProjects/multitool/requirements/common.txt
 redis==4.5.5
     # via -r /home/mateusz/PycharmProjects/multitool/requirements/common.txt
-requests==2.31.0
+requests==2.32.0
     # via
     #   -r /home/mateusz/PycharmProjects/multitool/requirements/common.txt
     #   zaproxy
