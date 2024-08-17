@@ -4,34 +4,11 @@ include .env
 help:
 	@echo "=========================================================="
 	@echo "build 		build all required container"
-	@echo "setup 		run all required container"
+	@echo "setup 		run all dependant containers"
 	@echo "run 		run application"
-	@#echo "test		run all tests"
-	@echo "stop		stop all containers and shut down application"
+	@echo "stop		stop all containers and shut down the application"
+	@echo "tests		run all tests"
 	@echo "=========================================================="
-
-.PHONY: local_run
-local_run:
-	@python3 main.py
-
-.PHONY: local_test
-local_test:
-	@python3 -m pytest
-
-.PHONY: local_setup
-local_setup:
-	@docker run -d --name dvwa --rm -it -p 80:80 vulnerables/web-dvwa &>/dev/null
-
-	@# give Docker time to setup container
-	@sleep 5
-
-	@celery -q -A modules.task_queue worker &
-	@sleep 2
-	@echo "Setup is ready."
-
-.PHONY: local_stop
-local_stop:
-	@docker stop dvwa &>/dev/null
 
 .PHONY: build b
 build b:
@@ -40,7 +17,6 @@ build b:
 
 .PHONY: setup s
 setup s:
-	@#docker compose up dvwa worker flower redis #-d
 	@docker compose up dvwa worker_main worker_logging worker_events flower redis -d
 	@./setup_logs.sh
 
